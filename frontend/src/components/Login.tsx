@@ -6,7 +6,8 @@ import Col from "react-bootstrap/esm/Col";
 import Row from "react-bootstrap/esm/Row";
 import { SubmitHandler } from "react-hook-form/dist/types/form";
 import { useForm } from "react-hook-form";
-
+import axios from "../axios";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 interface ModalProps {
   show: boolean;
   hide: () => void;
@@ -21,11 +22,26 @@ function ModalLogin(props: ModalProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<IFormInput>({ mode: 'onChange' });
-  const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    console.log(data);
+  } = useForm<IFormInput>({ mode: "onChange" });
+  const onSubmit: SubmitHandler<IFormInput> = async (value) => {
+    try {
+      console.log(value);
+      const { data } = await axios.post("/auth/login", value);
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
   };
+  const navigate = useNavigate();
 
+  const handleclick = () => {
+    props.hide();
+    navigate("/auth/register");
+  };
+  const forgetPassword = ()=>{
+    props.hide();
+    navigate("/reset-password");
+  };
   return (
     <Modal
       {...props}
@@ -64,19 +80,31 @@ function ModalLogin(props: ModalProps) {
             {errors.password && <span>{errors.password.message}</span>}
           </Form.Group>
 
-          <Row className="justify-content-between">
+          <Row className="justify-content-between mb-3">
             <Col className="col-sm-auto">
               <Button variant="primary" type="submit">
                 Login
               </Button>
             </Col>
-            <Col className="col-sm-auto mt-2">
-              <Button variant="primary" type="submit">
-                Register
-              </Button>
-            </Col>
           </Row>
         </Form>
+        <Row className="d-flex justify-content-between">
+          <Col className="col-md-auto">
+            <Button
+              className="btn btn-info"
+              role="button"
+              type="button"
+              onClick={handleclick}
+            >
+              Regitser
+            </Button>
+          </Col>
+          <Col className="col-md-auto">
+            <Button variant="primary" type="button" onClick={forgetPassword}>
+              Forget password
+            </Button>
+          </Col>
+        </Row>
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={props.hide}>Close</Button>

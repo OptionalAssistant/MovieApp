@@ -4,16 +4,22 @@ import Form from "react-bootstrap/esm/Form";
 import Row from "react-bootstrap/esm/Row";
 import ModalWindow from "./Login";
 import React from "react";
+import { Link } from "react-router-dom";
 
 function Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
   return (
     <>
       <Row className="mt-4">
+        
+      <Col lg={3} className="mb-3 btn-md">
+          <Link to="/">Home</Link>
+        </Col>
+
         <Col lg={3} className="mb-3 btn-md">
           <Button
             variant="primary"
-            type="submit"
+            type="button"
             onClick={() => setModalShow(true)}
           >
             Войти
