@@ -1,19 +1,24 @@
-import React from "react";
+import React, { useReducer } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
+import { createContext, useContext } from "react";
+import { authAction, reducer, State } from "./reducers/auth";
+import StoreProvider from "./context/StoreProvider";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
+
 root.render(
-  <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <StoreProvider>
+        <App />
+      </StoreProvider>
     </BrowserRouter>
-  </React.StrictMode>
+
 );
 
 // If you want to start measuring performance in your app, pass a function

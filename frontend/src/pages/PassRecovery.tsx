@@ -5,12 +5,16 @@ import { SubmitHandler } from "react-hook-form/dist/types/form";
 import { useForm } from "react-hook-form";
 import axios from "../axios";
 import Button from "react-bootstrap/esm/Button";
+import { useNavigate } from "react-router-dom";
 
 
 interface IFormInput {
   email: string;
 }
 function PassRecovery(props: any) {
+    
+  const navigate = useNavigate();
+  
     const {
         register,
         handleSubmit,
@@ -20,6 +24,8 @@ function PassRecovery(props: any) {
         try {
           console.log("lol",value);
           const { data } = await axios.post("/forgot-password", value);
+          alert("Check your email");
+          navigate("/");
           console.log(data);
         } catch (error) {
           console.log(error);

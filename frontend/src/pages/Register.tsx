@@ -5,7 +5,9 @@ import { SubmitHandler } from "react-hook-form/dist/types/form";
 import { useForm } from "react-hook-form";
 import axios from "../axios";
 import Button from "react-bootstrap/esm/Button";
-
+import { useContext, useEffect } from "react";
+import Context from '../context/context'
+import { useNavigate } from "react-router-dom";
 interface ModalProps {
   show: boolean;
   hide: () => void;
@@ -17,19 +19,33 @@ interface IFormInput {
   password: string;
 }
 function Register(props: any) {
+
+  const {state,dispatch}= useContext(Context);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<IFormInput>({ mode: "onChange" });
+  const navigate = useNavigate();
   const onSubmit: SubmitHandler<IFormInput> = async (value) => {
-    try {
+
       console.log(value);
-      const { data } = await axios.post("/auth/register", value);
-      console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
+        axios.post("/auth/register", value)
+        .then(data =>{
+          navigate("/");
+          console.log("Sending data to store");
+          console.log(data);
+          dispatch({type: 'fullfilled',payload: data});
+
+          console.log("token on client state(регистрация)",data.data.token);
+          window.localStorage.setItem('token',data.data.token);
+        })
+        .catch(err =>{
+          console.log("Erroro")
+          console.log(err);
+          dispatch({type: 'rejected',payload: null});
+        });
+    
   };
 
   return (

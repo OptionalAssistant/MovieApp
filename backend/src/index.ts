@@ -3,13 +3,16 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import { registerValidation, loginValidation } from "./validations";
-import handleValidationErrors from "./handleValidationErrors";
+import handleValidationErrors from "./utils/handleValidationErrors";
 import { UserController } from "./controllers";
 import path from "path";
 import { body } from "express-validator";
+import CheckAuth from "./utils/CheckAuth";
+import dotenv from 'dotenv';
 
+dotenv.config();
 mongoose
-  .connect("mongodb://127.0.0.1:27017/userdb")
+  .connect(process.env.MONGODB_URL)
   .then(() => {
     console.log("DB ok");
   })
@@ -43,7 +46,7 @@ app.post(
   handleValidationErrors,
   UserController.register
 );
-app.get("/auth/me", UserController.getMe);
+app.get("/auth/me",CheckAuth, UserController.getMe);
 app.post("/forgot-password", UserController.forgotPassword);
 app.get("/reset-password/:id/:token", UserController.resetPassword);
 app.post(
@@ -55,4 +58,4 @@ app.post(
   UserController.updatePassword
 );
 
-app.listen(4444);
+app.listen(process.env.PORT);

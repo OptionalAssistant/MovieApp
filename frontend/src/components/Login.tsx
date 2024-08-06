@@ -1,6 +1,6 @@
 import Button from "react-bootstrap/esm/Button";
 import Modal from "react-bootstrap/esm/Modal";
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import Form from "react-bootstrap/esm/Form";
 import Col from "react-bootstrap/esm/Col";
 import Row from "react-bootstrap/esm/Row";
@@ -8,6 +8,8 @@ import { SubmitHandler } from "react-hook-form/dist/types/form";
 import { useForm } from "react-hook-form";
 import axios from "../axios";
 import { Link, Navigate, useNavigate } from "react-router-dom";
+import Context from '../context/context';
+
 interface ModalProps {
   show: boolean;
   hide: () => void;
@@ -21,17 +23,33 @@ function ModalLogin(props: ModalProps) {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<IFormInput>({ mode: "onChange" });
+
+  const {state,dispatch}= useContext(Context);
+
+  
   const onSubmit: SubmitHandler<IFormInput> = async (value) => {
-    try {
-      console.log(value);
-      const { data } = await axios.post("/auth/login", value);
+    console.log(value);
+    axios.post("/auth/login", value)
+    .then(data =>{
+      props.hide();
+      console.log("(login)Sending data to store");
       console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
+      dispatch({type: 'fullfilled',payload: data});
+      
+      console.log("token on client state(логин)",data.data.token);
+      window.localStorage.setItem('token',data.data.token);
+    })
+    .catch((err) =>{
+      console.log("Erroro")
+      alert(err.response.data.message);
+      dispatch({type: 'rejected',payload: null});
+    });
   };
+
+
   const navigate = useNavigate();
 
   const handleclick = () => {

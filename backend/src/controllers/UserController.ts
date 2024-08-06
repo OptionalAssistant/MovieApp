@@ -29,13 +29,14 @@ export const register = async (req, res) => {
       {
         _id: user._id,
       },
-      "secret123",
+      process.env.SECRET_KEY,
       {
         expiresIn: "30d",
       }
     );
 
     const { passwordHash, ...userData } = user;
+      console.log(userData, token);
 
     res.json({ ...userData, token });
   } catch (error) {
@@ -70,7 +71,7 @@ export const login = async (req, res) => {
       {
         _id: user._id,
       },
-      "secret123",
+      process.env.SECRET_KEY,
       {
         expiresIn: "30d",
       }
@@ -90,19 +91,19 @@ export const login = async (req, res) => {
 export const getMe = async (req, res) => {
   try {
     const user = await UserModel.findById(req.body.userId);
-
+    console.log("User",req.body.userId);
     if (!user) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Пользователь не найден",
       });
     }
 
     const { passwordHash, ...userData } = user;
 
-    res.json({ ...userData });
+   return  res.json({ ...userData });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+   return  res.status(500).json({
       message: "Не удалось получить информацию о пользователе",
     });
   }
@@ -118,7 +119,7 @@ export const forgotPassword = async (req, res) => {
       return res.send("User not exists");
     }
 
-    const secret = "secret123" + oldUser.passwordHash;
+    const secret = process.env.SECRET_KEY + oldUser.passwordHash;
 
     const token = jwt.sign({ email: email, id: oldUser._id }, secret, {
       expiresIn: "10m",
@@ -180,14 +181,14 @@ export const resetPassword = async (req, res) => {
     return res.send("User not exists");
   }
 
-  const secret = "secret123" + (await oldUser).passwordHash;
+  const secret = process.env.SECRET_KEY + (await oldUser).passwordHash;
 
   try {
     const verify = jwt.verify(token, secret);
 
     res.render("index.ejs", { email: verify.email });
   } catch (error) {
-    res.send("Not verified");
+    res.send("Link expired");
   }
 };
 
@@ -201,7 +202,7 @@ export const updatePassword = async (req, res) => {
   if (!User) {
     return res.send("User not exists");
   }
-  const secret = "secret123" + (await User).passwordHash;
+  const secret = process.env.SECRET_KEY + (await User).passwordHash;
 
   try {
     const verify = jwt.verify(token, secret);
