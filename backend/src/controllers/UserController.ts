@@ -2,16 +2,14 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 import UserModel from "../models/User.js";
-import { response } from "express";
 import MailService from '../services/mail-servive'
+import userDto from "../dtos/user-dto.js";
+import {ILoginForm, IRegisterForm, UserData, UserDataToken} from '../types/typesRest.js'
 
-interface IUser {
-  name: string;
-  email: string;
-  passwordHash: string;
-}
+import { Request,Response } from "express";
 
-export const register = async (req, res) => {
+
+export const register = async (req : Request<{},{},IRegisterForm>, res ) => {
   try {
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
@@ -35,9 +33,14 @@ export const register = async (req, res) => {
       }
     );
 
-    const { passwordHash, ...userData } = user;
+    const userData = new userDto(user); 
 
-    res.json({ ...userData, token });
+    const userDataToken : UserDataToken = {
+      data : userData,
+      token
+    };
+
+    res.json(userDataToken);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -45,7 +48,7 @@ export const register = async (req, res) => {
     });
   }
 };
-export const login = async (req, res) => {
+export const login = async (req: Request<{},{},ILoginForm> , res ) => {
   try {
     const user = await UserModel.findOne({ email: req.body.email });
 
@@ -76,9 +79,14 @@ export const login = async (req, res) => {
       }
     );
 
-    const { passwordHash, ...userData } = user;
+    const userData = new userDto(user); 
 
-    res.json({ ...userData, token });
+    const userDataToken : UserDataToken = {
+      data : userData,
+      token
+    };
+
+    res.json(userDataToken);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -90,16 +98,20 @@ export const login = async (req, res) => {
 export const  getMe = async (req, res) => {
   try {
     const user = await UserModel.findById(req.body.userId);
-
+    
     if (!user) {
       return res.status(404).json({
         message: "Пользователь не найден",
       });
     }
+    console.log("!!!! ",user);
+    
+    
+    const userData = new userDto(user) as UserData; 
+    
+    console.log("USEEER dataa",console.log(userData));
 
-    const { passwordHash, ...userData } = user;
-
-    return res.json({ ...userData });
+    return res.json(userData);
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -141,7 +153,7 @@ export const forgotPassword = async (req, res) => {
          `);
     console.log(link);
     res.send("Success");
-  } catch (error) {}
+  } catch (error) {console.log("error",error);}
 };
 
 export const resetPassword = async (req, res) => {
@@ -193,7 +205,7 @@ export const updatePassword = async (req, res) => {
       }
     );
 
-    return res.send("All right");
+    return res.send("Password has changed!");
   } catch (error) {
     console.log(error);
     return res.send("Not verified\n");
@@ -250,7 +262,7 @@ export const activateLink = async(req,res)=>{
 
       try{
         const secret = process.env.SECRET_KEY + User.isActivated;
-        console.log("Secret2",secret);
+    
         const verify = jwt.verify(token,secret);
         
         await UserModel.updateOne(

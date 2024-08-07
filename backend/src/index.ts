@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import { registerValidation, loginValidation } from "./validations";
 import handleValidationErrors from "./utils/handleValidationErrors";
-import { UserController } from "./controllers";
+import { UserController,MovieController } from "./controllers";
 import path from "path";
 import { body } from "express-validator";
 import CheckAuth from "./utils/CheckAuth";
@@ -51,6 +51,7 @@ app.post("/forgot-password", UserController.forgotPassword);
 app.post("/activate",CheckAuth,UserController.activateAccount);
 app.get("/activate/:id/:token",UserController.activateLink);
 app.get("/reset-password/:id/:token", UserController.resetPassword);
+app.get("/movies",MovieController.getMovies);
 
 app.post(
   "/reset-password/:id/:token",

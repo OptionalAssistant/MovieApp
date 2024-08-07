@@ -8,8 +8,9 @@ const StoreProvider = ({ children }: { children: ReactNode }) => {
   const [state_, dispatch_] = useReducer(reducer, {
     loading: true,
     error: '',
-    data: null,
+    user: null,
   });
+  
   return (
     <Store.Provider value={{ dispatch: dispatch_, state: state_ }}>
       {children}

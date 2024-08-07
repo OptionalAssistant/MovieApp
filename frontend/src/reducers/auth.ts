@@ -1,15 +1,4 @@
-
- export interface State {
-  loading: boolean;
-  error: string;
-  data: any;
-} 
-
-
-export interface authAction {
-  type: 'pending' | 'fullfilled' | 'rejected' | 'set';
-  payload?: any;
-}
+import { authAction, State } from "../types/typesClient";
 
 
  export  function reducer(state: State, action: authAction): State {
@@ -18,26 +7,25 @@ export interface authAction {
         case 'pending':
             return {
              loading: true,
-              data: null,
+             user: null,
               error: "",
             };
       case 'fullfilled':
         return {
-          ...state,
           loading: false,
-          data: action.payload,
+          user: action.payload,
           error: "",
         };
       case 'rejected':
         return {
           loading: false,
-          data: null,
+          user: null,
           error: "Something went wrong during fetch",
         };
       case 'set':
         return{
             ...state,
-            data: action.payload
+            user: action.payload
         };
       default:
         throw new Error('Unknown action: ' + action.type);

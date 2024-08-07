@@ -1,3 +1,3 @@
-export * as UserController from './UserController.js';
-
+export * as UserController from './UserController';
+export * as MovieController from './MovieController';
 

@@ -9,29 +9,29 @@ import Context from "../context/context";
 import Alert from "react-bootstrap/esm/Alert";
 import axios from "../axios";
 
-function Header() {
+function  Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
   const { state, dispatch } = useContext(Context);
-
+  
   let button;
 
   const verifyEmail = async () => {
     axios
       .post("/activate")
       .then((data) => {
-        console.log(data);
+        console.log(data.data);
         alert(
-          `Check email. Message sending to email: ${state.data.data._doc.email}`
+          `Check email. Message sending to email: ${state.user}`
         );
       })
       .catch((err) => {
         console.log(err);
         alert(
-          `Ooops. Message dont sending to email: ${state.data.data._doc.email}`
+          `Ooops. Message dont sending to email: ${state.user}`
         );
       });
   };
-  if (state.data && state.loading === false) {
+  if (state.user && state.loading === false) {
     button = (
       <Button
         variant="danger"
@@ -54,7 +54,7 @@ function Header() {
       </Button>
     );
   }
-  if (state.data) console.log("Just someloggiin", state.data.data._doc);
+  if (state.user) console.log("Just someloggiin", state.user);
   return (
     <>
       <Row className="mt-4">
@@ -78,7 +78,7 @@ function Header() {
         </Col>
         <Col lg={3}>{button}</Col>
       </Row>
-      {state.data && !state.data.data._doc.isActivated && (
+      {state.user && !state.user.isActivated && (
         <Alert variant="danger">
           <Alert.Heading>Ooops your email is not verified</Alert.Heading>
           <p>Verify your email click on the burron below</p>

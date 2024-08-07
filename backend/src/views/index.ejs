@@ -53,6 +53,7 @@
                 <label for="confirmPassword">Confirm Password</label>
                 <input type="password" id="confirmPassword" name="confirmPassword" required>
                 <span class="error" id="error-message">Passwords do not match.</span>
+                <span class="error" id="length-error-message">Password must be at least 8 characters long.</span>
             </div>
             <button type="submit">Submit</button>
         </form>
@@ -63,12 +64,19 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const errorMessage = document.getElementById('error-message');
+            const lengthErrorMessage = document.getElementById('length-error-message');
             
-            if (password !== confirmPassword) {
+            if (password.length < 8) {
+                event.preventDefault();
+                lengthErrorMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+            } else if (password !== confirmPassword) {
                 event.preventDefault();
                 errorMessage.style.display = 'block';
+                lengthErrorMessage.style.display = 'none';
             } else {
                 errorMessage.style.display = 'none';
+                lengthErrorMessage.style.display = 'none';
                 alert('Passwords match. Form submitted.');
                 // Here you can add further logic to handle the form submission
             }

@@ -1,6 +1,6 @@
 import {  createContext } from 'react';
-import { authAction, State } from '../reducers/auth';
 import React from 'react';
+import { authAction, State } from '../types/typesClient';
 
 interface ContextType{
     state : State;

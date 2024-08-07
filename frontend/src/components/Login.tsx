@@ -8,7 +8,8 @@ import { SubmitHandler } from "react-hook-form/dist/types/form";
 import { useForm } from "react-hook-form";
 import axios from "../axios";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import Context from '../context/context';
+import Context from "../context/context";
+import { ILoginForm, UserData, UserDataToken } from "../types/typesRest";
 
 interface ModalProps {
   show: boolean;
@@ -27,28 +28,26 @@ function ModalLogin(props: ModalProps) {
     formState: { errors },
   } = useForm<IFormInput>({ mode: "onChange" });
 
-  const {state,dispatch}= useContext(Context);
+  const { state, dispatch } = useContext(Context);
 
-  
-  const onSubmit: SubmitHandler<IFormInput> = async (value) => {
+  const onSubmit: SubmitHandler<IFormInput> = async (value : ILoginForm) => {
     console.log(value);
-    axios.post("/auth/login", value)
-    .then(data =>{
-      props.hide();
-      console.log("(login)Sending data to store");
-      console.log(data);
-      dispatch({type: 'fullfilled',payload: data});
-      
-      console.log("token on client state(логин)",data.data.token);
-      window.localStorage.setItem('token',data.data.token);
-    })
-    .catch((err) =>{
-      console.log("Erroro")
-      alert(err.response.data.message);
-      dispatch({type: 'rejected',payload: null});
-    });
-  };
+    axios
+      .post<UserDataToken>("/auth/login", value)
+      .then(({data}) => {
+        props.hide();
+        console.log("(login)Sending data to store",data.data.name);
+        dispatch({ type: "fullfilled", payload: data.data });
 
+        console.log("token on client state(логин)", data.token);
+        window.localStorage.setItem("token", data.token);
+      })
+      .catch((err) => {
+        console.log(err);
+        // alert(err.response.data.message);
+        dispatch({ type: "rejected", payload: null });
+      });
+  };
 
   const navigate = useNavigate();
 
@@ -56,7 +55,7 @@ function ModalLogin(props: ModalProps) {
     props.hide();
     navigate("/auth/register");
   };
-  const forgetPassword = ()=>{
+  const forgetPassword = () => {
     props.hide();
     navigate("/reset-password");
   };

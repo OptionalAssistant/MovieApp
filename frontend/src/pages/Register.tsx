@@ -8,6 +8,7 @@ import Button from "react-bootstrap/esm/Button";
 import { useContext, useEffect } from "react";
 import Context from '../context/context'
 import { useNavigate } from "react-router-dom";
+import { IRegisterForm, UserDataToken } from "../types/typesRest";
 interface ModalProps {
   show: boolean;
   hide: () => void;
@@ -27,18 +28,18 @@ function Register(props: any) {
     formState: { errors },
   } = useForm<IFormInput>({ mode: "onChange" });
   const navigate = useNavigate();
-  const onSubmit: SubmitHandler<IFormInput> = async (value) => {
+  const onSubmit: SubmitHandler<IFormInput> = async (value : IRegisterForm) => {
 
       console.log(value);
-        axios.post("/auth/register", value)
-        .then(data =>{
+        axios.post<UserDataToken>("/auth/register", value)
+        .then(({data}) =>{
           navigate("/");
           console.log("Sending data to store");
           console.log(data);
-          dispatch({type: 'fullfilled',payload: data});
+          dispatch({type: 'fullfilled',payload: data.data});
 
-          console.log("token on client state(регистрация)",data.data.token);
-          window.localStorage.setItem('token',data.data.token);
+          console.log("token on client state(регистрация)",data.data);
+          window.localStorage.setItem('token',data.token);
         })
         .catch(err =>{
           console.log("Erroro")

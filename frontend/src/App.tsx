@@ -9,13 +9,13 @@ import PassRecovery from './pages/PassRecovery';
 import {  useContext, useEffect } from 'react';
 import Context from './context/context';
 import axios from './axios'
+import { UserData } from './types/typesRest';
 function App() {
 
   const {dispatch,state} = useContext(Context);
  useEffect(()=>{
-  axios.get("/auth/me")
-  .then(data =>{
-    console.log(data);
+  axios.get<UserData>("/auth/me")
+  .then(({data}) =>{
     dispatch({type: 'fullfilled',payload: data});
   })
   .catch(err =>{

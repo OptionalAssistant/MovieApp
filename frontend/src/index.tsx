@@ -5,7 +5,6 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import { createContext, useContext } from "react";
-import { authAction, reducer, State } from "./reducers/auth";
 import StoreProvider from "./context/StoreProvider";
 
 const root = ReactDOM.createRoot(
