@@ -48,7 +48,10 @@ app.post(
 );
 app.get("/auth/me",CheckAuth, UserController.getMe);
 app.post("/forgot-password", UserController.forgotPassword);
+app.post("/activate",CheckAuth,UserController.activateAccount);
+app.get("/activate/:id/:token",UserController.activateLink);
 app.get("/reset-password/:id/:token", UserController.resetPassword);
+
 app.post(
   "/reset-password/:id/:token",
   body("password", "Пароль должен быть минимум 8 символов").isLength({

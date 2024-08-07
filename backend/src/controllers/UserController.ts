@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 import UserModel from "../models/User.js";
 import { response } from "express";
-import nodemailer from "nodemailer";
+import MailService from '../services/mail-servive'
 
 interface IUser {
   name: string;
@@ -36,7 +36,6 @@ export const register = async (req, res) => {
     );
 
     const { passwordHash, ...userData } = user;
-      console.log(userData, token);
 
     res.json({ ...userData, token });
   } catch (error) {
@@ -88,10 +87,10 @@ export const login = async (req, res) => {
   }
 };
 
-export const getMe = async (req, res) => {
+export const  getMe = async (req, res) => {
   try {
     const user = await UserModel.findById(req.body.userId);
-    console.log("User",req.body.userId);
+
     if (!user) {
       return res.status(404).json({
         message: "Пользователь не найден",
@@ -100,10 +99,10 @@ export const getMe = async (req, res) => {
 
     const { passwordHash, ...userData } = user;
 
-   return  res.json({ ...userData });
+    return res.json({ ...userData });
   } catch (error) {
     console.log(error);
-   return  res.status(500).json({
+    return res.status(500).json({
       message: "Не удалось получить информацию о пользователе",
     });
   }
@@ -126,62 +125,36 @@ export const forgotPassword = async (req, res) => {
     });
 
     const link = `http://localhost:4444/reset-password/${oldUser._id}/${token}`;
-    console.log('email',email);
-    
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // Use `true` for port 465, `false` for all other ports
-      auth: {
-        user: "lehkiyshectkiy@gmail.com",
-        pass: "bpnl zlpq tqrn nonn",
-      },
-    });
-    const mailOptions = {
-      from: "lehkiyshectkiy@gmail.com",
-      to: email,
-      subject: "Password recovery",
-      text: "",
-      html: `
-            <html>
-                <body>
-                    <h1>Password Recovery</h1>
-                    <p>Hello,</p>
-                    <p>To reset your password, please click the link below:</p>
-                    <a href= "${link}">${link}</a>
-                    <p>If you did not request this password reset, please ignore this email.</p>
-                    <p>Thank you!</p>
-                </body>
-            </html>
-        `,
-    };
-    const info = await transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email: ", error);
-        res.send().status(404);
-      } else {
-        console.log("Email sent: ", info.response);
-        res.send("ookkkey");
-      }
-    });
+    console.log("email", email);
 
+    MailService.sendMail(email,"Password recovery",`
+             <html>
+                 <body>
+                     <h1>Password Recovery</h1>
+                     <p>Hello,</p>
+                    <p>To reset your password, please click the link below:</p>
+                     <a href= "${link}">${link}</a>
+                     <p>If you did not request this password reset, please ignore this email.</p>
+                     <p>Thank you!</p>
+                 </body>
+            </html>
+         `);
     console.log(link);
+    res.send("Success");
   } catch (error) {}
 };
 
 export const resetPassword = async (req, res) => {
-  console.log("kek");
-  const { id, token } = req.params;
-  console.log(req.params);
 
-  const oldUser = UserModel.findOne({ _id: id });
+  const { id, token } = req.params;
+
+  const oldUser = await UserModel.findOne({ _id: id });
 
   if (!oldUser) {
     return res.send("User not exists");
   }
 
-  const secret = process.env.SECRET_KEY + (await oldUser).passwordHash;
+  const secret = process.env.SECRET_KEY + oldUser.passwordHash;
 
   try {
     const verify = jwt.verify(token, secret);
@@ -197,18 +170,17 @@ export const updatePassword = async (req, res) => {
 
   const { id, token } = req.params;
 
-  const User = UserModel.findOne({ _id: id });
+  const User = await UserModel.findOne({ _id: id });
 
   if (!User) {
     return res.send("User not exists");
   }
-  const secret = process.env.SECRET_KEY + (await User).passwordHash;
+  const secret = process.env.SECRET_KEY +  User.passwordHash;
 
   try {
     const verify = jwt.verify(token, secret);
 
     const passwordHash = await bcrypt.hash(password, 10);
-    console.log("password ", password);
 
     await UserModel.updateOne(
       {
@@ -227,3 +199,75 @@ export const updatePassword = async (req, res) => {
     return res.send("Not verified\n");
   }
 };
+
+export const activateAccount = async(req, res) => {
+  const userId = req.body.userId;
+
+  const User = await UserModel.findOne({ _id: userId });
+
+  if(!User){
+    return res.send("User does not exist");
+  }
+  console.log(User);
+  const secret = process.env.SECRET_KEY + User.isActivated;
+  let link;
+  console.log("Secret1",secret);
+    try{
+      const token = jwt.sign({ email: User.email,id : User.id}, secret, {
+        expiresIn: "10m",
+      });
+       link = `http://localhost:4444/activate/${User._id}/${token}`;
+    }
+      catch(err){
+      return  res.send("link expired....!");
+      }
+
+
+  MailService.sendMail( User.email,"Email verification",`
+    <html>
+        <body>
+            <h1>Email verification</h1>
+            <p>Hello,</p>
+           <p>To verificy your email, please click the link below:</p>
+            <a href= "${link}">${link}</a>
+            <p>Thank you!</p>
+        </body>
+   </html>
+`);
+ return   res.send("That's okey");
+    
+};
+
+
+export const activateLink = async(req,res)=>{
+      const {id,token}  = req.params;
+
+      const User = await UserModel.findOne({_id: id});
+
+      if(!User){
+        return res.send("User not found");
+      }
+
+      try{
+        const secret = process.env.SECRET_KEY + User.isActivated;
+        console.log("Secret2",secret);
+        const verify = jwt.verify(token,secret);
+        
+        await UserModel.updateOne(
+          {
+            _id: id,
+          },
+          {
+            $set: {
+              isActivated: true,
+            },
+          }
+        );
+    
+        return res.send("Email is verified");
+      }
+      catch(error){
+        console.log(error);
+        return res.send("Link is expired....\n");
+      }
+}

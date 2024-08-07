@@ -1,7 +1,7 @@
 import jwt  from "jsonwebtoken";
 
 export default (req,res,next)=>{
-    console.log("HEADERS " ,req.headers.authorization);
+    
         const token = ( req.headers.authorization  || '').replace(/Bearer\s?/,'');
         console.log("Token: " ,token);
         if(token){

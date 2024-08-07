@@ -7,49 +7,47 @@ import axios from "../axios";
 import Button from "react-bootstrap/esm/Button";
 import { useNavigate } from "react-router-dom";
 
-
 interface IFormInput {
   email: string;
 }
 function PassRecovery(props: any) {
-    
   const navigate = useNavigate();
-  
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-      } = useForm<IFormInput>({ mode: "onChange" });
-      const onSubmit: SubmitHandler<IFormInput> = async (value) => {
-        try {
-          console.log("lol",value);
-          const { data } = await axios.post("/forgot-password", value);
-          alert("Check your email");
-          navigate("/");
-          console.log(data);
-        } catch (error) {
-          console.log(error);
-        }
-      };
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IFormInput>({ mode: "onChange" });
+  const onSubmit: SubmitHandler<IFormInput> = async (value) => {
+    console.log("keeek");
+    axios
+      .post("/forgot-password", value)
+      .then(() => {
+        console.log("kekewk");
+        alert("Check your email");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   return (
     <>
-    <h1>Pass Recovery</h1>
-    <Form onSubmit={handleSubmit(onSubmit)}>
-    <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Email address</Form.Label>
-        <Form.Control
-          type="email"
-          placeholder="Enter email..."
-          {...register('email', { required: "Email is required" })}
-        />
-        {errors.email && <span>{errors.email.message}</span>}
-      </Form.Group>
-      <Button variant="primary" type="submit">
-        Submit
-      </Button>
-    </Form>
-
+      <h1>Pass Recovery</h1>
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Email address</Form.Label>
+          <Form.Control
+            type="email"
+            placeholder="Enter email..."
+            {...register("email", { required: "Email is required" })}
+          />
+          {errors.email && <span>{errors.email.message}</span>}
+        </Form.Group>
+        <Button variant="primary" type="submit">
+          Submit
+        </Button>
+      </Form>
     </>
   );
 }
