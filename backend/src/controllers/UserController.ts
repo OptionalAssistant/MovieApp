@@ -4,17 +4,24 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/User.js";
 import MailService from '../services/mail-servive'
 import userDto from "../dtos/user-dto.js";
-import {ILoginForm, IRegisterForm, UserData, UserDataToken} from '../types/typesRest.js'
+import { AuthMeResponce, ILoginForm, IRegisterForm, LoginResponce, UserData, UserDataToken} from '../types/typesRest.js'
 
 import { Request,Response } from "express";
+import { ActivateParams, IAuthMe } from "../types/typesClient.js";
 
 
-export const register = async (req : Request<{},{},IRegisterForm>, res ) => {
+export const register = async (req : Request<{},{},IRegisterForm>, res : Response<LoginResponce> ) => {
   try {
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
+
+    const userCheck = await UserModel.findOne({email : req.body.email});
+
+    if(userCheck){
+     return res.status(500).json({message: "Пользователь с таким email уже существует"})
+    }
     const doc = new UserModel({
       name: req.body.name,
       email: req.body.email,
@@ -40,18 +47,18 @@ export const register = async (req : Request<{},{},IRegisterForm>, res ) => {
       token
     };
 
-    res.json(userDataToken);
+   return res.json(userDataToken);
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+   return  res.status(500).json({
       message: "Не удалось зарегистрироваться",
     });
   }
 };
-export const login = async (req: Request<{},{},ILoginForm> , res ) => {
+export const login = async (req: Request<{},{},ILoginForm> , res : Response<LoginResponce> ) => {
   try {
     const user = await UserModel.findOne({ email: req.body.email });
-
+    
     if (!user) {
       return res.status(404).json({
         message: "Пользователь не найден",
@@ -95,7 +102,7 @@ export const login = async (req: Request<{},{},ILoginForm> , res ) => {
   }
 };
 
-export const  getMe = async (req, res) => {
+export const  getMe = async (req: Request<{},{},IAuthMe>, res : Response<AuthMeResponce>) => {
   try {
     const user = await UserModel.findById(req.body.userId);
     
@@ -108,8 +115,6 @@ export const  getMe = async (req, res) => {
     
     
     const userData = new userDto(user) as UserData; 
-    
-    console.log("USEEER dataa",console.log(userData));
 
     return res.json(userData);
   } catch (error) {
@@ -120,7 +125,7 @@ export const  getMe = async (req, res) => {
   }
 };
 
-export const forgotPassword = async (req, res) => {
+export const forgotPassword = async (req  , res) => {
   const { email } = req.body;
   console.log("email", email);
   try {
@@ -156,7 +161,7 @@ export const forgotPassword = async (req, res) => {
   } catch (error) {console.log("error",error);}
 };
 
-export const resetPassword = async (req, res) => {
+export const resetPassword = async (req : Request<ActivateParams>, res) => {
 
   const { id, token } = req.params;
 
@@ -212,7 +217,7 @@ export const updatePassword = async (req, res) => {
   }
 };
 
-export const activateAccount = async(req, res) => {
+export const activateAccount = async(req : Request<{},{},IAuthMe>, res) => {
   const userId = req.body.userId;
 
   const User = await UserModel.findOne({ _id: userId });
@@ -251,7 +256,7 @@ export const activateAccount = async(req, res) => {
 };
 
 
-export const activateLink = async(req,res)=>{
+export const activateLink = async(req: Request<ActivateParams>,res)=>{
       const {id,token}  = req.params;
 
       const User = await UserModel.findOne({_id: id});

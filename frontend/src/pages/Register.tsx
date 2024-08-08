@@ -6,9 +6,10 @@ import { useForm } from "react-hook-form";
 import axios from "../axios";
 import Button from "react-bootstrap/esm/Button";
 import { useContext, useEffect } from "react";
-import Context from '../context/context'
+import Context from '../context/contextUser'
 import { useNavigate } from "react-router-dom";
 import { IRegisterForm, UserDataToken } from "../types/typesRest";
+import { ErrorResponse } from "../types/typesClient";
 interface ModalProps {
   show: boolean;
   hide: () => void;
@@ -25,6 +26,7 @@ function Register(props: any) {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<IFormInput>({ mode: "onChange" });
   const navigate = useNavigate();
@@ -34,16 +36,12 @@ function Register(props: any) {
         axios.post<UserDataToken>("/auth/register", value)
         .then(({data}) =>{
           navigate("/");
-          console.log("Sending data to store");
-          console.log(data);
           dispatch({type: 'fullfilled',payload: data.data});
 
-          console.log("token on client state(регистрация)",data.data);
           window.localStorage.setItem('token',data.token);
         })
-        .catch(err =>{
-          console.log("Erroro")
-          console.log(err);
+        .catch((err : ErrorResponse) =>{
+          setError("password", { type: "custom", message: err.response.data.message });
           dispatch({type: 'rejected',payload: null});
         });
     

@@ -4,12 +4,15 @@ import Container from 'react-bootstrap/Container';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Routes,Route } from 'react-router-dom';
 import Register from './pages/Register';
-import Home from './pages/Home';
+import MainPage from './pages/Home';
 import PassRecovery from './pages/PassRecovery';
 import {  useContext, useEffect } from 'react';
-import Context from './context/context';
+import Context from './context/contextUser';
 import axios from './axios'
 import { UserData } from './types/typesRest';
+import { Page } from './pages/Page';
+
+
 function App() {
 
   const {dispatch,state} = useContext(Context);
@@ -29,8 +32,9 @@ function App() {
           <Header /> 
           <Routes>
              <Route path="/auth/register" element={<Register/>}/>
-             <Route path="/" element={<Home/>}/>
+             <Route path="/" element={<MainPage id={1}/>}/>
              <Route path='/reset-password'  element={<PassRecovery/>} />
+             <Route path="/pages/:id" element= {<Page />}/>
           </Routes>
     </Container>  
   );

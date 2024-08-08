@@ -5,14 +5,14 @@ import Row from "react-bootstrap/esm/Row";
 import ModalWindow from "./Login";
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import Context from "../context/context";
+import Context from "../context/contextUser";
 import Alert from "react-bootstrap/esm/Alert";
 import axios from "../axios";
 
-function  Header() {
+function Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
   const { state, dispatch } = useContext(Context);
-  
+
   let button;
 
   const verifyEmail = async () => {
@@ -20,17 +20,14 @@ function  Header() {
       .post("/activate")
       .then((data) => {
         console.log(data.data);
-        alert(
-          `Check email. Message sending to email: ${state.user}`
-        );
+        alert(`Check email. Message sending to email: ${state.user}`);
       })
       .catch((err) => {
         console.log(err);
-        alert(
-          `Ooops. Message dont sending to email: ${state.user}`
-        );
+        alert(`Ooops. Message dont sending to email: ${state.user}`);
       });
   };
+
   if (state.user && state.loading === false) {
     button = (
       <Button
@@ -54,7 +51,7 @@ function  Header() {
       </Button>
     );
   }
-  if (state.user) console.log("Just someloggiin", state.user);
+
   return (
     <>
       <Row className="mt-4">

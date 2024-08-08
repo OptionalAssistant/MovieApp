@@ -1,6 +1,9 @@
 import jwt  from "jsonwebtoken";
+import { IAuthMe } from "../types/typesClient";
+import { Request } from "express";
 
-export default (req,res,next)=>{
+
+export default (req : Request<{},{},IAuthMe>,res,next)=>{
     
         const token = ( req.headers.authorization  || '').replace(/Bearer\s?/,'');
     

@@ -1,21 +1,30 @@
 import { ReactNode, useReducer } from "react";
-import { reducer } from "../reducers/auth";
-import Store from "./context";
-
-
+import reducerUser from "../reducers/auth";
+import IUserStore from "./contextUser";
+import reducerMovie from "../reducers/movies";
+import IMovieStore from "./contextMovie";
 
 const StoreProvider = ({ children }: { children: ReactNode }) => {
-  const [state_, dispatch_] = useReducer(reducer, {
+  const [stateUser, dispatchUser] = useReducer(reducerUser, {
     loading: true,
-    error: '',
+    error: "",
     user: null,
   });
-  
+  const [stateMovie, dispatchMovie] = useReducer(reducerMovie, {
+    loading: true,
+    error: "",
+    movies: null,
+  });
   return (
-    <Store.Provider value={{ dispatch: dispatch_, state: state_ }}>
-      {children}
-    </Store.Provider>
+    <IUserStore.Provider value={{ dispatch: dispatchUser, state: stateUser }}>
+      <IMovieStore.Provider
+        value={{ dispatch: dispatchMovie, state: stateMovie }}
+      >
+        {children}
+      </IMovieStore.Provider>
+    </IUserStore.Provider>
   );
 };
-
+/*
+ */
 export default StoreProvider;

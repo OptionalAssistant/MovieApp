@@ -1,6 +1,6 @@
 import Button from "react-bootstrap/esm/Button";
 import Modal from "react-bootstrap/esm/Modal";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Form from "react-bootstrap/esm/Form";
 import Col from "react-bootstrap/esm/Col";
 import Row from "react-bootstrap/esm/Row";
@@ -8,8 +8,9 @@ import { SubmitHandler } from "react-hook-form/dist/types/form";
 import { useForm } from "react-hook-form";
 import axios from "../axios";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import Context from "../context/context";
+import Context from "../context/contextUser";
 import { ILoginForm, UserData, UserDataToken } from "../types/typesRest";
+import { ErrorResponse } from "../types/typesClient";
 
 interface ModalProps {
   show: boolean;
@@ -30,21 +31,24 @@ function ModalLogin(props: ModalProps) {
 
   const { state, dispatch } = useContext(Context);
 
-  const onSubmit: SubmitHandler<IFormInput> = async (value : ILoginForm) => {
+
+  const onSubmit: SubmitHandler<IFormInput> = async (value: ILoginForm) => {
     console.log(value);
     axios
       .post<UserDataToken>("/auth/login", value)
-      .then(({data}) => {
+      .then(({ data }) => {
         props.hide();
-        console.log("(login)Sending data to store",data.data.name);
+        console.log("(login)Sending data to store", data.data.name);
         dispatch({ type: "fullfilled", payload: data.data });
 
         console.log("token on client state(логин)", data.token);
         window.localStorage.setItem("token", data.token);
       })
-      .catch((err) => {
+      .catch((err : ErrorResponse) => {
         console.log(err);
-        // alert(err.response.data.message);
+        setError("password", { type: "custom", message: err.response.data.message });
+
+        // alert("Invalid login or password");
         dispatch({ type: "rejected", payload: null });
       });
   };
@@ -74,9 +78,15 @@ function ModalLogin(props: ModalProps) {
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
             <Form.Control
-              type="email"
+              // type="email"
               placeholder="Enter email"
-              {...register("email", { required: "Email is required" })}
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Invalid email format",
+                },
+              })}
             />
             {errors.email && <span>{errors.email.message}</span>}
           </Form.Group>
@@ -94,7 +104,7 @@ function ModalLogin(props: ModalProps) {
                 },
               })}
             />
-            {errors.password && <span>{errors.password.message}</span>}
+            {errors.password && <p>{errors.password.message}</p>}
           </Form.Group>
 
           <Row className="justify-content-between mb-3">

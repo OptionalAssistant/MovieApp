@@ -1,23 +1,26 @@
 import { authAction, State } from "../types/typesClient";
 
 
- export  function reducer(state: State, action: authAction): State {
-  console.log("Action payload",action.payload); 
+function reducer(state: State, action: authAction): State {
+
   switch (action.type) {
         case 'pending':
             return {
+              ...state,
              loading: true,
              user: null,
               error: "",
             };
       case 'fullfilled':
         return {
+          ...state,
           loading: false,
           user: action.payload,
           error: "",
         };
       case 'rejected':
         return {
+          ...state,
           loading: false,
           user: null,
           error: "Something went wrong during fetch",
@@ -33,6 +36,4 @@ import { authAction, State } from "../types/typesClient";
     
   }
 
-
-
-
+export default reducer;

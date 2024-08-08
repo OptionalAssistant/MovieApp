@@ -18,3 +18,13 @@ export interface ILoginForm{
   email : string;
   password :string;
 }
+
+export interface IMovie {
+  name: string;
+  date: string;
+  country : string;
+}
+
+export interface movieNumber{
+  length : number;
+}

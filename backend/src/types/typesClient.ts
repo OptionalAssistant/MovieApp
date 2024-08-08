@@ -5,6 +5,12 @@ export interface IUser {
   isActivated: boolean;
 }
 
-export interface IMovie{
-  name: string;
+
+export interface IAuthMe{
+  userId : string;
+}
+
+export interface ActivateParams {
+  id: string;
+  token: string;
 }
