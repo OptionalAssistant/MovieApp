@@ -1,3 +1,5 @@
+
+
 export interface UserData{
   name: string;
   email : string;
@@ -20,11 +22,18 @@ export interface ILoginForm{
 }
 
 export interface IMovie {
+  _id : String;
   name: string;
   date: string;
   country : string;
+  imageUrl: string;
 }
 
 export interface movieNumber{
   length : number;
+}
+
+export interface IFullMovie extends IMovie{
+  trailerUrl : string;
+  description: string;
 }

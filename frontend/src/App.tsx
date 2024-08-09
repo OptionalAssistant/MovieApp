@@ -11,7 +11,7 @@ import Context from './context/contextUser';
 import axios from './axios'
 import { UserData } from './types/typesRest';
 import { Page } from './pages/Page';
-
+import FullMovie from './pages/FullMovie';
 
 function App() {
 
@@ -35,6 +35,7 @@ function App() {
              <Route path="/" element={<MainPage id={1}/>}/>
              <Route path='/reset-password'  element={<PassRecovery/>} />
              <Route path="/pages/:id" element= {<Page />}/>
+             <Route path="/movies/:id" element={<FullMovie/>} />
           </Routes>
     </Container>  
   );

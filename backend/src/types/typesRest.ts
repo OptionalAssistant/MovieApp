@@ -1,3 +1,5 @@
+import { Schema } from "mongoose";
+
 export interface UserData {
   name: string;
   email: string;
@@ -28,9 +30,16 @@ export type AuthMeResponce = UserData | IResponceError;
 export type LoginResponce = UserDataToken | IResponceError;
 
 export interface IMovie {
+  _id : String;
   name: string;
   date: string;
   country : string;
+  imageUrl: string;
+}
+
+export interface IFullMovie extends IMovie{
+    trailerUrl : string;
+    description: string;
 }
 export interface movieNumber{
   length : number;

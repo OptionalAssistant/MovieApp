@@ -12,11 +12,12 @@ import IMovieStore from "../context/contextMovie";
 import { Link } from "react-router-dom";
 import { PageParams } from "../types/typesClient";
 
-
 function MainPage(props: PageParams) {
   const movieContext = useContext(IMovieStore);
-  
+
   const [items, setItems] = useState<JSX.Element[]>([]);
+  const [itemsAmount, setAmount] = useState<number>();
+
   useEffect(() => {
     const fetchData = async () => {
       movieContext.dispatch({ type: "pending", payload: null });
@@ -24,35 +25,38 @@ function MainPage(props: PageParams) {
         const { data } = await axios.get<IMovie[]>(`/movies/pages/${props.id}`);
         movieContext.dispatch({ type: "fullfilled", payload: data });
       } catch (error) {
-        movieContext.dispatch({ type: "rejected", payload: null })
+        movieContext.dispatch({ type: "rejected", payload: null });
         console.log("Error during fetch movies", error);
       }
     };
 
     fetchData();
-  }, []);
-
-
+  }, [props.id]);
+  useEffect(() => {}, [props.id]);
   useEffect(() => {
     const fetchData = async () => {
       try {
         let size;
         size = await axios.get<movieNumber>("/movies/number");
-     
+
         size = size.data.length;
         size = size / 9 + 1;
         const paginationItems: JSX.Element[] = [];
-       
+
         paginationItems.push(
-          
-          <Pagination.Item key={1} as={Link} to={`/`}>
-              1
+          <Pagination.Item key={1} as={Link} to={`/`} active={props.id === 1}>
+            1
           </Pagination.Item>
         );
-        
+
         for (let i = 2; i <= size; i++) {
           paginationItems.push(
-            <Pagination.Item key={i} as={Link} to={`/pages/${i}`} >
+            <Pagination.Item
+              key={i}
+              as={Link}
+              to={`/pages/${i}`}
+              active={props.id === i}
+            >
               {i}
             </Pagination.Item>
           );
@@ -65,7 +69,7 @@ function MainPage(props: PageParams) {
     };
 
     fetchData();
-  }, []);
+  }, [props.id]);
 
   console.log(items);
   return (
@@ -76,13 +80,13 @@ function MainPage(props: PageParams) {
           movieContext.state.movies.map((data, idx) => (
             <Col key={idx}>
               <Card className="card-fixed">
-                <Card.Link href="/auth/register">
+                <div></div>
+                <Card.Link as={Link} to={`/movies/${data._id}`}>
                   {" "}
                   <Card.Img
                     variant="top"
-                    src="1.jpg"
-                    width="300px"
-                    height="400px"
+                    src={`http://localhost:4444${data.imageUrl}`}
+                
                   />
                 </Card.Link>
 
@@ -91,7 +95,9 @@ function MainPage(props: PageParams) {
                   <Card.Subtitle className="mb-3">
                     {data.date}, {data.country}
                   </Card.Subtitle>
-                  <Button variant="primary">Watch</Button>
+                  <Card.Link as={Link} to={`/movies/${data._id}`}>
+                    <Button variant="primary" type="button">Watch</Button>
+                  </Card.Link>
                 </Card.Body>
               </Card>
             </Col>
@@ -102,7 +108,7 @@ function MainPage(props: PageParams) {
         <Pagination>
           <Pagination.First />
           <Pagination.Prev />
-            {items}
+          {items}
           <Pagination.Ellipsis />
           <Pagination.Next />
           <Pagination.Last />
@@ -113,6 +119,3 @@ function MainPage(props: PageParams) {
 }
 
 export default MainPage;
-
-
-

@@ -1,7 +1,8 @@
 import MovieModel from "../models/Movie";
 import { Request, Response, NextFunction, response } from "express";
-import { IMovie, IMovieResponce, IPutMovieResponce, movieNumber, PageParams } from "../types/typesRest";
+import { IFullMovie, IMovie, IMovieResponce, IPutMovieResponce, movieNumber, PageParams } from "../types/typesRest";
 import MoiveModel from "../models/Movie";
+import fs from 'fs';
 
 export const getMovies = async (req, res: Response<IMovie[]>) => {
   const movies = await MovieModel.find();
@@ -54,4 +55,58 @@ export const getMoviePage = async(req : Request<PageParams>,res : Response<IMovi
         }
 
 
+}
+
+
+export const getFullMovie = async(req : Request<PageParams>,res : Response<IFullMovie>)=>{
+  const {id} = req.params;
+
+  try{
+    const movie = await MovieModel.findById({_id: id});
+    
+    return res.send(movie);
+  }
+  catch(error){
+    console.log("oops smth went wrong\n");
+    return res.status(404);
+  }
+}
+
+
+export const PlayMovie = async(req: Request<PageParams>,res)=>{
+
+  const {id} = req.params;
+  const range = req.headers.range;
+  if (!range) {
+    return res.status(400).send("Requires Range header");
+  }
+  console.log("Thats okey")
+  // get video stats (about 61MB)
+  const videoPath = `D:/anime-project/backend/uploads/${id}.mp4`;
+  console.log(videoPath);
+  const videoSize = fs.statSync(`D:/anime-project/backend/uploads/${id}.mp4`).size;
+
+  // Parse Range
+  // Example: "bytes=32324-"
+  const CHUNK_SIZE = 10 ** 6; // 1MB
+  const start = Number(range.replace(/\D/g, ""));
+  const end = Math.min(start + CHUNK_SIZE, videoSize - 1);
+
+  // Create headers
+  const contentLength = end - start + 1;
+  const headers = {
+    "Content-Range": `bytes ${start}-${end}/${videoSize}`,
+    "Accept-Ranges": "bytes",
+    "Content-Length": contentLength,
+    "Content-Type": "video/mp4",
+  };
+
+  // HTTP Status 206 for Partial Content
+  res.writeHead(206, headers);
+
+  // create video read stream for this particular chunk
+  const videoStream = fs.createReadStream(videoPath, { start, end });
+
+  // Stream the video chunk to the client
+  videoStream.pipe(res);
 }
