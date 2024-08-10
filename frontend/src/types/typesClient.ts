@@ -1,5 +1,6 @@
 import { IMovie, UserData } from "./typesRest";
 
+
 export interface State {
   loading: boolean;
   error: string;
@@ -33,5 +34,8 @@ export interface movieAction {
 }
 
 export interface PageParams {
-  id: number;
+  items: any[];
 }
+
+
+

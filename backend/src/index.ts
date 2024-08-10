@@ -80,5 +80,6 @@ app.post(
   handleValidationErrors,
   UserController.updatePassword
 );
+app.get("/search",MovieController.SearchMovie);
 
 app.listen(process.env.PORT);

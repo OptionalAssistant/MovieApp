@@ -50,3 +50,21 @@ export type IMovieResponce = IMovie[] | IResponceError;
 export interface PageParams {
   id: number;
 }
+
+
+export interface IMovieSearchForm{
+    name : string;
+    page : number;
+}
+
+export interface IMovieNumber{
+  total  : number;
+}
+
+
+export interface ISearchMovieResponse {
+  movies : IMovie[];
+  total : number;
+}
+
+export type SearchMovieResponse = ISearchMovieResponse | IResponceError;

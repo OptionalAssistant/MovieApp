@@ -4,14 +4,16 @@ import Container from 'react-bootstrap/Container';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Routes,Route } from 'react-router-dom';
 import Register from './pages/Register';
-import MainPage from './pages/Home';
+import Page from './pages/Page';
 import PassRecovery from './pages/PassRecovery';
 import {  useContext, useEffect } from 'react';
 import Context from './context/contextUser';
 import axios from './axios'
 import { UserData } from './types/typesRest';
-import { Page } from './pages/Page';
+import { MainPage } from './pages/Home';
 import FullMovie from './pages/FullMovie';
+import Search from './pages/Search';
+import NumericPage from './pages/NumericPage';
 
 function App() {
 
@@ -32,10 +34,11 @@ function App() {
           <Header /> 
           <Routes>
              <Route path="/auth/register" element={<Register/>}/>
-             <Route path="/" element={<MainPage id={1}/>}/>
+             <Route path="/" element={<MainPage/>}/>
              <Route path='/reset-password'  element={<PassRecovery/>} />
-             <Route path="/pages/:id" element= {<Page />}/>
+             <Route path="/pages/:id" element= {<NumericPage />}/>
              <Route path="/movies/:id" element={<FullMovie/>} />
+             <Route path="/search" element={<Search/>}/>
           </Routes>
     </Container>  
   );

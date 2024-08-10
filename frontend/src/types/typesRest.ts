@@ -37,3 +37,13 @@ export interface IFullMovie extends IMovie{
   trailerUrl : string;
   description: string;
 }
+
+export interface IMovieSearchForm{
+  name : string | null;
+}
+
+export interface ISearchMovieResponse {
+  movies : IMovie[];
+  total : number;
+}
+
