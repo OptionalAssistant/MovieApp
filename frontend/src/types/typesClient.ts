@@ -38,4 +38,8 @@ export interface PageParams {
 }
 
 
-
+export interface IPaginationList{
+  pageCount : number;
+  link : string;
+  curPage : number;
+}

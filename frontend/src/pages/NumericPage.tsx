@@ -5,13 +5,17 @@ import IMovieStore from "../context/contextMovie";
 import axios from "../axios";
 import { IMovie, movieNumber } from "../types/typesRest";
 import Pagination from "react-bootstrap/esm/Pagination";
+import { constructPaginationList } from "../utils/utils";
 
 function NumericPage(props: any) {
   let { id } = useParams<string>();
   let numericId: number;
-  if (id) numericId = parseInt(id, 10);
-  else numericId = 1;
 
+  if (id) numericId = Number(id);
+  else  numericId = 1;
+  
+  
+  console.log("ID:",numericId);
   const movieContext = useContext(IMovieStore);
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
@@ -25,24 +29,17 @@ function NumericPage(props: any) {
 
           movieContext.dispatch({ type: "fullfilled", payload: data });
 
-          const pageCount = size.data.length / 9 + 1;
+          const pageCount = Math.ceil(size.data.length / 9);
+        
+          let items: any;
+          console.log("Cur page", numericId);
+          
+           items =  constructPaginationList({pageCount: pageCount,link :'/pages/',curPage:numericId});
 
-          const items = [];
-
-          for (let number = 1; number < pageCount; number++) {
-            items.push(
-              <Pagination.Item
-                key={number}
-                active={number === props.id}
-                as={Link}
-                to={`/pages/${number}`}
-              >
-                {number}
-              </Pagination.Item>
-            );
+           setPaginationItems(items);
           }
-          setPaginationItems(items);
-        } catch (error) {
+
+         catch (error) {
           movieContext.dispatch({ type: "rejected", payload: null });
           console.log("Error during fetch movies", error);
         }
@@ -53,7 +50,9 @@ function NumericPage(props: any) {
   return (
     <>
       {movieContext.state.movies && !movieContext.state.loading && (
-        <Page items={paginationItems} />
+        <>
+      <Page items={paginationItems} />
+        </>
       )}
     </>
   );

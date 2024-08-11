@@ -111,7 +111,7 @@ export const  getMe = async (req: Request<{},{},IAuthMe>, res : Response<AuthMeR
         message: "Пользователь не найден",
       });
     }
-    console.log("!!!! ",user);
+  
     
     
     const userData = new userDto(user) as UserData; 
@@ -127,7 +127,7 @@ export const  getMe = async (req: Request<{},{},IAuthMe>, res : Response<AuthMeR
 
 export const forgotPassword = async (req  , res) => {
   const { email } = req.body;
-  console.log("email", email);
+
   try {
     const oldUser = await UserModel.findOne({ email: email });
 
@@ -142,7 +142,7 @@ export const forgotPassword = async (req  , res) => {
     });
 
     const link = `http://localhost:4444/reset-password/${oldUser._id}/${token}`;
-    console.log("email", email);
+
 
     MailService.sendMail(email,"Password recovery",`
              <html>
@@ -156,7 +156,7 @@ export const forgotPassword = async (req  , res) => {
                  </body>
             </html>
          `);
-    console.log(link);
+
     res.send("Success");
   } catch (error) {console.log("error",error);}
 };
@@ -219,13 +219,13 @@ export const updatePassword = async (req, res) => {
 
 export const activateAccount = async(req : Request<{},{},IAuthMe>, res) => {
   const userId = req.body.userId;
-
+  
   const User = await UserModel.findOne({ _id: userId });
 
   if(!User){
     return res.send("User does not exist");
   }
-  console.log(User);
+
   const secret = process.env.SECRET_KEY + User.isActivated;
   let link;
   console.log("Secret1",secret);

@@ -3,7 +3,7 @@ import { IMovieState, movieAction } from "../types/typesClient";
 import { error } from "console";
 
  function reducer(state: IMovieState, action: movieAction) {
-  console.log("Action payload", action.payload);
+
 
   switch (action.type) {
     case "pending":

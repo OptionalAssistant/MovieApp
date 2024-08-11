@@ -26,7 +26,7 @@ function Page(props: PageParams) {
       </Row>
       <Row>
         {" "}
-        {!movieContext.state.loading && <Pagination>{props.items}</Pagination>}
+        {!movieContext.state.loading && props.items}
       </Row>
       <br />
     </>

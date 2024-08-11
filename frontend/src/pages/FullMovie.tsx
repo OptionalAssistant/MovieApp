@@ -13,8 +13,6 @@ function FullMovie() {
     const fetchData = async () => {
       const { data } = await axios.get<IFullMovie>(`/movies/full/${id}`);
 
-      console.log(data);
-
       setData(data);
     };
     fetchData();

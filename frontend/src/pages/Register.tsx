@@ -32,7 +32,7 @@ function Register(props: any) {
   const navigate = useNavigate();
   const onSubmit: SubmitHandler<IFormInput> = async (value : IRegisterForm) => {
 
-      console.log(value);
+
         axios.post<UserDataToken>("/auth/register", value)
         .then(({data}) =>{
           navigate("/");

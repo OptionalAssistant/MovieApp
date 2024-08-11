@@ -19,11 +19,10 @@ function PassRecovery(props: any) {
     formState: { errors },
   } = useForm<IFormInput>({ mode: "onChange" });
   const onSubmit: SubmitHandler<IFormInput> = async (value) => {
-    console.log("keeek");
+
     axios
       .post("/forgot-password", value)
       .then(() => {
-        console.log("kekewk");
         alert("Check your email");
       })
       .catch((error) => {

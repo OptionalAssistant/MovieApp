@@ -37,8 +37,6 @@ export const putMovie = async (
 
     const movie = await doc.save();
 
-    console.log("Movie ", movie);
-
     res.json(movie);
   } catch (error) {
     console.log(error);
@@ -51,7 +49,6 @@ export const getMoviePage = async (
   res: Response<IMovieResponce>
 ) => {
   const { id } = req.params;
-  console.log("DDD", id);
   try {
     let index = (id - 1) * 9;
 
@@ -85,10 +82,10 @@ export const PlayMovie = async (req: Request<PageParams>, res ) => {
   if (!range) {
     return res.status(400).send("Requires Range header");
   }
-  console.log("Thats okey");
+
   // get video stats (about 61MB)
   const videoPath = `D:/anime-project/backend/uploads/${id}.mp4`;
-  console.log(videoPath);
+
   const videoSize = fs.statSync(
     `D:/anime-project/backend/uploads/${id}.mp4`
   ).size;
@@ -126,7 +123,7 @@ export const SearchMovie = async (
   const id = req.query.page;
 
   let index = (id - 1);
-  console.log("Index ",index);
+
   try {
 
     const movie = await MovieModel.find({ name: {$regex: new RegExp(s_name,"i")} });
@@ -141,7 +138,6 @@ export const SearchMovie = async (
    return  res.send({movies: items,total : movie.length});
   
   } catch (err) {
-    console.log("Catch block");
     return res.status(404).json({message : "Opps something went wrong during request\n"});
   }
 };

@@ -14,6 +14,7 @@ import Col from "react-bootstrap/esm/Col";
 import Movie from "../components/Movie";
 import { Pagination } from "react-bootstrap";
 import Page from "./Page";
+import { constructPaginationList } from "../utils/utils";
 
 function Search(props: any) {
   const [searchParams] = useSearchParams();
@@ -21,8 +22,6 @@ function Search(props: any) {
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
   
-  console.log(searchParams);
-  const location = useLocation();
   let page = searchParams.get("page");
 
   if (!page) page = "1";
@@ -35,23 +34,14 @@ function Search(props: any) {
           `search/?name=${searchParams.get("name")}&page=${page}`
         );
 
-        const items = [];
-        const pageCount = data.total / 9 + 1;
-        
-        for (let number = 1; number < pageCount; number++) {
-          items.push(
-            <Pagination.Item
-              key={number}
-              active={number === props.id}
-              as={Link}
-              to={ `?name=${searchParams.get("name")}&page=${number}`}
-            >
-              {number}
-            </Pagination.Item>
-          );
-        }
-        setPaginationItems(items);
+        let items: any;
+        const pageCount = Math.ceil(data.total / 9);
+        const strLink = `?name=${searchParams.get("name")}&page=`
+        items =  constructPaginationList({pageCount: pageCount,link : strLink,curPage:  Number(page)});
 
+
+        setPaginationItems(items);
+;
         movieContext.dispatch({ type: "fullfilled", payload: data.movies });
       } catch (error) {
         movieContext.dispatch({ type: "rejected", payload: null });
@@ -62,12 +52,16 @@ function Search(props: any) {
     fetchData();
   }, [searchParams]);
 
-  console.log("Query", searchParams);
-
   return (
     <>
       {movieContext.state.movies && !movieContext.state.loading && (
+        <>
+        <h1>Results on search: {searchParams.get("name")}</h1>
         <Page items={paginationItems} />
+          </>
+      )}
+       {!movieContext.state.movies && !movieContext.state.loading && (
+        <h1>Movie with name: {searchParams.get("name")} not found</h1>
       )}
     </>
   );

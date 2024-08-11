@@ -38,10 +38,8 @@ function ModalLogin(props: ModalProps) {
       .post<UserDataToken>("/auth/login", value)
       .then(({ data }) => {
         props.hide();
-        console.log("(login)Sending data to store", data.data.name);
         dispatch({ type: "fullfilled", payload: data.data });
 
-        console.log("token on client state(логин)", data.token);
         window.localStorage.setItem("token", data.token);
       })
       .catch((err : ErrorResponse) => {
