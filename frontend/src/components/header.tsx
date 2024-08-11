@@ -11,8 +11,8 @@ import axios from "../axios";
 import { IMovieSearchForm } from "../types/typesRest";
 import { useForm } from "react-hook-form";
 import { SubmitHandler } from "react-hook-form";
-import { OffcanvasBody } from "react-bootstrap";
-import IMovieStore from "../context/contextMovie"
+import DropdownCategories from '../components/Categories';
+import IMovieStore from "../context/contextMovie";
 
 function Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
@@ -43,10 +43,9 @@ function Header() {
   const onSubmit: SubmitHandler<IMovieSearchForm> = async (
     value: IMovieSearchForm
   ) => {
-
     //  const params = new URLSearchParams(value as unknown as Record<string,string>);
     //  const queryString = params.toString();
-    console.log("submit value",);
+    console.log("submit value");
     navigate(`/search/?name=${value.name}`);
   };
   if (state.user && state.loading === false) {
@@ -102,7 +101,10 @@ function Header() {
         </Col>
         <Col lg={3}>{button}</Col>
       </Row>
-
+      <Row>
+        {""}
+        <DropdownCategories />
+      </Row>
       {state.user && !state.user.isActivated && (
         <Alert variant="danger">
           <Alert.Heading>Ooops your email is not verified</Alert.Heading>

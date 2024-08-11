@@ -27,6 +27,7 @@ export interface IMovie {
   date: string;
   country : string;
   imageUrl: string;
+  categories: string[];
 }
 
 export interface movieNumber{

@@ -3,7 +3,8 @@ import { IMovie } from "../types/typesRest";
 import { Link, useLocation } from "react-router-dom";
 import Button from "react-bootstrap/esm/Button";
 
-function Movie({ movie }: { movie: IMovie }) {
+function  Movie({ movie }: { movie: IMovie }) {
+  console.log("Movie",movie);
   return (
     <Card className="card-fixed">
       <div></div>
@@ -18,7 +19,7 @@ function Movie({ movie }: { movie: IMovie }) {
       <Card.Body>
         <Card.Title className="mb-3">{movie.name}</Card.Title>
         <Card.Subtitle className="mb-3">
-          {movie.date}, {movie.country}
+          {movie.date}, {movie.country}  , {movie.categories} 
         </Card.Subtitle>
         <Card.Link as={Link} to={`/movies/${movie._id}`}>
           <Button variant="primary" type="button">

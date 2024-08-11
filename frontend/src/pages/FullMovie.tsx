@@ -4,6 +4,7 @@ import axios from "../axios";
 import { IFullMovie, IMovie } from "../types/typesRest";
 import Row from "react-bootstrap/esm/Row";
 import Col from "react-bootstrap/esm/Col";
+import Movie from "../components/Movie";
 
 function FullMovie() {
   const { id } = useParams();
@@ -12,7 +13,7 @@ function FullMovie() {
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await axios.get<IFullMovie>(`/movies/full/${id}`);
-
+      console.log(data);
       setData(data);
     };
     fetchData();
@@ -33,6 +34,7 @@ function FullMovie() {
             />
           </div>
       </Row>
+      <Row><h3>Categories </h3> <h4>{movie.categories}</h4></Row>
       <Row className="pb-3">
         <h2>Трейлер</h2>
         <div>
@@ -51,9 +53,9 @@ function FullMovie() {
         <p>{movie.description}</p>
         <h2>Смотреть</h2>
         <div>
-        <video id="videoPlayer" width="650" controls>
+        {/* <video id="videoPlayer" width="650" controls>
           <source src={`http://localhost:4444/movies/video/${id}`} type="video/mp4" />
-        </video>
+        </video> */}
         </div>
 
         <i>Big Buck Bunny</i>

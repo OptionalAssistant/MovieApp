@@ -14,3 +14,7 @@ export interface ActivateParams {
   id: string;
   token: string;
 }
+
+export interface ICategoryName{
+  idCategory : string;
+}

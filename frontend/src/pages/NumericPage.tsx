@@ -6,6 +6,7 @@ import axios from "../axios";
 import { IMovie, movieNumber } from "../types/typesRest";
 import Pagination from "react-bootstrap/esm/Pagination";
 import { constructPaginationList } from "../utils/utils";
+import DropdownCategories from '../components/Categories'
 
 function NumericPage(props: any) {
   let { id } = useParams<string>();
@@ -14,8 +15,7 @@ function NumericPage(props: any) {
   if (id) numericId = Number(id);
   else  numericId = 1;
   
-  
-  console.log("ID:",numericId);
+
   const movieContext = useContext(IMovieStore);
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
@@ -26,13 +26,12 @@ function NumericPage(props: any) {
         try {
           const { data } = await axios.get<IMovie[]>(`/movies/pages/${numericId}`);
           const size = await axios.get<movieNumber[]>(`/movies/number`);
-
+        
           movieContext.dispatch({ type: "fullfilled", payload: data });
 
           const pageCount = Math.ceil(size.data.length / 9);
         
           let items: any;
-          console.log("Cur page", numericId);
           
            items =  constructPaginationList({pageCount: pageCount,link :'/pages/',curPage:numericId});
 

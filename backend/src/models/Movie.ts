@@ -1,5 +1,5 @@
-import {Schema,model} from 'mongoose'
-import { IFullMovie } from '../types/typesRest'
+import mongoose, {Schema,model} from 'mongoose'
+import { IFullMovie,ICategory } from '../types/typesRest'
 
 
 const MovieSchema = new Schema<IFullMovie>(
@@ -9,8 +9,11 @@ const MovieSchema = new Schema<IFullMovie>(
         country: {type: String,required : true},
         imageUrl : {type : String},
         trailerUrl: {type: String},
-        description:{type:String,required : true}
+        description:{type:String,required : true},
+        categories: [{type : mongoose.Schema.Types.ObjectId,ref: 'Category'}]
     }
 )
+
+
 
 export default model<IFullMovie>("Movie",MovieSchema);

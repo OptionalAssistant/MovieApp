@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 export interface UserData {
   name: string;
@@ -35,6 +35,7 @@ export interface IMovie {
   date: string;
   country : string;
   imageUrl: string;
+  categories: mongoose.Types.ObjectId[]  | string[];
 }
 
 export interface IFullMovie extends IMovie{
@@ -66,5 +67,8 @@ export interface ISearchMovieResponse {
   movies : IMovie[];
   total : number;
 }
-
+export interface ICategory{
+  name: string;
+  movies : mongoose.Types.ObjectId[];
+}
 export type SearchMovieResponse = ISearchMovieResponse | IResponceError;

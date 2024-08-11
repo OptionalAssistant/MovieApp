@@ -5,7 +5,7 @@ import Row from "react-bootstrap/esm/Row";
 import IMovieStore from "../context/contextMovie";
 import { PageParams } from "../types/typesClient";
 import Movie from "../components/Movie";
-import Pagination from "react-bootstrap/esm/Pagination";
+
 
 import "../App.css";
 
