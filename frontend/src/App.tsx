@@ -40,7 +40,7 @@ function App() {
         <Route path="/pages/:id" element={<NumericPage />} />
         <Route path="/movies/:id" element={<FullMovie />} />
         <Route path="/search" element={<Search />} />
-        <Route path="categories/:idCategory" element={<Categorie />} />
+        <Route path="/categories/:idCategory/page/:id" element={<Categorie />} />
       </Routes>
     </Container>
   );

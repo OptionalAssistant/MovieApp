@@ -81,6 +81,6 @@ app.post(
   UserController.updatePassword
 );
 app.get("/search",MovieController.SearchMovie);
-app.get("/categories/:idCategory",MovieController.getCategory);
+app.get("/categories/:idCategory/page/:id",MovieController.getCategory);
 
 app.listen(process.env.PORT);

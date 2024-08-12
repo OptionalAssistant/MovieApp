@@ -12,7 +12,7 @@ import "../App.css";
 
 function Page(props: PageParams) {
   const movieContext = useContext(IMovieStore);
-
+  console.log(movieContext.state.movies);
   return (
     <>
       <Row xs={1} md={3} className="g-4  mb-3 card-fixed">

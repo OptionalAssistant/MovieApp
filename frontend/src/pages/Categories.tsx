@@ -3,23 +3,43 @@ import IMovieStore from "../context/contextMovie";
 import { useContext, useEffect, useState } from "react";
 import { constructPaginationList } from "../utils/utils";
 import Page from "./Page";
+import { IMovie, ISearchMovieResponse } from "../types/typesRest";
+import axios from "../axios";
 
 function Categories(props: any) {
-  const { idCategory } = useParams();
+  let { idCategory ,id} = useParams();
   const movieContext = useContext(IMovieStore);
+
+
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
   useEffect(() => {
 
-    let items: any;
+    const fetchData = async () => {
 
-    items = constructPaginationList({
-      pageCount: 1,
-      link: "/pages/",
-      curPage: 1,
-    });
+    movieContext.dispatch({ type: "pending", payload: null });
+    try {
+      const {data} = await axios.get<ISearchMovieResponse>(`categories/${idCategory}/page/${id}`);
+      
+      const pageCount = Math.ceil(data.total / 1);
+      const strLink = `categories/${idCategory}/page/`;
+      let items: any;
 
-    setPaginationItems(items);
-  }, [idCategory]);
+      items =  constructPaginationList({pageCount: pageCount,link : strLink,curPage:  Number(id)});
+
+
+      setPaginationItems(items);
+
+      movieContext.dispatch({ type: "fullfilled", payload: data.movies });
+      console.log(data);
+    } catch (error) {
+      movieContext.dispatch({ type: "rejected", payload: null });
+
+      console.log("Categories error", error);
+      
+    }
+  }
+    fetchData();
+  }, [idCategory,id]);
 
   return (
     <>

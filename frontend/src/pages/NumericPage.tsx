@@ -29,7 +29,7 @@ function NumericPage(props: any) {
         
           movieContext.dispatch({ type: "fullfilled", payload: data });
 
-          const pageCount = Math.ceil(size.data.length / 9);
+          const pageCount = Math.ceil(size.data.length / 1);
         
           let items: any;
           

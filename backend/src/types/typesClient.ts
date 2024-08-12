@@ -17,4 +17,5 @@ export interface ActivateParams {
 
 export interface ICategoryName{
   idCategory : string;
+  id : number;
 }

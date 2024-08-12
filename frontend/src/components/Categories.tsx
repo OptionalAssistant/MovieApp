@@ -11,29 +11,18 @@ function Categories() {
   const movieContext = useContext(IMovieStore);
 
   const handleCategory = async (endpoint: string) => {
-    movieContext.dispatch({ type: "pending", payload: null });
-    try {
-      const data = await axios.get<IMovie[]>(endpoint);
-
-      movieContext.dispatch({ type: "fullfilled", payload: data.data });
-      console.log(data);
-    } catch (error) {
-      movieContext.dispatch({ type: "rejected", payload: null });
-      
-      console.log("Categories error", error);
-    }
-
+  
     navigate(endpoint);
   };
   return (
     <DropdownButton id="dropdown-basic-button" title="Dropdown button">
-      <Dropdown.Item onClick={() => handleCategory("categories/fantasy")}>
+      <Dropdown.Item onClick={() => handleCategory("categories/fantasy/page/1")}>
         Fantasy
       </Dropdown.Item>
-      <Dropdown.Item onClick={() => handleCategory("categories/thriller")}>
+      <Dropdown.Item onClick={() => handleCategory("categories/thriller/page/1")}>
         Thriller
       </Dropdown.Item>
-      <Dropdown.Item onClick={() => handleCategory("categories/western")}>
+      <Dropdown.Item onClick={() => handleCategory("categories/western/page/1")}>
         Western
       </Dropdown.Item>
     </DropdownButton>

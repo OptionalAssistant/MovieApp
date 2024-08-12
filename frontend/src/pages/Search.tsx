@@ -21,22 +21,23 @@ function Search(props: any) {
   const movieContext = useContext(MovieContext);
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
-  
+  console.log("Seatch params",searchParams);
   let page = searchParams.get("page");
-
+  console.log("Currentrr page",page)
   if (!page) page = "1";
 
   useEffect(() => {
     const fetchData = async () => {
       movieContext.dispatch({ type: "pending", payload: null });
       try {
+ 
         const { data } = await axios.get<ISearchMovieResponse>(
           `search/?name=${searchParams.get("name")}&page=${page}`
         );
 
         let items: any;
-        const pageCount = Math.ceil(data.total / 9);
-        const strLink = `?name=${searchParams.get("name")}&page=`
+        const pageCount = Math.ceil(data.total / 1);
+        const strLink = `search/?name=${searchParams.get("name")}&page=`
         items =  constructPaginationList({pageCount: pageCount,link : strLink,curPage:  Number(page)});
 
 
