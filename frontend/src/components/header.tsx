@@ -1,18 +1,18 @@
+import React, { useContext } from "react";
+import Alert from "react-bootstrap/esm/Alert";
 import Button from "react-bootstrap/esm/Button";
 import Col from "react-bootstrap/esm/Col";
 import Form from "react-bootstrap/esm/Form";
 import Row from "react-bootstrap/esm/Row";
-import ModalWindow from "./Login";
-import React, { useContext } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import Context from "../context/contextUser";
-import Alert from "react-bootstrap/esm/Alert";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "../axios";
-import { IMovieSearchForm } from "../types/typesRest";
-import { useForm } from "react-hook-form";
-import { SubmitHandler } from "react-hook-form";
 import DropdownCategories from '../components/Categories';
 import IMovieStore from "../context/contextMovie";
+import Context from "../context/contextUser";
+import { IMovieSearchForm } from "../types/typesRest";
+import ModalWindow from "./Login";
+
 
 function Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
@@ -33,7 +33,7 @@ function Header() {
       .post("/activate")
       .then((data) => {
         console.log(data.data);
-        alert(`Check email. Message sending to email: ${state.user}`);
+        alert(`Check email. Message sending to email: ${state.user?.email}`);
       })
       .catch((err) => {
         console.log(err);
@@ -43,9 +43,6 @@ function Header() {
   const onSubmit: SubmitHandler<IMovieSearchForm> = async (
     value: IMovieSearchForm
   ) => {
-    //  const params = new URLSearchParams(value as unknown as Record<string,string>);
-    //  const queryString = params.toString();
-    console.log("submit value");
     navigate(`/search/?name=${value.name}`);
   };
   if (state.user && state.loading === false) {

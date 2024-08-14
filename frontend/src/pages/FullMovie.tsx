@@ -15,7 +15,6 @@ function FullMovie() {
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await axios.get<IFullMovie>(`/movies/full/${id}`);
-      console.log(data);
       setData(data);
     };
     fetchData();
@@ -40,9 +39,8 @@ function FullMovie() {
         <h3>Categories </h3>
       {movie.categories.map((item,index)=>
       {
-        return <Col key={index}><Link to={`/categories/${item}/page/1`}><h4>{item}</h4></Link></Col>
+        return <Link to={`/categories/${item}/page/1`}><h4>{item}</h4><br/></Link>
       })}
-        {/* <Link to={`/categories/${movie.categories[0]}/page/1`}><h4>{movie.categories}</h4></Link></Row> */}
       </Row>
       <Row className="pb-3">
         <h2>Трейлер</h2>

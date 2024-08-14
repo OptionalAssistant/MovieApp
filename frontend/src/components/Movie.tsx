@@ -8,7 +8,7 @@ function  Movie({ movie }: { movie: IMovie }) {
   return (
     <Card className="card-fixed">
       <div></div>
-      <Card.Link as={Link} to={`/movies/${movie._id}`}>
+      <Card.Link as={Link} to={`/movies/${movie.id}`}>
         {" "}
         <Card.Img
           variant="top"
@@ -19,9 +19,9 @@ function  Movie({ movie }: { movie: IMovie }) {
       <Card.Body>
         <Card.Title className="mb-3">{movie.name}</Card.Title>
         <Card.Subtitle className="mb-3">
-          {movie.date}, {movie.country}  , {movie.categories} 
+          {movie.date}, {movie.country}  , {movie.categories[0]} 
         </Card.Subtitle>
-        <Card.Link as={Link} to={`/movies/${movie._id}`}>
+        <Card.Link as={Link} to={`/movies/${movie.id}`}>
           <Button variant="primary" type="button">
             Watch
           </Button>

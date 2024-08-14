@@ -28,6 +28,7 @@ class MailService {
       const info = await this.transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log("oops something went wrong during sendmaul");
+          
         } else {
             console.log("everything went good during sendmaul");
         }

@@ -17,22 +17,19 @@ export const register = async (req : Request<{},{},IRegisterForm>, res : Respons
     const hash = await bcrypt.hash(password, salt);
 
 
-    const userCheck = await UserModel.findOne({email : req.body.email});
+    const userCheck = await UserModel.findOne({where : {email : req.body.email}});
 
     if(userCheck){
      return res.status(500).json({message: "Пользователь с таким email уже существует"})
     }
-    const doc = new UserModel({
-      name: req.body.name,
-      email: req.body.email,
-      passwordHash: hash,
+    const doc = await UserModel.create({name : req.body.name,email : req.body.email,passwordHash : hash,
     });
 
     const user = await doc.save();
 
     const token = jwt.sign(
       {
-        _id: user._id,
+        id: user.id,
       },
       process.env.SECRET_KEY,
       {
@@ -49,7 +46,6 @@ export const register = async (req : Request<{},{},IRegisterForm>, res : Respons
 
    return res.json(userDataToken);
   } catch (error) {
-    console.log(error);
    return  res.status(500).json({
       message: "Не удалось зарегистрироваться",
     });
@@ -57,7 +53,7 @@ export const register = async (req : Request<{},{},IRegisterForm>, res : Respons
 };
 export const login = async (req: Request<{},{},ILoginForm> , res : Response<LoginResponce> ) => {
   try {
-    const user = await UserModel.findOne({ email: req.body.email });
+    const user = await UserModel.findOne({where: { email: req.body.email }});
     
     if (!user) {
       return res.status(404).json({
@@ -78,7 +74,7 @@ export const login = async (req: Request<{},{},ILoginForm> , res : Response<Logi
 
     const token = jwt.sign(
       {
-        _id: user._id,
+        id: user.id,
       },
       process.env.SECRET_KEY,
       {
@@ -95,7 +91,7 @@ export const login = async (req: Request<{},{},ILoginForm> , res : Response<Logi
 
     res.json(userDataToken);
   } catch (error) {
-    console.log(error);
+
     res.status(500).json({
       message: "Не удалось авторизоваться",
     });
@@ -104,7 +100,8 @@ export const login = async (req: Request<{},{},ILoginForm> , res : Response<Logi
 
 export const  getMe = async (req: Request<{},{},IAuthMe>, res : Response<AuthMeResponce>) => {
   try {
-    const user = await UserModel.findById(req.body.userId);
+    const user = await UserModel.findByPk(req.body.userId);
+    console.log(req.body.userId);
     
     if (!user) {
       return res.status(404).json({
@@ -118,7 +115,7 @@ export const  getMe = async (req: Request<{},{},IAuthMe>, res : Response<AuthMeR
 
     return res.json(userData);
   } catch (error) {
-    console.log(error);
+
     return res.status(500).json({
       message: "Не удалось получить информацию о пользователе",
     });
@@ -129,7 +126,7 @@ export const forgotPassword = async (req  , res) => {
   const { email } = req.body;
 
   try {
-    const oldUser = await UserModel.findOne({ email: email });
+    const oldUser = await UserModel.findOne({where:{ email: email }});
 
     if (!oldUser) {
       return res.send("User not exists");
@@ -137,11 +134,11 @@ export const forgotPassword = async (req  , res) => {
 
     const secret = process.env.SECRET_KEY + oldUser.passwordHash;
 
-    const token = jwt.sign({ email: email, id: oldUser._id }, secret, {
+    const token = jwt.sign({ email: email, id: oldUser.id }, secret, {
       expiresIn: "10m",
     });
 
-    const link = `http://localhost:4444/reset-password/${oldUser._id}/${token}`;
+    const link = `http://localhost:4444/reset-password/${oldUser.id}/${token}`;
 
 
     MailService.sendMail(email,"Password recovery",`
@@ -165,7 +162,7 @@ export const resetPassword = async (req : Request<ActivateParams>, res) => {
 
   const { id, token } = req.params;
 
-  const oldUser = await UserModel.findOne({ _id: id });
+  const oldUser = await UserModel.findByPk(id);
 
   if (!oldUser) {
     return res.send("User not exists");
@@ -187,7 +184,7 @@ export const updatePassword = async (req, res) => {
 
   const { id, token } = req.params;
 
-  const User = await UserModel.findOne({ _id: id });
+  const User = await UserModel.findByPk(id);
 
   if (!User) {
     return res.send("User not exists");
@@ -199,20 +196,10 @@ export const updatePassword = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    await UserModel.updateOne(
-      {
-        _id: id,
-      },
-      {
-        $set: {
-          passwordHash,
-        },
-      }
-    );
+    User.update({passwordHash});
 
     return res.send("Password has changed!");
   } catch (error) {
-    console.log(error);
     return res.send("Not verified\n");
   }
 };
@@ -220,7 +207,7 @@ export const updatePassword = async (req, res) => {
 export const activateAccount = async(req : Request<{},{},IAuthMe>, res) => {
   const userId = req.body.userId;
   
-  const User = await UserModel.findOne({ _id: userId });
+  const User = await UserModel.findByPk(userId);
 
   if(!User){
     return res.send("User does not exist");
@@ -228,12 +215,11 @@ export const activateAccount = async(req : Request<{},{},IAuthMe>, res) => {
 
   const secret = process.env.SECRET_KEY + User.isActivated;
   let link;
-  console.log("Secret1",secret);
     try{
       const token = jwt.sign({ email: User.email,id : User.id}, secret, {
         expiresIn: "10m",
       });
-       link = `http://localhost:4444/activate/${User._id}/${token}`;
+       link = `http://localhost:4444/activate/${User.id}/${token}`;
     }
       catch(err){
       return  res.send("link expired....!");
@@ -259,7 +245,7 @@ export const activateAccount = async(req : Request<{},{},IAuthMe>, res) => {
 export const activateLink = async(req: Request<ActivateParams>,res)=>{
       const {id,token}  = req.params;
 
-      const User = await UserModel.findOne({_id: id});
+      const User = await UserModel.findByPk(id);
 
       if(!User){
         return res.send("User not found");
@@ -270,16 +256,7 @@ export const activateLink = async(req: Request<ActivateParams>,res)=>{
     
         const verify = jwt.verify(token,secret);
         
-        await UserModel.updateOne(
-          {
-            _id: id,
-          },
-          {
-            $set: {
-              isActivated: true,
-            },
-          }
-        );
+       await User.update({isActivated: true});
     
         return res.send("Email is verified");
       }

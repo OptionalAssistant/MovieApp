@@ -1,11 +1,54 @@
-import { Schema, model } from "mongoose";
-import { IUser } from "../types/typesClient";
+import  sequelize  from './db';
+import { Model, InferAttributes, InferCreationAttributes, CreationOptional,DataTypes } from 'sequelize';
+import { IUser } from '../types/typesClient';
 
-const userSchema = new Schema<IUser>({
-  name: { type: String, required: true ,unique:true},
-  email: { type: String, required: true,unique:true},
-  passwordHash: { type: String, required: true },
-  isActivated: {type: Boolean,default: false}
-});
 
-export default model<IUser>("User", userSchema);
+
+// Define the User model, using IUser for the user property
+class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> implements IUser {
+  declare id: CreationOptional<number>;
+  declare name: string;
+  declare email: string;
+  declare passwordHash: string;
+  declare isActivated: boolean;
+  
+
+  
+
+}
+
+// Initialize the User model with actual Sequelize fields
+User.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    passwordHash: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isActivated: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+  },
+  {
+    sequelize,
+    modelName: 'User',
+    tableName: 'users',
+    timestamps: false
+  }
+);
+
+export default User;

@@ -1,4 +1,3 @@
-import MovieModel from "../models/Movie";
 import { Request, Response, NextFunction, response } from "express";
 import {
   IFullMovie,
@@ -11,78 +10,56 @@ import {
   PageParams,
   SearchMovieResponse,
 } from "../types/typesRest";
-import MoiveModel from "../models/Movie";
 import fs from "fs";
 import { ICategoryName } from "../types/typesClient";
 import CategoryModel from "../models/Category";
+import MovieModel from "../models/Movie";
 import Category from "../models/Category";
+import { Op } from "sequelize";
+const movieCount = 1;
 export const getMovies = async (req, res: Response<IMovie[]>) => {
-  const movies = await MovieModel.find();
-
-  res.json(movies);
+  const movies = await MovieModel.findAll();
+  console.log("Movies");
+  let items : IMovie[];
+    for(let i = 0;i < movies.length;i++){
+      const curMovie = movies[i];
+      const curCategories = (await curMovie.getCategories()).map(category => category.name); 
+      items.push({id: curMovie.id,name:curMovie.name,date: curMovie.date,country:curMovie.country,
+        imageUrl: curMovie.imageUrl,categories:curCategories}
+      );
+    }
+  res.json(items);
 };
 export const getMoviesNumber = async (req, res: Response<movieNumber>) => {
-  const movies = await MovieModel.find();
+  const movies = await MovieModel.findAll();
 
   res.json({ length: movies.length });
 };
-export const putMovie = async (
-  req: Request<{}, {}, IMovie>,
-  res: Response<IPutMovieResponce>
-) => {
-  try {
-    const doc = new MoiveModel({
-      name: req.body.name,
-      country: "USA",
-      date: "1828",
-    });
 
-    const movie = await doc.save();
-
-    res.json(movie);
-  } catch (error) {
-    console.log(error);
-    res.json({ message: "Не удалось добавить фильм" });
-  }
-};
-async function retrieveByCategories(movies: IFullMovie[]) {
-  let updatedMovies = [];
-  for (let i = 0; i < movies.length; i++) {
-    const movie = movies[i];
-    const items = await Promise.all(
-      movie.categories.map(async (categorie) => {
-        const category = await CategoryModel.findById(categorie);
-        return category.name;
-      })
-    );
-    const Movie: IFullMovie = {
-      _id: movie._id,
-      name: movie.name,
-      trailerUrl: movie.trailerUrl,
-      description: movie.description,
-      date: movie.date,
-      categories: items,
-      imageUrl: movie.imageUrl,
-      country: movie.country,
-    };
-    updatedMovies.push(Movie);
-  }
-  return updatedMovies;
-}
 export const getMoviePage = async (
   req: Request<PageParams>,
   res: Response<IMovieResponce>
 ) => {
   const { id } = req.params;
   try {
-    let index = (id - 1) * 1;
-    
-    const movies = await MovieModel.find().skip(index).limit(1);
-    let updatedMovies = await retrieveByCategories(movies);
+    let index = (id - 1) * movieCount;
 
-    res.send(updatedMovies);
-  } catch (error) {
-    res.send({ message: "Oops can not get movie page" });
+    const { rows: movies } = await MovieModel.findAndCountAll({
+      offset: index,
+      limit: movieCount,
+    });
+    let items: IMovie[] = []; 
+    for(let i = 0;i < movies.length;i++){
+      const curMovie = movies[i];
+      const curCategories = (await curMovie.getCategories()).map(category => category.name); 
+      items.push({id: curMovie.id,name:curMovie.name,date: curMovie.date,country:curMovie.country,
+        imageUrl: curMovie.imageUrl,categories:curCategories}
+      );
+    }
+
+    res.send(items);
+  } catch (err) {
+    console.log("get movie page error",err);
   }
 };
 
@@ -93,23 +70,12 @@ export const getFullMovie = async (
   const { id } = req.params;
 
   try {
-    const movie = await MovieModel.findById({ _id: id });
+    const movie = await MovieModel.findByPk(id, { include: Category });
 
-    const categories = movie.categories;
-    console.log("Categories", categories);
+    const items = (await movie.getCategories()).map(category=>category.name);
 
-    const items = await Promise.all(
-      movie.categories.map(async (categorie) => {
-        console.log("Category id", categorie);
-        const category = await CategoryModel.findById(categorie);
-        console.log(category);
-        console.log("Category name", categorie.name);
-        return category.name;
-      })
-    );
-    console.log("Oket");
     const Movie: IFullMovie = {
-      _id: movie.id,
+      id: movie.id,
       name: movie.name,
       trailerUrl: movie.trailerUrl,
       description: movie.description,
@@ -120,7 +86,6 @@ export const getFullMovie = async (
     };
     return res.send(Movie);
   } catch (error) {
-    console.log("oops smth went wrong\n", error);
     return res.status(404);
   }
 };
@@ -174,17 +139,28 @@ export const SearchMovie = async (
   let index = id - 1;
 
   try {
-    const movie = await MovieModel.find({
-      name: { $regex: new RegExp(s_name, "i") },
+    const { count, rows: movies } = await MovieModel.findAndCountAll({
+      where: {
+        name: {
+          [Op.iLike]: `%${s_name}%`, // Case-insensitive search
+        },
+      },
+      offset: index, // Pagination offset
+      limit: movieCount,  // Number of records per page
     });
 
-    const items = movie.slice(index * 1, index * 1 + 1);
-
-    if (!movie.length) {
+    if (!movies.length) {
       return res.status(404).json({ message: "Movie not found" });
     }
-    let updatedMovies = await retrieveByCategories(items);
-    return res.send({ movies: updatedMovies, total: movie.length });
+    let items: IMovie[] = []; 
+    for(let i = 0;i < movies.length;i++){
+      const curMovie = movies[i];
+      const curCategories = (await curMovie.getCategories()).map(category => category.name); 
+      items.push({id: curMovie.id,name:curMovie.name,date: curMovie.date,country:curMovie.country,
+        imageUrl: curMovie.imageUrl,categories:curCategories}
+      );
+    }
+    return res.send({ movies: items, total: movies.length });
   } catch (err) {
     return res
       .status(404)
@@ -200,27 +176,26 @@ export const getCategory = async (
   const id = req.params.id;
   let index = id - 1;
   try {
-    const data = await CategoryModel.findOne({ name: categoryName });
-
+    const data = await CategoryModel.findOne({ where: { name: categoryName } });
     if (!data) {
       return res.send({ message: `No category ${categoryName}` });
     }
+    console.log("Okey",categoryName);
+    let movies = (await data.getMovies());
+    const count = movies.length;
 
-    console.log(data);
-
-    const items = await Promise.all(
-      data.movies.map(async (movieId) => {
-        const movie = await MovieModel.findById(movieId);
-        return movie;
-      })
-    );
-    const movies = items.slice(index * 1, index * 1 + 1);
-
-    const updatedItems = await retrieveByCategories(movies);
-
-    console.log("Itemsss", movies);
-    return res.send({ movies: updatedItems, total: items.length });
+    movies = movies.slice(index * movieCount,index * movieCount +movieCount);
+    let items: IMovie[] = []; 
+    for(let i = 0;i < movies.length;i++){
+      const curMovie = movies[i];
+      const curCategories = (await curMovie.getCategories()).map(category => category.name); 
+      items.push({id: curMovie.id,name:curMovie.name,date: curMovie.date,country:curMovie.country,
+        imageUrl: curMovie.imageUrl,categories:curCategories}
+      );
+    }
+    return res.send({ movies: items, total: count });
   } catch (error) {
+    console.log('error',error);
     res.send({ message: "oops something went wrong" });
   }
 };

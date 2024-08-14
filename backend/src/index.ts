@@ -1,26 +1,33 @@
 import express from "express";
 
-import mongoose from "mongoose";
 import cors from "cors";
-import { registerValidation, loginValidation } from "./validations";
-import handleValidationErrors from "./utils/handleValidationErrors";
-import { UserController,MovieController } from "./controllers";
-import path from "path";
-import { body } from "express-validator";
-import CheckAuth from "./utils/CheckAuth";
 import dotenv from 'dotenv';
+import { body } from "express-validator";
 import multer from 'multer';
-import { PlayMovie } from "./controllers/MovieController";
-
+import path from "path";
+import { MovieController,UserController } from "./controllers";
+import sequelize from "./models/db";
+import CheckAuth from "./utils/CheckAuth";
+import handleValidationErrors from "./utils/handleValidationErrors";
+import { loginValidation, registerValidation } from "./validations";
+import Movie from './models/Movie';
+import Category from "./models/Category";
+import CategoryMovie from './models/CategoryMovie';
 dotenv.config();
-mongoose
-  .connect(process.env.MONGODB_URL)
-  .then(() => {
-    console.log("DB ok");
-  })
-  .catch(() => {
-    console.log("DB error");
-  });
+
+
+
+   sequelize.authenticate().then(()=>{
+    console.log('Connection has been established successfully.');
+   })
+   .catch((error)=>{
+
+    console.error('Unable to connect to the database:', error);
+   });
+
+   Movie.belongsToMany(Category,{through:CategoryMovie });
+   Category.belongsToMany(Movie,{through: CategoryMovie});
+   sequelize.sync();
 const app = express();
 const filePath = path.join(__dirname, "..", "src", "views");
 
@@ -67,7 +74,7 @@ app.post("/activate",CheckAuth,UserController.activateAccount);
 app.get("/activate/:id/:token",UserController.activateLink);
 app.get("/reset-password/:id/:token", UserController.resetPassword);
 app.get("/movies",MovieController.getMovies);
-app.post("/movies",MovieController.putMovie);
+//app.post("/movies",MovieController.putMovie);
 app.get("/movies/pages/:id",MovieController.getMoviePage);
 app.get("/movies/number",MovieController.getMoviesNumber);
 app.get("/movies/full/:id",MovieController.getFullMovie);
@@ -80,7 +87,7 @@ app.post(
   handleValidationErrors,
   UserController.updatePassword
 );
-app.get("/search",MovieController.SearchMovie);
-app.get("/categories/:idCategory/page/:id",MovieController.getCategory);
+ app.get("/search",MovieController.SearchMovie);
+ app.get("/categories/:idCategory/page/:id",MovieController.getCategory);
 
 app.listen(process.env.PORT);

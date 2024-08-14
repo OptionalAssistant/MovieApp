@@ -12,7 +12,6 @@ export const constructPaginationList = (props: IPaginationList) => {
     return `/${props.link}${page}`.replace(/\/{2,}/g, '/');
   };
   for (let index = prevIndex; index < props.curPage; index++) {
-    console.log("Link",props.link);
     items.push(
       <Pagination.Item
         key={index}
@@ -40,8 +39,7 @@ export const constructPaginationList = (props: IPaginationList) => {
 
 
 
-  console.log("Cur page", props.curPage);
-  console.log("Page count", props.pageCount);
+
   return (
     <Pagination>
       {props.curPage > 1 && (

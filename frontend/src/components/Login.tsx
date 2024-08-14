@@ -1,16 +1,16 @@
+import { useContext } from "react";
 import Button from "react-bootstrap/esm/Button";
-import Modal from "react-bootstrap/esm/Modal";
-import React, { useContext, useEffect, useState } from "react";
-import Form from "react-bootstrap/esm/Form";
 import Col from "react-bootstrap/esm/Col";
+import Form from "react-bootstrap/esm/Form";
+import Modal from "react-bootstrap/esm/Modal";
 import Row from "react-bootstrap/esm/Row";
-import { SubmitHandler } from "react-hook-form/dist/types/form";
 import { useForm } from "react-hook-form";
+import { SubmitHandler } from "react-hook-form/dist/types/form";
+import { useNavigate } from "react-router-dom";
 import axios from "../axios";
-import { Link, Navigate, useNavigate } from "react-router-dom";
 import Context from "../context/contextUser";
-import { ILoginForm, UserData, UserDataToken } from "../types/typesRest";
 import { ErrorResponse } from "../types/typesClient";
+import { ILoginForm, UserDataToken } from "../types/typesRest";
 
 interface ModalProps {
   show: boolean;
@@ -33,17 +33,15 @@ function ModalLogin(props: ModalProps) {
 
 
   const onSubmit: SubmitHandler<IFormInput> = async (value: ILoginForm) => {
-    console.log(value);
     axios
       .post<UserDataToken>("/auth/login", value)
       .then(({ data }) => {
         props.hide();
         dispatch({ type: "fullfilled", payload: data.data });
-
+        console.log('data ',data);
         window.localStorage.setItem("token", data.token);
       })
       .catch((err : ErrorResponse) => {
-        console.log(err);
         setError("password", { type: "custom", message: err.response.data.message });
 
         // alert("Invalid login or password");

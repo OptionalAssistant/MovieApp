@@ -1,10 +1,8 @@
+import { useContext } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "../axios";
-import { IMovie } from "../types/typesRest";
+import { useNavigate } from "react-router-dom";
 import IMovieStore from "../context/contextMovie";
-import { useContext } from "react";
 
 function Categories() {
   const navigate = useNavigate();

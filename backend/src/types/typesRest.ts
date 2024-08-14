@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+
 
 export interface UserData {
   name: string;
@@ -30,12 +30,12 @@ export type AuthMeResponce = UserData | IResponceError;
 export type LoginResponce = UserDataToken | IResponceError;
 
 export interface IMovie {
-  _id : String;
+  id : number;
   name: string;
   date: string;
   country : string;
   imageUrl: string;
-  categories: mongoose.Types.ObjectId[]  | string[];
+  categories: string[];
 }
 
 export interface IFullMovie extends IMovie{
@@ -69,6 +69,6 @@ export interface ISearchMovieResponse {
 }
 export interface ICategory{
   name: string;
-  movies : mongoose.Types.ObjectId[];
+//  movies : mongoose.Types.ObjectId[];
 }
 export type SearchMovieResponse = ISearchMovieResponse | IResponceError;

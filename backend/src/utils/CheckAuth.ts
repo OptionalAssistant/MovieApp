@@ -6,12 +6,11 @@ import { Request } from "express";
 export default (req : Request<{},{},IAuthMe>,res,next)=>{
     
         const token = ( req.headers.authorization  || '').replace(/Bearer\s?/,'');
-    
         if(token){
                 try{
                     const decoded = jwt.verify(token,process.env.SECRET_KEY);
 
-                    req.body.userId = decoded._id;
+                    req.body.userId = decoded.id;
                     
                     next();
 

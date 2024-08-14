@@ -31,13 +31,13 @@ function Register(props: any) {
   } = useForm<IFormInput>({ mode: "onChange" });
   const navigate = useNavigate();
   const onSubmit: SubmitHandler<IFormInput> = async (value : IRegisterForm) => {
-
+      console.log("Common");
 
         axios.post<UserDataToken>("/auth/register", value)
         .then(({data}) =>{
           navigate("/");
           dispatch({type: 'fullfilled',payload: data.data});
-
+          console.log('data ',data);
           window.localStorage.setItem('token',data.token);
         })
         .catch((err : ErrorResponse) =>{

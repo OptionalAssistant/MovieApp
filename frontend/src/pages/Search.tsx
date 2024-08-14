@@ -8,11 +8,6 @@ import { IMovieSearchForm, ISearchMovieResponse } from "../types/typesRest";
 import { useContext, useEffect, useState } from "react";
 import MovieContext from "../context/contextMovie";
 import axios from "../axios";
-import { IMovie } from "../types/typesRest";
-import Row from "react-bootstrap/esm/Row";
-import Col from "react-bootstrap/esm/Col";
-import Movie from "../components/Movie";
-import { Pagination } from "react-bootstrap";
 import Page from "./Page";
 import { constructPaginationList } from "../utils/utils";
 
@@ -21,9 +16,9 @@ function Search(props: any) {
   const movieContext = useContext(MovieContext);
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
-  console.log("Seatch params",searchParams);
+
   let page = searchParams.get("page");
-  console.log("Currentrr page",page)
+
   if (!page) page = "1";
 
   useEffect(() => {
@@ -46,7 +41,6 @@ function Search(props: any) {
         movieContext.dispatch({ type: "fullfilled", payload: data.movies });
       } catch (error) {
         movieContext.dispatch({ type: "rejected", payload: null });
-        console.log("Error during fetch movies", error);
       }
     };
 

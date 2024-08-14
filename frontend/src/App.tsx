@@ -25,7 +25,6 @@ function App() {
         dispatch({ type: "fullfilled", payload: data });
       })
       .catch((err) => {
-        console.log("Err", err);
         dispatch({ type: "rejected", payload: null });
       });
   }, []);

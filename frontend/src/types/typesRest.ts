@@ -22,7 +22,7 @@ export interface ILoginForm{
 }
 
 export interface IMovie {
-  _id : String;
+  id : String;
   name: string;
   date: string;
   country : string;

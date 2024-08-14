@@ -30,11 +30,9 @@ function Categories(props: any) {
       setPaginationItems(items);
 
       movieContext.dispatch({ type: "fullfilled", payload: data.movies });
-      console.log(data);
     } catch (error) {
       movieContext.dispatch({ type: "rejected", payload: null });
 
-      console.log("Categories error", error);
       
     }
   }
