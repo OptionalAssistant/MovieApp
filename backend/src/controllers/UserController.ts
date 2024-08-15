@@ -68,7 +68,7 @@ export const login = async (req: Request<{},{},ILoginForm> , res : Response<Logi
 
     if (!isValidPassword) {
       return res.status(404).json({
-        message: "Неверный логин или пароль",
+        message: "Неверный логин или пароль!",
       });
     }
 
@@ -102,7 +102,7 @@ export const  getMe = async (req: Request<{},{},IAuthMe>, res : Response<AuthMeR
   try {
     const user = await UserModel.findByPk(req.body.userId);
     console.log(req.body.userId);
-    
+
     if (!user) {
       return res.status(404).json({
         message: "Пользователь не найден",

@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import Button from "react-bootstrap/esm/Button";
 
 function  Movie({ movie }: { movie: IMovie }) {
-  console.log("Movie",movie);
+
   return (
     <Card className="card-fixed">
       <div></div>

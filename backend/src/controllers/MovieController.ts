@@ -19,7 +19,7 @@ import { Op } from "sequelize";
 const movieCount = 1;
 export const getMovies = async (req, res: Response<IMovie[]>) => {
   const movies = await MovieModel.findAll();
-  console.log("Movies");
+
   let items : IMovie[];
     for(let i = 0;i < movies.length;i++){
       const curMovie = movies[i];
@@ -139,28 +139,29 @@ export const SearchMovie = async (
   let index = id - 1;
 
   try {
-    const { count, rows: movies } = await MovieModel.findAndCountAll({
+    const movies = await MovieModel.findAll({
       where: {
         name: {
           [Op.iLike]: `%${s_name}%`, // Case-insensitive search
         },
       },
-      offset: index, // Pagination offset
-      limit: movieCount,  // Number of records per page
+      // offset: index, // Pagination offset
+      // limit: movieCount,  // Number of records per page
     });
-
+    const count = movies.length;
+    const moviesSliced =  movies.slice(index * movieCount ,index * movieCount + movieCount);
     if (!movies.length) {
       return res.status(404).json({ message: "Movie not found" });
     }
     let items: IMovie[] = []; 
-    for(let i = 0;i < movies.length;i++){
-      const curMovie = movies[i];
+    for(let i = 0;i < moviesSliced.length;i++){
+      const curMovie = moviesSliced[i];
       const curCategories = (await curMovie.getCategories()).map(category => category.name); 
       items.push({id: curMovie.id,name:curMovie.name,date: curMovie.date,country:curMovie.country,
         imageUrl: curMovie.imageUrl,categories:curCategories}
       );
     }
-    return res.send({ movies: items, total: movies.length });
+    return res.send({ movies: items, total: count });
   } catch (err) {
     return res
       .status(404)
@@ -180,7 +181,7 @@ export const getCategory = async (
     if (!data) {
       return res.send({ message: `No category ${categoryName}` });
     }
-    console.log("Okey",categoryName);
+
     let movies = (await data.getMovies());
     const count = movies.length;
 

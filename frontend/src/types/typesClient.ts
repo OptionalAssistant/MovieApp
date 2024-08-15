@@ -1,7 +1,7 @@
 import { IMovie, UserData } from "./typesRest";
 
 
-export interface State {
+export interface IUserState {
   loading: boolean;
   error: string;
   user: UserData | null;

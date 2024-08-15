@@ -1,56 +1,53 @@
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import Page from "../pages/Page";
-import { useContext, useEffect, useState } from "react";
-import IMovieStore from "../context/contextMovie";
+
+import { fetchMoviePage } from "../redux/slices/movie";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 import axios from "../axios";
-import { IMovie, movieNumber } from "../types/typesRest";
-import Pagination from "react-bootstrap/esm/Pagination";
+import { movieNumber } from "../types/typesRest";
 import { constructPaginationList } from "../utils/utils";
-import DropdownCategories from '../components/Categories'
 
 function NumericPage(props: any) {
   let { id } = useParams<string>();
   let numericId: number;
 
   if (id) numericId = Number(id);
-  else  numericId = 1;
-  
-
-  const movieContext = useContext(IMovieStore);
+  else numericId = 1;
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
+  const dispatch = useAppDispatch();
+  const movies = useAppSelector(state => state.movies.movies) ;
+  const loading = useAppSelector(state => state.movies.loading);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await dispatch(fetchMoviePage(numericId)).unwrap();
+        const size = await axios.get<movieNumber[]>(`/movies/number`);
 
-    useEffect(() => {
-      const fetchData = async () => {
-        movieContext.dispatch({ type: "pending", payload: null });
-        try {
-          const { data } = await axios.get<IMovie[]>(`/movies/pages/${numericId}`);
-          const size = await axios.get<movieNumber[]>(`/movies/number`);
-        
-          movieContext.dispatch({ type: "fullfilled", payload: data });
+        const pageCount = Math.ceil(size.data.length / 1);
 
-          const pageCount = Math.ceil(size.data.length / 1);
-        
-          let items: any;
-          
-           items =  constructPaginationList({pageCount: pageCount,link :'/pages/',curPage:numericId});
+        let items: any;
 
-           setPaginationItems(items);
-          }
+        items = constructPaginationList({
+          pageCount: pageCount,
+          link: "/pages/",
+          curPage: numericId,
+        });
 
-         catch (error) {
-          movieContext.dispatch({ type: "rejected", payload: null });
-          console.log("Error during fetch movies", error);
-        }
-      };
+        setPaginationItems(items);
+      } catch (error) {
+        console.log("Something went wrong during fetchPage");
+      }
+    };
 
-      fetchData();
-    }, [numericId]);
+    fetchData();
+  }, [numericId]);
   return (
     <>
-      {movieContext.state.movies && !movieContext.state.loading && (
+      {movies&& !loading && (
         <>
-      <Page items={paginationItems} />
+          <Page items={paginationItems} />
         </>
       )}
     </>

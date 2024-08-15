@@ -1,24 +1,24 @@
-import { useParams } from "react-router-dom";
-import IMovieStore from "../context/contextMovie";
 import { useContext, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { fetchMovieCategoryPage } from "../redux/slices/movie";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 import { constructPaginationList } from "../utils/utils";
 import Page from "./Page";
-import { IMovie, ISearchMovieResponse } from "../types/typesRest";
-import axios from "../axios";
 
 function Categories(props: any) {
   let { idCategory ,id} = useParams();
-  const movieContext = useContext(IMovieStore);
-
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
+  const dispatch = useAppDispatch();
+  const movies = useAppSelector(state => state.movies.movies);
+  const loading = useAppSelector(state=>state.movies.loading);
+  
   useEffect(() => {
 
     const fetchData = async () => {
 
-    movieContext.dispatch({ type: "pending", payload: null });
     try {
-      const {data} = await axios.get<ISearchMovieResponse>(`categories/${idCategory}/page/${id}`);
+      const data = await dispatch(fetchMovieCategoryPage(`categories/${idCategory}/page/${id}`)).unwrap();
       
       const pageCount = Math.ceil(data.total / 1);
       const strLink = `categories/${idCategory}/page/`;
@@ -28,10 +28,8 @@ function Categories(props: any) {
 
 
       setPaginationItems(items);
-
-      movieContext.dispatch({ type: "fullfilled", payload: data.movies });
     } catch (error) {
-      movieContext.dispatch({ type: "rejected", payload: null });
+     console.log("Failed to get category page");
 
       
     }
@@ -42,7 +40,7 @@ function Categories(props: any) {
   return (
     <>
       <h1>Categorie: {idCategory}</h1>
-      {movieContext.state.movies && !movieContext.state.loading && (
+      {movies&& !loading && (
         <>
           <Page items={paginationItems} />
         </>

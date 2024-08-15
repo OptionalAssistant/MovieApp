@@ -8,17 +8,22 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../axios";
 import DropdownCategories from '../components/Categories';
-import IMovieStore from "../context/contextMovie";
-import Context from "../context/contextUser";
+
 import { IMovieSearchForm } from "../types/typesRest";
 import ModalWindow from "./Login";
+import { useAppDispatch, useAppSelector } from "../redux/store";
+import { isatty } from "tty";
+import { logout } from "../redux/slices/auth";
 
 
 function Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
-  const { state, dispatch } = useContext(Context);
-  const movieContext = useContext(IMovieStore);
+  const email = useAppSelector(state => state.auth.user?.email);
+  const user = useAppSelector(state => state.auth.user);
+  const loading = useAppSelector(state => state.auth.loading);
+  const isActivated = useAppSelector(state=>state.auth.user?.isActivated);
 
+  const dispatch = useAppDispatch();
   const {
     register,
     handleSubmit,
@@ -33,11 +38,11 @@ function Header() {
       .post("/activate")
       .then((data) => {
         console.log(data.data);
-        alert(`Check email. Message sending to email: ${state.user?.email}`);
+        alert(`Check email. Message sending to email: ${ email}`);
       })
       .catch((err) => {
         console.log(err);
-        alert(`Ooops. Message dont sending to email: ${state.user}`);
+        alert(`Ooops. Message dont sending to email: ${email}`);
       });
   };
   const onSubmit: SubmitHandler<IMovieSearchForm> = async (
@@ -45,13 +50,13 @@ function Header() {
   ) => {
     navigate(`/search/?name=${value.name}`);
   };
-  if (state.user && state.loading === false) {
+  if (user && !loading) {
     button = (
       <Button
         variant="danger"
         onClick={() => {
           window.localStorage.removeItem("token");
-          dispatch({ type: "set", payload: null });
+          dispatch(logout());
         }}
       >
         Logout
@@ -102,7 +107,7 @@ function Header() {
         {""}
         <DropdownCategories />
       </Row>
-      {state.user && !state.user.isActivated && (
+      {user && !isActivated && (
         <Alert variant="danger">
           <Alert.Heading>Ooops your email is not verified</Alert.Heading>
           <p>Verify your email click on the burron below</p>

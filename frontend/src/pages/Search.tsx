@@ -1,46 +1,47 @@
+import { useEffect, useState } from "react";
 import {
-  Link,
-  useLocation,
-  useParams,
-  useSearchParams,
+  useSearchParams
 } from "react-router-dom";
-import { IMovieSearchForm, ISearchMovieResponse } from "../types/typesRest";
-import { useContext, useEffect, useState } from "react";
-import MovieContext from "../context/contextMovie";
+import { ISearchMovieResponse } from "../types/typesRest";
+
 import axios from "../axios";
-import Page from "./Page";
 import { constructPaginationList } from "../utils/utils";
+import Page from "./Page";
+import { useAppDispatch, useAppSelector } from "../redux/store";
+import { fetchMovieSearchPage } from "../redux/slices/movie";
 
 function Search(props: any) {
   const [searchParams] = useSearchParams();
-  const movieContext = useContext(MovieContext);
+
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
-
+  const movies =  useAppSelector(state => state.movies.movies);
+  const loading = useAppSelector(state=>state.movies.loading) ;
   let page = searchParams.get("page");
 
   if (!page) page = "1";
 
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
     const fetchData = async () => {
-      movieContext.dispatch({ type: "pending", payload: null });
+
       try {
  
-        const { data } = await axios.get<ISearchMovieResponse>(
-          `search/?name=${searchParams.get("name")}&page=${page}`
-        );
+        const data = await dispatch(fetchMovieSearchPage(`search/?name=${searchParams.get("name")}&page=${page}`)).unwrap();
 
+        
         let items: any;
         const pageCount = Math.ceil(data.total / 1);
         const strLink = `search/?name=${searchParams.get("name")}&page=`
         items =  constructPaginationList({pageCount: pageCount,link : strLink,curPage:  Number(page)});
 
-
         setPaginationItems(items);
-;
-        movieContext.dispatch({ type: "fullfilled", payload: data.movies });
-      } catch (error) {
-        movieContext.dispatch({ type: "rejected", payload: null });
+          
+      }
+      catch(error)
+      {
+        console.log("Failed to fetch movies...\n");
       }
     };
 
@@ -49,13 +50,13 @@ function Search(props: any) {
 
   return (
     <>
-      {movieContext.state.movies && !movieContext.state.loading && (
+      {movies && !loading && (
         <>
         <h1>Results on search: {searchParams.get("name")}</h1>
         <Page items={paginationItems} />
           </>
       )}
-       {!movieContext.state.movies && !movieContext.state.loading && (
+       {!movies && !loading && (
         <h1>Movie with name: {searchParams.get("name")} not found</h1>
       )}
     </>

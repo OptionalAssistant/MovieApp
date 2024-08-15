@@ -1,33 +1,28 @@
-import Header from "./components/header";
 import Container from "react-bootstrap/Container";
+import Header from "./components/header";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Routes, Route } from "react-router-dom";
-import Register from "./pages/Register";
-import Page from "./pages/Page";
-import PassRecovery from "./pages/PassRecovery";
-import { useContext, useEffect } from "react";
-import Context from "./context/contextUser";
+import { useEffect } from "react";
+import { Route, Routes } from "react-router-dom";
 import axios from "./axios";
-import { UserData } from "./types/typesRest";
-import { MainPage } from "./pages/Home";
-import FullMovie from "./pages/FullMovie";
-import Search from "./pages/Search";
-import NumericPage from "./pages/NumericPage";
 import Categorie from "./pages/Categories";
+import FullMovie from "./pages/FullMovie";
+import { MainPage } from "./pages/Home";
+import NumericPage from "./pages/NumericPage";
+import PassRecovery from "./pages/PassRecovery";
+import Register from "./pages/Register";
+import Search from "./pages/Search";
+import { fetchAuthMe } from "./redux/slices/auth";
+import { useAppDispatch } from "./redux/store";
+import { UserData } from "./types/typesRest";
 
 function App() {
-  const { dispatch, state } = useContext(Context);
-  useEffect(() => {
-    axios
-      .get<UserData>("/auth/me")
-      .then(({ data }) => {
-        dispatch({ type: "fullfilled", payload: data });
-      })
-      .catch((err) => {
-        dispatch({ type: "rejected", payload: null });
-      });
-  }, []);
+
+  const dispatch = useAppDispatch();
+  useEffect(()=>{
+    dispatch(fetchAuthMe());
+  },[]);
+
 
   return (
     <Container>

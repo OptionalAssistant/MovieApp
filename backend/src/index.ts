@@ -74,7 +74,6 @@ app.post("/activate",CheckAuth,UserController.activateAccount);
 app.get("/activate/:id/:token",UserController.activateLink);
 app.get("/reset-password/:id/:token", UserController.resetPassword);
 app.get("/movies",MovieController.getMovies);
-//app.post("/movies",MovieController.putMovie);
 app.get("/movies/pages/:id",MovieController.getMoviePage);
 app.get("/movies/number",MovieController.getMoviesNumber);
 app.get("/movies/full/:id",MovieController.getFullMovie);

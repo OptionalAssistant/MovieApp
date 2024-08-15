@@ -2,11 +2,11 @@ import { useContext } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import { useNavigate } from "react-router-dom";
-import IMovieStore from "../context/contextMovie";
+
 
 function Categories() {
   const navigate = useNavigate();
-  const movieContext = useContext(IMovieStore);
+
 
   const handleCategory = async (endpoint: string) => {
   
