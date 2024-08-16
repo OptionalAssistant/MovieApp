@@ -4,6 +4,7 @@ export interface IUser {
   email: string;
   passwordHash: string;
   isActivated: boolean;
+  roles: 'ADMIN' | 'USER'
 }
 
 
@@ -18,5 +19,9 @@ export interface ActivateParams {
 
 export interface ICategoryName{
   idCategory : string;
+  id : number;
+}
+
+export interface IMovieDelete{
   id : number;
 }

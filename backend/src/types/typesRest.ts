@@ -4,6 +4,7 @@ export interface UserData {
   name: string;
   email: string;
   isActivated: boolean;
+  roles : 'ADMIN' | 'USER';
 }
 export interface UserDataToken {
   token: string;
@@ -69,6 +70,16 @@ export interface ISearchMovieResponse {
 }
 export interface ICategory{
   name: string;
-//  movies : mongoose.Types.ObjectId[];
 }
 export type SearchMovieResponse = ISearchMovieResponse | IResponceError;
+
+export interface IMovieForm {
+  id : String;
+  name: string;
+  date: string;
+  country : string;
+  trailerUrl : string;
+  imageUrl: string;
+  description : string;
+  categories: string[];
+}

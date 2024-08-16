@@ -27,7 +27,7 @@ function Register(props: any) {
   } = useForm<IFormInput>({ mode: "onChange" });
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const onSubmit: SubmitHandler<IFormInput> = async (value: IRegisterForm) => {
+  const onSubmit: SubmitHandler<IFormInput> = async (value: IFormInput) => {
     console.log(value);
     try {
       const resultAction = await dispatch(
@@ -36,7 +36,7 @@ function Register(props: any) {
       window.localStorage.setItem('token',resultAction.token);
       navigate('/');
     } catch (error) {
-        console.log("something went wrong during register",error);
+      setError("password", { type: "custom", message: error as string});
     }
   };
 

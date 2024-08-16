@@ -13,6 +13,9 @@ import { loginValidation, registerValidation } from "./validations";
 import Movie from './models/Movie';
 import Category from "./models/Category";
 import CategoryMovie from './models/CategoryMovie';
+import fs from 'fs';
+import CheckAdminAuth from './utils/CheckAdminAuth';
+
 dotenv.config();
 
 
@@ -27,7 +30,7 @@ dotenv.config();
 
    Movie.belongsToMany(Category,{through:CategoryMovie });
    Category.belongsToMany(Movie,{through: CategoryMovie});
-   sequelize.sync();
+   sequelize.sync({alter : true});
 const app = express();
 const filePath = path.join(__dirname, "..", "src", "views");
 
@@ -35,12 +38,19 @@ const filePath = path.join(__dirname, "..", "src", "views");
 app.set("views", filePath);
 app.set("view engine", "ejs");
 
+
+// Multer storage configuration
 const storage = multer.diskStorage({
-  destination:(_,__,cb)=>{
-      cb(null,'uploads');
+  destination: (_, __, cb) => {
+    cb(null, 'uploads');
   },
-  filename:(_,file,cb)=>{
-      cb(null,file.originalname);
+  filename: (_, file, cb) => {
+    const date = new Date();
+    const formattedDate = date.toISOString().replace(/[:T]/g, '-').split('.')[0]; // Format date as YYYY-MM-DD-HH-MM-SS
+    const ext = path.extname(file.originalname);
+
+    const newFilename = `${formattedDate}${ext}`;
+    cb(null, newFilename); // Pass the new filename
   },
 });
 
@@ -77,7 +87,7 @@ app.get("/movies",MovieController.getMovies);
 app.get("/movies/pages/:id",MovieController.getMoviePage);
 app.get("/movies/number",MovieController.getMoviesNumber);
 app.get("/movies/full/:id",MovieController.getFullMovie);
-app.get('/movies/video/:id',MovieController.PlayMovie);
+
 app.post(
   "/reset-password/:id/:token",
   body("password", "Пароль должен быть минимум 8 символов").isLength({
@@ -86,7 +96,32 @@ app.post(
   handleValidationErrors,
   UserController.updatePassword
 );
+app.post("/movie/create",CheckAdminAuth,MovieController.create);
  app.get("/search",MovieController.SearchMovie);
  app.get("/categories/:idCategory/page/:id",MovieController.getCategory);
+ app.get('/categories/all',MovieController.getAllCategories);
+ app.post('/add-category',CheckAdminAuth,MovieController.addCategory);
+ app.delete('/remove-category',CheckAdminAuth,MovieController.removeCategory);
+ app.delete('/movies/delete/:id',CheckAdminAuth,MovieController.deleteMovie);
+ app.put('/movies/edit/:id',CheckAdminAuth,MovieController.editMovie);
+ app.delete('/image/delete/:path',async(req,res)=>{
+    const fileName = req.params.path;
+    const filePath = path.join(__dirname,'..', 'uploads', fileName); 
+    console.log("Path",filePath); 
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error('Error deleting the file:', err);
+        return res.status(500).send('Error deleting the file');
+      }
+      res.send('File deleted successfully');
+    });
+ })
+
+  app.post('/upload',upload.single('image'),(req : any,res)=>{
+    console.log(req.file.filename);
+    res.json({
+        url : `${req.file.filename}`
+    });
+  })
 
 app.listen(process.env.PORT);

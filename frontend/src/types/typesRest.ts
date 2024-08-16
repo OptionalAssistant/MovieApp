@@ -4,6 +4,7 @@ export interface UserData{
   name: string;
   email : string;
   isActivated: boolean;
+  roles : 'ADMIN' | 'USER';
 }
 export interface UserDataToken{
   token : string;
@@ -29,7 +30,16 @@ export interface IMovie {
   imageUrl: string;
   categories: string[];
 }
-
+export interface IMovieForm {
+  id : String;
+  name: string;
+  date: string;
+  country : string;
+  trailerUrl : string;
+  imageUrl: string;
+  description : string;
+  categories: string[];
+}
 export interface movieNumber{
   length : number;
 }
@@ -48,3 +58,21 @@ export interface ISearchMovieResponse {
   total : number;
 }
 
+export interface Category{
+  id : number;
+  name : string;
+}
+
+export interface ICategory{
+  name : string;
+}
+
+export interface IMovieModel {
+  id : String;
+  name: string;
+  date: string;
+  country : string;
+  trailerUrl : string;
+  imageUrl: string;
+  description : string;
+}

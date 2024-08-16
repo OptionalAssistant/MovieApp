@@ -11,7 +11,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> i
   declare email: string;
   declare passwordHash: string;
   declare isActivated: boolean;
-  
+  declare roles: 'USER' | 'ADMIN'; // TypeScript type annotation
 
   
 
@@ -42,6 +42,10 @@ User.init(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    roles:{
+      type: DataTypes.ENUM('USER', 'ADMIN'),
+      defaultValue : 'USER'
+    }
   },
   {
     sequelize,

@@ -2,11 +2,13 @@ import { configureStore } from '@reduxjs/toolkit'
 import authReducer from './slices/auth'
 import { useDispatch, useSelector } from 'react-redux'
 import moviesReducer from './slices/movie';
+import categoryReducer from './slices/category';
 
 export const store = configureStore({
   reducer: {
     auth :authReducer ,
-    movies : moviesReducer
+    movies : moviesReducer,
+    categories : categoryReducer
   }
 })
 

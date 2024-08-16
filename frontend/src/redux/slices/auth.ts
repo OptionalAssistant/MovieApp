@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IUserState } from "../../types/typesClient";
+import { ErrorResponse, IUserState } from "../../types/typesClient";
 import axios from "../../axios";
 import {
   ILoginForm,
@@ -11,11 +11,18 @@ import {
 export const fetchUserRegisterData = createAsyncThunk<
   UserDataToken,
   IRegisterForm
->("/auth/register", async (value: IRegisterForm) => {
-  const { data } = await axios.post<UserDataToken>(`/auth/register`, value);
+>("/auth/register", async (value: IRegisterForm,{rejectWithValue}) => {
 
-  return data;
-});
+  try{
+    const  data  = await axios.post<UserDataToken>(`/auth/register`, value);
+    return data.data;
+  }
+  catch(error){
+    const err1 = error as ErrorResponse;
+    return rejectWithValue(err1.response.data.message);
+  }
+}
+);
 
 export const fetchAuthMe = createAsyncThunk<UserData>("/auth/me", async () => {
   const { data } = await axios.get<UserData>(`/auth/me`);
@@ -25,9 +32,15 @@ export const fetchAuthMe = createAsyncThunk<UserData>("/auth/me", async () => {
 
 export const fetchLoginMe = createAsyncThunk<UserDataToken, ILoginForm>(
   "/login/me",
-  async (value: ILoginForm) => {
-    const  data  = await axios.post<UserDataToken>(`/auth/login`, value);
-    return data.data;
+  async (value: ILoginForm,{rejectWithValue}) => {
+    try{
+      const  data  = await axios.post<UserDataToken>(`/auth/login`, value);
+      return data.data;
+    }
+    catch(error){
+      const err1 = error as ErrorResponse;
+      return rejectWithValue(err1.response.data.message);
+    }
   }
 );
 const initialState: IUserState = {
@@ -81,10 +94,10 @@ export const authSlicer = createSlice({
         state.loading = false;
         state.user = action.payload.data;
       })
-      .addCase(fetchLoginMe.rejected, (state) => {
+      .addCase(fetchLoginMe.rejected, (state,action ) => {
         state.loading = false;
         state.user = null;
-        state.error = "Failed to login me";
+        state.error = action.payload as string;
       });
   },
 });

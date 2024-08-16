@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { fetchMovieCategoryPage } from "../redux/slices/movie";
 import { useAppDispatch, useAppSelector } from "../redux/store";
-import { constructPaginationList } from "../utils/utils";
+import { capitalizeFirstLetter, constructPaginationList } from "../utils/utils";
 import Page from "./Page";
 
 function Categories(props: any) {
@@ -39,10 +39,15 @@ function Categories(props: any) {
 
   return (
     <>
-      <h1>Categorie: {idCategory}</h1>
+      <h1>Categorie: {capitalizeFirstLetter(idCategory as string)}</h1>
       {movies&& !loading && (
         <>
           <Page items={paginationItems} />
+        </>
+      )}
+       {!movies?.length&& !loading && (
+        <>
+          <h1>None</h1>
         </>
       )}
     </>

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import Alert from "react-bootstrap/esm/Alert";
 import Button from "react-bootstrap/esm/Button";
 import Col from "react-bootstrap/esm/Col";
@@ -7,22 +7,22 @@ import Row from "react-bootstrap/esm/Row";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../axios";
-import DropdownCategories from '../components/Categories';
+import DropdownCategories from "../components/Categories";
 
+import { logout } from "../redux/slices/auth";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 import { IMovieSearchForm } from "../types/typesRest";
 import ModalWindow from "./Login";
-import { useAppDispatch, useAppSelector } from "../redux/store";
-import { isatty } from "tty";
-import { logout } from "../redux/slices/auth";
-
+import Canvas from "./Canvas";
 
 function Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
-  const email = useAppSelector(state => state.auth.user?.email);
-  const user = useAppSelector(state => state.auth.user);
-  const loading = useAppSelector(state => state.auth.loading);
-  const isActivated = useAppSelector(state=>state.auth.user?.isActivated);
-
+  const email = useAppSelector((state) => state.auth.user?.email);
+  const user = useAppSelector((state) => state.auth.user);
+  const loading = useAppSelector((state) => state.auth.loading);
+  const isActivated = useAppSelector((state) => state.auth.user?.isActivated);
+  const role = useAppSelector((state) => state.auth.user?.roles);
+  console.log(user,isActivated,role);
   const dispatch = useAppDispatch();
   const {
     register,
@@ -38,7 +38,7 @@ function Header() {
       .post("/activate")
       .then((data) => {
         console.log(data.data);
-        alert(`Check email. Message sending to email: ${ email}`);
+        alert(`Check email. Message sending to email: ${email}`);
       })
       .catch((err) => {
         console.log(err);
@@ -102,6 +102,16 @@ function Header() {
           </Form>
         </Col>
         <Col lg={3}>{button}</Col>
+        <Col>
+          {/* <Button variant="outline-danger">Admin panel</Button> */}
+          {user && isActivated && role === "ADMIN" && (
+            <Canvas
+              variant="outline-danger"
+              placement={"end"}
+              name={"admin panel"}
+            ></Canvas>
+          )}
+        </Col>
       </Row>
       <Row>
         {""}

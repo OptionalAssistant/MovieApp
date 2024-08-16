@@ -28,7 +28,7 @@ function FullMovie() {
         <h4>Дата выхода {movie.date}</h4>
         <div>
           <img
-            src={`http://localhost:4444${movie.imageUrl}`}
+            src={`http://localhost:4444/uploads/${movie.imageUrl}`}
             alt=""
             width="188px"
             height="277px"
@@ -37,12 +37,12 @@ function FullMovie() {
       </Row>
       <Row>
         <h3>Categories </h3>
-      {movie.categories.map((item,index)=>
+      {!movie.categories.length ? <h2>None</h2> : movie.categories.map((item,index)=>
       {
         return <Link to={`/categories/${item}/page/1`}><h4>{item}</h4><br/></Link>
       })}
       </Row>
-      <Row className="pb-3">
+      <Row className="pb-4">
         <h2>Трейлер</h2>
         <div>
           <iframe
@@ -58,14 +58,6 @@ function FullMovie() {
         </div>
         <h2>О чем фильм {movie.name}</h2>
         <p>{movie.description}</p>
-        <h2>Смотреть</h2>
-        <div>
-          {/* <video id="videoPlayer" width="650" controls>
-          <source src={`http://localhost:4444/movies/video/${id}`} type="video/mp4" />
-        </video> */}
-        </div>
-
-        <i>Big Buck Bunny</i>
       </Row>
     </>
   ) : null;

@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import {
   useSearchParams
 } from "react-router-dom";
-import { ISearchMovieResponse } from "../types/typesRest";
 
-import axios from "../axios";
+import { fetchMovieSearchPage } from "../redux/slices/movie";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 import { constructPaginationList } from "../utils/utils";
 import Page from "./Page";
-import { useAppDispatch, useAppSelector } from "../redux/store";
-import { fetchMovieSearchPage } from "../redux/slices/movie";
 
 function Search(props: any) {
   const [searchParams] = useSearchParams();

@@ -1,4 +1,4 @@
-import { IMovie, UserData } from "./typesRest";
+import { Category, IMovie, UserData } from "./typesRest";
 
 
 export interface IUserState {
@@ -6,7 +6,11 @@ export interface IUserState {
   error: string;
   user: UserData | null;
 }
-
+export interface ICategoryState{
+    categories : Category[];
+    error : string;
+    loading : boolean;
+}
 export interface authAction {
   type: "pending" | "fullfilled" | "rejected" | "set";
   payload: UserData | null;

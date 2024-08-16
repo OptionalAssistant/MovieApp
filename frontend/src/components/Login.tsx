@@ -10,6 +10,7 @@ import { fetchLoginMe } from "../redux/slices/auth";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import { ErrorResponse } from "../types/typesClient";
 import { ILoginForm } from "../types/typesRest";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 interface ModalProps {
   show: boolean;
@@ -30,17 +31,20 @@ function ModalLogin(props: ModalProps) {
   const dispatch = useAppDispatch();
 
   const onSubmit: SubmitHandler<IFormInput> = async (value: ILoginForm) => {
+    
+    try{
+      const data = await dispatch(fetchLoginMe(value));
 
-    dispatch(fetchLoginMe(value)).unwrap().then((data)=>{
+      const unwrap = unwrapResult(data);
+
       
-      window.localStorage.setItem('token',data.token);
+      window.localStorage.setItem('token',unwrap.token);
       props.hide();
-    })
-    .catch((err)=>{
-      console.log("Commmon");
-      setError("password", { type: "custom", message: "Неверный пароль или логин"});
-    })
-
+    }
+   catch(error){
+    console.log("error occured",error);
+    setError("password", { type: "custom", message: error as string});
+   }
   };
 
   const navigate = useNavigate();
