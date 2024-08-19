@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from 'bcrypt';
 
 import UserModel from "../models/User.js";
 import MailService from '../services/mail-servive'
@@ -102,7 +102,7 @@ export const  getMe = async (req: Request<{},{},IAuthMe>, res : Response<AuthMeR
   try {
     const user = await UserModel.findByPk(req.body.userId);
     console.log(req.body.userId);
-
+    console.log("LOOOOLL");
     if (!user) {
       return res.status(404).json({
         message: "Пользователь не найден",

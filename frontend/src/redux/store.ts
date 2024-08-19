@@ -9,7 +9,8 @@ export const store = configureStore({
     auth :authReducer ,
     movies : moviesReducer,
     categories : categoryReducer
-  }
+  },
+  
 })
 
 export type RootState = ReturnType<typeof store.getState>

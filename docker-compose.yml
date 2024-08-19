@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Service
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 20042701
+      POSTGRES_DB: usersdb2
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Backend Service
+  backend:
+    build:
+      context: ./backend  # Ensure .dockerignore is in ./backend directory
+      dockerfile: Dockerfile  # Explicitly specify the Dockerfile name if it's different or not in the root of the context
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: 20042701
+      DB_NAME: usersdb2
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules  # Anonymous volume for node_modules
+    ports:
+      - "4444:4444"
+    depends_on:
+      - db
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend  # Ensure .dockerignore is in ./frontend directory
+      dockerfile: Dockerfile  # Explicitly specify the Dockerfile name if needed
+    volumes:
+      - ./frontend:/usr/src/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres-data:
