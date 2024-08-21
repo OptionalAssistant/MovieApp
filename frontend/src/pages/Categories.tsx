@@ -1,9 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { fetchMovieCategoryPage } from "../redux/slices/movie";
 import { useAppDispatch, useAppSelector } from "../redux/store";
-import { capitalizeFirstLetter, constructPaginationList } from "../utils/utils";
+import { capitalizeFirstLetter, constructPaginationList, MovieCount } from "../utils/utils";
 import Page from "./Page";
+
 
 function Categories(props: any) {
   let { idCategory ,id} = useParams();
@@ -20,7 +21,7 @@ function Categories(props: any) {
     try {
       const data = await dispatch(fetchMovieCategoryPage(`categories/${idCategory}/page/${id}`)).unwrap();
       
-      const pageCount = Math.ceil(data.total / 1);
+      const pageCount = Math.ceil(data.total / MovieCount);
       const strLink = `categories/${idCategory}/page/`;
       let items: any;
 

@@ -3,12 +3,14 @@ import authReducer from './slices/auth'
 import { useDispatch, useSelector } from 'react-redux'
 import moviesReducer from './slices/movie';
 import categoryReducer from './slices/category';
+import commentReducer from './slices/comments';
 
 export const store = configureStore({
   reducer: {
     auth :authReducer ,
     movies : moviesReducer,
-    categories : categoryReducer
+    categories : categoryReducer,
+    comments : commentReducer
   },
   devTools: process.env.NODE_ENV === 'development' 
 })

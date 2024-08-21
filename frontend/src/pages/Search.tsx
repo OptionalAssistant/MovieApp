@@ -5,7 +5,7 @@ import {
 
 import { fetchMovieSearchPage } from "../redux/slices/movie";
 import { useAppDispatch, useAppSelector } from "../redux/store";
-import { constructPaginationList } from "../utils/utils";
+import { constructPaginationList, MovieCount } from "../utils/utils";
 import Page from "./Page";
 
 function Search(props: any) {
@@ -30,7 +30,7 @@ function Search(props: any) {
 
         
         let items: any;
-        const pageCount = Math.ceil(data.total / 1);
+        const pageCount = Math.ceil(data.total / MovieCount);
         const strLink = `search/?name=${searchParams.get("name")}&page=`
         items =  constructPaginationList({pageCount: pageCount,link : strLink,curPage:  Number(page)});
 

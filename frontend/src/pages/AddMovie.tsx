@@ -1,7 +1,7 @@
 import Button from "react-bootstrap/esm/Button";
 import Form from "react-bootstrap/esm/Form";
 
-import { IFullMovie, IMovieForm, IMovieModel } from "../types/typesRest";
+import { IFullMovie, IMovieForm, IMovieForm2, IMovieModel } from "../types/typesRest";
 import { SubmitHandler, useForm } from "react-hook-form";
 import axios from "../axios";
 import { useEffect, useState } from "react";
@@ -36,8 +36,11 @@ function AddMovie(props: any) {
       axios
         .get<IFullMovie>(`/movies/full/${id}`)
         .then((data) => {
+          const date = new Date(data.data.date);
           setValue("name", data.data.name);
-          setValue("date", data.data.date);
+          setValue("date.day",date.getDate());
+          setValue("date.month",date.getMonth() + 1);
+          setValue("date.year",date.getFullYear());
           setValue("country", data.data.country);
           setValue("trailerUrl", data.data.trailerUrl);
           setValue("description", data.data.description);
@@ -54,10 +57,17 @@ function AddMovie(props: any) {
     value.imageUrl = imageUrl;
     value.categories = selectedCategories;
 
-    console.log("Value", value);
+
+    const { year, month, day } = value.date;
+    const parsedDate = new Date(year, month - 1, day); // month - 1 since Date() expects a zero-based month
+    const movieForm: IMovieForm2 = {
+      ...value,
+      date: parsedDate,
+    };
+    console.log("Movie form",movieForm);
     if (isEdit) {
       axios
-        .put(`/movies/edit/${id}`, value)
+        .put(`/movies/edit/${id}`, movieForm)
         .then((data) => {
           console.log("Movie updated!");
           navigate(`/movies/${id}`);
@@ -65,7 +75,7 @@ function AddMovie(props: any) {
         .catch(() => console.log("Failed to update movie"));
     } else {
       axios
-        .post<IMovieModel>("movie/create", value)
+        .post<IMovieModel>("movie/create", movieForm)
         .then((data) => {
           console.log("Succeded", data.data);
 
@@ -136,14 +146,37 @@ function AddMovie(props: any) {
           <img src={`http://localhost:4444/uploads/${imageUrl}`}></img>
         )}
         <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-          <Form.Label>Date</Form.Label>
+          <Form.Label>Year</Form.Label>
           <Form.Control
             placeholder="Enter date..."
-            {...register("date", {
-              required: "Date is required",
+            {...register("date.year", {
+              required: "Year is required",
             })}
           />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Label>Month</Form.Label>
           {errors.date && <span>{errors.date.message}</span>}
+          <Form.Control
+            placeholder="Enter date..."
+            {...register("date.month", {
+              required: "Month is required",
+              min: {value: 1,message:"Invalid month number"},max:{value: 12,message:"Invalid math number"}
+            })}
+          />
+        {errors.date?.month?.message && <span>{errors.date.month.message}</span>}
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+        <Form.Label>Day</Form.Label>
+        <Form.Control
+            placeholder="Enter date..."
+            {...register("date.day", {
+              required: "Day is required",
+              min: {value: 1,message:"Invalid day number"},max:{value: 31,message:"Invalid day number"}
+            })}
+          />
+        {errors.date?.day?.message && <span>{errors.date.day.message}</span>}
+
         </Form.Group>
         <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
           <Form.Label>Country</Form.Label>

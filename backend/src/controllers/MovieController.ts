@@ -1,4 +1,8 @@
-import { Request, Response, NextFunction, response } from "express";
+import { Request, Response } from "express";
+import { Op } from "sequelize";
+import { default as Category, default as CategoryModel } from "../models/Category";
+import MovieModel from "../models/Movie";
+import { CombinedType, ICategoryName, IMovieDelete } from "../types/typesClient";
 import {
   ICategory,
   IFullMovie,
@@ -6,20 +10,17 @@ import {
   IMovieForm,
   IMovieResponce,
   IMovieSearchForm,
-  IPutMovieResponce,
-  ISearchMovieResponse,
+  MovieComment,
+  MovieCommentResponse,
   movieNumber,
   PageParams,
-  SearchMovieResponse,
+  SearchMovieResponse
 } from "../types/typesRest";
-import fs from "fs";
-import { ICategoryName, IMovieDelete } from "../types/typesClient";
-import CategoryModel from "../models/Category";
-import MovieModel from "../models/Movie";
-import Category from "../models/Category";
-import { Op } from "sequelize";
-import { error, trace } from "console";
-const movieCount = 1;
+
+import CommentModel from '../models/Comment';
+import UserModel from '../models/User';
+
+const movieCount = 2;
 export const getMovies = async (req, res: Response<IMovie[]>) => {
   const movies = await MovieModel.findAll();
 
@@ -41,9 +42,9 @@ export const getMovies = async (req, res: Response<IMovie[]>) => {
   res.json(items);
 };
 export const getMoviesNumber = async (req, res: Response<movieNumber>) => {
-  const movies = await MovieModel.findAll();
+  const count = await MovieModel.count();
 
-  res.json({ length: movies.length });
+  res.json({ length: count });
 };
 
 export const getMoviePage = async (
@@ -87,11 +88,11 @@ export const getFullMovie = async (
   const { id } = req.params;
 
   try {
-    const movie = await MovieModel.findByPk(id, { include: Category });
-
+    const movie = await MovieModel.findByPk(id, { include: [Category] });
     const items = (await movie.getCategories()).map(
       (category) => category.name
     );
+
 
     const Movie: IFullMovie = {
       id: movie.id,
@@ -102,7 +103,9 @@ export const getFullMovie = async (
       categories: items,
       imageUrl: movie.imageUrl,
       country: movie.country,
+      commentCount: movie.commentCount
     };
+
     return res.send(Movie);
   } catch (error) {
     return res.status(404);
@@ -201,7 +204,6 @@ export const getCategory = async (
 export const getAllCategories = async (req, res: Response<Category[]>) => {
   try {
     const categories = await CategoryModel.findAll();
-    categories.forEach((category) => console.log("Category", category.name));
 
     res.send(categories);
   } catch (error) {
@@ -308,11 +310,142 @@ export const editMovie = async(req : Request<IMovieDelete,{},IMovieForm>,res)=>{
 
   await movie.save();
 
-  console.log("Movie updated");
   return res.send({message :"Movie updated"});
  }
 catch(error){
   console.log("Something wennnt wrong");
   return res.send({message :"Error during updating"});
 }
+}
+
+
+export const addComment = async(req : Request<IMovieDelete,{},CombinedType>,res)=>{
+    try{
+      const movie = MovieModel.findByPk(req.params.id);
+
+      if(!movie){
+        return res.send({message : "Movie not found"});
+      }
+
+      console.log(req.body.text);
+      const Comment = await CommentModel.create({text: req.body.text});
+      
+      
+      (await movie).addComment(Comment);
+      
+      const user = UserModel.findByPk(req.body.userId);
+    
+      if(!user){
+        return res.send({message:"User not found"});
+      }
+
+      (await user).addComment(Comment);
+      (await movie).update({commentCount: (await (await movie).getComments()).length});
+      return res.send({message:"Success"});
+    }
+    catch(error){
+      console.log("Oppps something went wrong during add comment",error);
+      return res.send({message:"Error"});
+    }
+} 
+
+
+export const getComments = async(req : Request<IMovieDelete>,res : Response<MovieCommentResponse>)=>{
+  try{
+    const movie = await MovieModel.findByPk(req.params.id);
+
+    if(!movie){
+      return res.send({message : "Movie not found"});
+    }
+    
+    const comments = await movie.getComments({
+      order: [['createdAt', 'DESC']], // Order by createdAt, newest first
+    });
+    
+    const items: MovieComment[] = await Promise.all(
+      comments.map(async (comment) => {
+        const user = await comment.getUser();
+        
+        return {
+          name: user.name,
+          text: comment.text,
+          createdAt: comment.createdAt,
+        };
+      })
+    );
+
+    return res.send(items);
+  }
+  catch(error){
+    console.log("Oppps something went wrong during add comment",error);
+    return res.send({message:"Error"});
+  }
+} 
+
+
+export const getNewMovies = async(req : Request<PageParams>,res : Response<SearchMovieResponse>)=>{
+  const { id } = req.params;
+
+  let index = (id - 1) * movieCount;
+
+  try{
+    const { rows: movies }  = await MovieModel.findAndCountAll(   {order: [['date', 'DESC']],
+      offset: index,
+      limit: movieCount}
+    );
+    let items: IMovie[] = [];
+    for (let i = 0; i < movies.length; i++) {
+      const curMovie = movies[i];
+      const curCategories = (await curMovie.getCategories()).map(
+        (category) => category.name
+      );
+      items.push({
+        id: curMovie.id,
+        name: curMovie.name,
+        date: curMovie.date,
+        country: curMovie.country,
+        imageUrl: curMovie.imageUrl,
+        categories: curCategories,
+      });
+    }
+    return res.send({ movies: items });
+  }
+  catch(error){
+    console.log("Something went wrong during getNewMovies",error);
+    res.send({message:"Error"});
+  }
+}
+
+export const getPopularMovies = async(req : Request<PageParams>,res : Response<SearchMovieResponse>)=>{
+  const { id } = req.params;
+  console.log("id",id);
+  let index = (id - 1) * movieCount;
+
+  try{
+    const { rows: movies }  = await MovieModel.findAndCountAll(   {order: [['commentCount', 'DESC']],
+      offset: index,
+      limit: movieCount}
+    );
+    console.log("Moviess",index,movies);
+    let items: IMovie[] = [];
+    for (let i = 0; i < movies.length; i++) {
+      const curMovie = movies[i];
+      const curCategories = (await curMovie.getCategories()).map(
+        (category) => category.name
+      );
+      items.push({
+        id: curMovie.id,
+        name: curMovie.name,
+        date: curMovie.date,
+        country: curMovie.country,
+        imageUrl: curMovie.imageUrl,
+        categories: curCategories,
+      });
+    }
+    return res.send({ movies: items });
+  }
+  catch(error){
+    console.log("Something went wrong during getNewMovies",error);
+    res.send({message:"Error"});
+  }
 }

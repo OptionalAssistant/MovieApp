@@ -15,8 +15,8 @@ import { fetchAuthMe } from "./redux/slices/auth";
 import { useAppDispatch } from "./redux/store";
 import AddMovie from './pages/AddMovie';
 import AddCategory from "./pages/AddCategory";
-
-
+import NewMovies from "./pages/NewMovies";
+import PopularMovies from "./pages/PopularMovies";
 function App() {
 
   const dispatch = useAppDispatch();
@@ -39,6 +39,8 @@ function App() {
         <Route path="/admin-panel/add/" element={<AddMovie />} />
         <Route path="/admin-panel/add/:id/edit" element={<AddMovie />} />
         <Route path="/admin-panel/category/add" element={<AddCategory />} />  
+        <Route path="/new-movies/:id" element={<NewMovies />} />  
+        <Route path="/popular/:id" element={<PopularMovies />} />  
       </Routes>
     </Container>
   );

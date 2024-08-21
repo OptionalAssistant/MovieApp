@@ -14,6 +14,8 @@ import { useAppDispatch, useAppSelector } from "../redux/store";
 import { IMovieSearchForm } from "../types/typesRest";
 import ModalWindow from "./Login";
 import Canvas from "./Canvas";
+import DropdownButton from "react-bootstrap/esm/DropdownButton";
+import Dropdown from "react-bootstrap/esm/Dropdown";
 
 function Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
@@ -22,7 +24,7 @@ function Header() {
   const loading = useAppSelector((state) => state.auth.loading);
   const isActivated = useAppSelector((state) => state.auth.user?.isActivated);
   const role = useAppSelector((state) => state.auth.user?.roles);
-  console.log(user,isActivated,role);
+  console.log(user, isActivated, role);
   const dispatch = useAppDispatch();
   const {
     register,
@@ -114,8 +116,21 @@ function Header() {
         </Col>
       </Row>
       <Row>
+        <Col>
         {""}
         <DropdownCategories />
+        </Col>
+        <Col>
+        <DropdownButton id="dropdown-basic-button" title="Sorting">
+        <Dropdown.Item    onClick={() => navigate('/new-movies/1')}>
+            Most recent
+        </Dropdown.Item>
+        <Dropdown.Item   onClick={() => navigate('/popular/1')}>
+            Most popular
+        </Dropdown.Item>
+        </DropdownButton>
+        </Col>
+   
       </Row>
       {user && !isActivated && (
         <Alert variant="danger">
@@ -128,6 +143,8 @@ function Header() {
       )}
 
       <ModalWindow show={modalShow} hide={() => setModalShow(false)} />
+
+   
     </>
   );
 }

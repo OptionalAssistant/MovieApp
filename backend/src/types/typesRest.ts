@@ -33,7 +33,7 @@ export type LoginResponce = UserDataToken | IResponceError;
 export interface IMovie {
   id : number;
   name: string;
-  date: string;
+  date: Date;
   country : string;
   imageUrl: string;
   categories: string[];
@@ -42,6 +42,7 @@ export interface IMovie {
 export interface IFullMovie extends IMovie{
     trailerUrl : string;
     description: string;
+    commentCount: number;
 }
 export interface movieNumber{
   length : number;
@@ -66,7 +67,7 @@ export interface IMovieNumber{
 
 export interface ISearchMovieResponse {
   movies : IMovie[];
-  total : number;
+  total? : number;
 }
 export interface ICategory{
   name: string;
@@ -76,10 +77,29 @@ export type SearchMovieResponse = ISearchMovieResponse | IResponceError;
 export interface IMovieForm {
   id : String;
   name: string;
-  date: string;
+  date: Date;
   country : string;
   trailerUrl : string;
   imageUrl: string;
   description : string;
   categories: string[];
 }
+
+export interface IMovieComment{
+  text : string;
+  createdAt : Date;
+  
+}
+
+export interface IUserName{
+  name : string;
+
+}
+
+
+export type MovieComment = (IMovieComment & IUserName);
+
+export type MovieCommentResponse = MovieComment[]  | IResponceError;
+
+
+

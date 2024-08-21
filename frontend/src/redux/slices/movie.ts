@@ -20,7 +20,7 @@ export const fetchMoviePage = createAsyncThunk<IMovie[],number>(
   );
 
   export const fetchMovieSearchPage = createAsyncThunk<ISearchMovieResponse,string>(
-    "/movies/search/pages/",async (query : string)  => {
+    "/movies/search/pages/",async (query : string,)  => {
       const {data} = await axios.get<ISearchMovieResponse>(query);
       
       return data;
@@ -29,6 +29,15 @@ export const fetchMoviePage = createAsyncThunk<IMovie[],number>(
   );
   export const fetchMovieCategoryPage = createAsyncThunk<ISearchMovieResponse,string>(
     "/movies/category/pages",async (query : string)  => {
+      const {data} = await axios.get<ISearchMovieResponse>(query);
+      
+      return data;
+      
+    }
+  );
+
+  export const fetchFreshMovies = createAsyncThunk<ISearchMovieResponse,string>(
+    "/movies/new",async (query : string)  => {
       const {data} = await axios.get<ISearchMovieResponse>(query);
       
       return data;
@@ -81,6 +90,19 @@ export const movieSlice = createSlice({
         state.movies = null;
         state.error= 'Failed to get movie category page';
     })
+    .addCase(fetchFreshMovies.pending,(state)=>{
+      state.loading = true;
+      state.movies = null;
+  })
+  .addCase(fetchFreshMovies.fulfilled,(state,action)=>{
+      state.loading = false;
+      state.movies = action.payload.movies; 
+  })
+  .addCase(fetchFreshMovies.rejected,(state)=>{
+      state.loading = false;
+      state.movies = null;
+      state.error= 'Failed to get movie category page';
+  })
   }
 });
 

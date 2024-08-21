@@ -6,7 +6,7 @@ import { fetchMoviePage } from "../redux/slices/movie";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import axios from "../axios";
 import { movieNumber } from "../types/typesRest";
-import { constructPaginationList } from "../utils/utils";
+import { constructPaginationList, MovieCount } from "../utils/utils";
 
 function NumericPage(props: any) {
   let { id } = useParams<string>();
@@ -25,7 +25,7 @@ function NumericPage(props: any) {
         const data = await dispatch(fetchMoviePage(numericId)).unwrap();
         const size = await axios.get<movieNumber[]>(`/movies/number`);
 
-        const pageCount = Math.ceil(size.data.length / 1);
+        const pageCount = Math.ceil(size.data.length / MovieCount);
 
         let items: any;
 

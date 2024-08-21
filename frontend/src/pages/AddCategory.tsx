@@ -1,11 +1,10 @@
+import { useEffect } from "react";
 import { Button, Form, Row } from "react-bootstrap";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { ICategory } from "../types/typesRest";
 import axios from "../axios";
-import { useAppDispatch, useAppSelector } from "../redux/store";
-import { useEffect } from "react";
 import { fetchCategories } from "../redux/slices/category";
-import { useParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../redux/store";
+import { ICategory } from "../types/typesRest";
 
 function AddCategory(props: any) {
 

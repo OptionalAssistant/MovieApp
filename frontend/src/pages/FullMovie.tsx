@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
+import Row from "react-bootstrap/esm/Row";
 import { Link, useParams } from "react-router-dom";
 import axios from "../axios";
-import { IFullMovie, IMovie } from "../types/typesRest";
-import Row from "react-bootstrap/esm/Row";
-import Col from "react-bootstrap/esm/Col";
-import Movie from "../components/Movie";
-import Categories from "./Categories";
-import { ListGroupItem } from "react-bootstrap";
-
+import Comments from "../components/Comments";
+import { IFullMovie } from "../types/typesRest";
 function FullMovie() {
   const { id } = useParams();
   const [movie, setData] = useState<IFullMovie>();
@@ -16,16 +12,26 @@ function FullMovie() {
     const fetchData = async () => {
       const { data } = await axios.get<IFullMovie>(`/movies/full/${id}`);
       setData(data);
+      console.log("data",data);
     };
     fetchData();
   }, [id]);
+
   return movie ? (
     <>
       <Row className="justify-content-md-center">
         {" "}
         <h1>{movie.name}</h1>
         <h4>Страна {movie.country}</h4>
-        <h4>Дата выхода {movie.date}</h4>
+        <h4>
+          {" "}
+          Дата выхода{" "}
+          {new Date(movie.date).toLocaleString("en-US", {
+            year: "numeric",
+            month: "long",
+            day : "numeric"
+          })}
+        </h4>
         <div>
           <img
             src={`http://localhost:4444/uploads/${movie.imageUrl}`}
@@ -37,10 +43,18 @@ function FullMovie() {
       </Row>
       <Row>
         <h3>Categories </h3>
-      {!movie.categories.length ? <h2>None</h2> : movie.categories.map((item,index)=>
-      {
-        return <Link to={`/categories/${item}/page/1`}><h4>{item}</h4><br/></Link>
-      })}
+        {!movie.categories.length ? (
+          <h2>None</h2>
+        ) : (
+          movie.categories.map((item, index) => {
+            return (
+              <Link to={`/categories/${item}/page/1`}>
+                <h4>{item}</h4>
+                <br />
+              </Link>
+            );
+          })
+        )}
       </Row>
       <Row className="pb-4">
         <h2>Трейлер</h2>
@@ -59,6 +73,8 @@ function FullMovie() {
         <h2>О чем фильм {movie.name}</h2>
         <p>{movie.description}</p>
       </Row>
+
+      <Comments id={id} count={movie.commentCount} />
     </>
   ) : null;
 }

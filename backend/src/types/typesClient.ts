@@ -1,3 +1,5 @@
+import { IMovieComment } from "./typesRest";
+
 export interface IUser {
   id : number;
   name: string;
@@ -25,3 +27,5 @@ export interface ICategoryName{
 export interface IMovieDelete{
   id : number;
 }
+
+export type CombinedType = IAuthMe & IMovieComment;

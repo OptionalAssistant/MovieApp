@@ -41,7 +41,10 @@ function Movie({ movie }: { movie: IMovie }) {
         <Card.Body>
           <Card.Title className="mb-3">{movie.name}</Card.Title>
           <Card.Subtitle className="mb-3">
-            {movie.date}, {movie.country} , {movie.categories[0]}
+            Year {" "} 
+          {new Date(movie.date).toLocaleString("en-US", {
+            year: "numeric",
+          })}, {movie.country} , {movie.categories[0]}
           </Card.Subtitle>
           <Row>
             <Col className="mr-3">
