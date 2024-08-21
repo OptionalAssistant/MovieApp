@@ -10,7 +10,7 @@ export const store = configureStore({
     movies : moviesReducer,
     categories : categoryReducer
   },
-  
+  devTools: process.env.NODE_ENV === 'development' 
 })
 
 export type RootState = ReturnType<typeof store.getState>
