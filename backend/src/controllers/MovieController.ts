@@ -24,21 +24,19 @@ const movieCount = 2;
 export const getMovies = async (req, res: Response<IMovie[]>) => {
   const movies = await MovieModel.findAll();
 
-  let items: IMovie[];
-  for (let i = 0; i < movies.length; i++) {
-    const curMovie = movies[i];
-    const curCategories = (await curMovie.getCategories()).map(
-      (category) => category.name
-    );
-    items.push({
-      id: curMovie.id,
-      name: curMovie.name,
-      date: curMovie.date,
-      country: curMovie.country,
-      imageUrl: curMovie.imageUrl,
+  let items: IMovie[] = await Promise.all(movies.map(async(movie)=>{
+    const categories = await movie.getCategories();
+
+    const curCategories = categories.map(category =>category.name);
+    return{
+      id: movie.id,
+      name: movie.name,
+      date: movie.date,
+      country: movie.country,
+      imageUrl: movie.imageUrl,
       categories: curCategories,
-    });
-  }
+    } 
+  }));
   res.json(items);
 };
 export const getMoviesNumber = async (req, res: Response<movieNumber>) => {
@@ -59,21 +57,19 @@ export const getMoviePage = async (
       offset: index,
       limit: movieCount,
     });
-    let items: IMovie[] = [];
-    for (let i = 0; i < movies.length; i++) {
-      const curMovie = movies[i];
-      const curCategories = (await curMovie.getCategories()).map(
-        (category) => category.name
-      );
-      items.push({
-        id: curMovie.id,
-        name: curMovie.name,
-        date: curMovie.date,
-        country: curMovie.country,
-        imageUrl: curMovie.imageUrl,
+    let items: IMovie[] = await Promise.all(movies.map(async(movie)=>{
+      const categories = await movie.getCategories();
+  
+      const curCategories = categories.map(category =>category.name);
+      return{
+        id: movie.id,
+        name: movie.name,
+        date: movie.date,
+        country: movie.country,
+        imageUrl: movie.imageUrl,
         categories: curCategories,
-      });
-    }
+      } 
+    }));
 
     res.send(items);
   } catch (err) {
@@ -139,21 +135,19 @@ export const SearchMovie = async (
     if (!movies.length) {
       return res.status(404).json({ message: "Movie not found" });
     }
-    let items: IMovie[] = [];
-    for (let i = 0; i < moviesSliced.length; i++) {
-      const curMovie = moviesSliced[i];
-      const curCategories = (await curMovie.getCategories()).map(
-        (category) => category.name
-      );
-      items.push({
-        id: curMovie.id,
-        name: curMovie.name,
-        date: curMovie.date,
-        country: curMovie.country,
-        imageUrl: curMovie.imageUrl,
+    let items: IMovie[] = await Promise.all(moviesSliced.map(async(movie)=>{
+      const categories = await movie.getCategories();
+  
+      const curCategories = categories.map(category =>category.name);
+      return{
+        id: movie.id,
+        name: movie.name,
+        date: movie.date,
+        country: movie.country,
+        imageUrl: movie.imageUrl,
         categories: curCategories,
-      });
-    }
+      } 
+    }));
     return res.send({ movies: items, total: count });
   } catch (err) {
     return res
@@ -179,21 +173,21 @@ export const getCategory = async (
     const count = movies.length;
 
     movies = movies.slice(index * movieCount, index * movieCount + movieCount);
-    let items: IMovie[] = [];
-    for (let i = 0; i < movies.length; i++) {
-      const curMovie = movies[i];
-      const curCategories = (await curMovie.getCategories()).map(
-        (category) => category.name
-      );
-      items.push({
-        id: curMovie.id,
-        name: curMovie.name,
-        date: curMovie.date,
-        country: curMovie.country,
-        imageUrl: curMovie.imageUrl,
+
+    
+    let items: IMovie[] = await Promise.all(movies.map(async(movie)=>{
+      const categories = await movie.getCategories();
+  
+      const curCategories = categories.map(category =>category.name);
+      return{
+        id: movie.id,
+        name: movie.name,
+        date: movie.date,
+        country: movie.country,
+        imageUrl: movie.imageUrl,
         categories: curCategories,
-      });
-    }
+      } 
+    }));
     return res.send({ movies: items, total: count });
   } catch (error) {
     console.log("error", error);
@@ -393,21 +387,19 @@ export const getNewMovies = async(req : Request<PageParams>,res : Response<Searc
       offset: index,
       limit: movieCount}
     );
-    let items: IMovie[] = [];
-    for (let i = 0; i < movies.length; i++) {
-      const curMovie = movies[i];
-      const curCategories = (await curMovie.getCategories()).map(
-        (category) => category.name
-      );
-      items.push({
-        id: curMovie.id,
-        name: curMovie.name,
-        date: curMovie.date,
-        country: curMovie.country,
-        imageUrl: curMovie.imageUrl,
+    let items: IMovie[] = await Promise.all(movies.map(async(movie)=>{
+      const categories = await movie.getCategories();
+  
+      const curCategories = categories.map(category =>category.name);
+      return{
+        id: movie.id,
+        name: movie.name,
+        date: movie.date,
+        country: movie.country,
+        imageUrl: movie.imageUrl,
         categories: curCategories,
-      });
-    }
+      } 
+    }));
     return res.send({ movies: items });
   }
   catch(error){
@@ -427,21 +419,19 @@ export const getPopularMovies = async(req : Request<PageParams>,res : Response<S
       limit: movieCount}
     );
     console.log("Moviess",index,movies);
-    let items: IMovie[] = [];
-    for (let i = 0; i < movies.length; i++) {
-      const curMovie = movies[i];
-      const curCategories = (await curMovie.getCategories()).map(
-        (category) => category.name
-      );
-      items.push({
-        id: curMovie.id,
-        name: curMovie.name,
-        date: curMovie.date,
-        country: curMovie.country,
-        imageUrl: curMovie.imageUrl,
+   let items: IMovie[] = await Promise.all(movies.map(async(movie)=>{
+      const categories = await movie.getCategories();
+  
+      const curCategories = categories.map(category =>category.name);
+      return{
+        id: movie.id,
+        name: movie.name,
+        date: movie.date,
+        country: movie.country,
+        imageUrl: movie.imageUrl,
         categories: curCategories,
-      });
-    }
+      } 
+    }));
     return res.send({ movies: items });
   }
   catch(error){
