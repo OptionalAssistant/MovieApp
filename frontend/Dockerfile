@@ -1,33 +1,32 @@
-# Stage 1: Build the React application
-FROM node:18 AS build
+# Stage 1: Build the React app
+FROM node:20 AS build
 
-# Set the working directory
-WORKDIR /usr/src/app
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
 # Install dependencies
-COPY package*.json ./
 RUN npm install
 
-# Copy the rest of the application
+# Copy the rest of the app's source code
 COPY . .
 ENV GENERATE_SOURCEMAP=false
-# Build the application
+# Build the app
 RUN npm run build
 
-# Stage 2: Serve the application using a lightweight HTTP server
-FROM node:18 AS production
+# Stage 2: Serve the React app using Nginx
+FROM nginx:stable-alpine
 
-# Install http-server globally
-RUN npm install -g http-server
+# Copy the build output to the Nginx html directory
+COPY --from=build /app/build /usr/share/nginx/html
 
-# Set the working directory
-WORKDIR /usr/src/app
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the build folder from the build stage
-COPY --from=build /usr/src/app/build ./build
+# Expose port 80
+EXPOSE 80
 
-# Expose port 8080
-EXPOSE 8080
-
-# Start the HTTP server
-CMD ["http-server", "build", "-p", "8080"]
+# Start Nginx server
+CMD ["nginx", "-g", "daemon off;"]
