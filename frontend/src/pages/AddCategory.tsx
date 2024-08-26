@@ -2,8 +2,7 @@ import { useEffect } from "react";
 import { Button, Form, Row } from "react-bootstrap";
 import { SubmitHandler, useForm } from "react-hook-form";
 import axios from "../axios";
-import { fetchCategories } from "../redux/slices/category";
-import { useAppDispatch, useAppSelector } from "../redux/store";
+import { useAddCategoryMutation, useDeleteCategoryMutation, useFetchAuthMeQuery, useFetchCategoriesQuery } from "../redux/query";
 import { ICategory } from "../types/typesRest";
 
 function AddCategory(props: any) {
@@ -16,17 +15,15 @@ function AddCategory(props: any) {
     formState: { errors },
   } = useForm<ICategory>({ mode: "onChange" });
 
-  const dispatch = useAppDispatch();
-  const categories = useAppSelector((state) => state.categories.categories);
-  const user = useAppSelector(state => state.auth.user);
+  const {data: categories,isError,isLoading,error} = useFetchCategoriesQuery();
+  const {data: user} = useFetchAuthMeQuery();
+  const [addCategory] = useAddCategoryMutation();
+  const [deleteCategory] = useDeleteCategoryMutation();
+
   const onSubmit: SubmitHandler<ICategory> = async (value: ICategory) => {
     console.log("Log value", value);
-    axios
-      .post("add-category", value)
-      .then(() => {console.log("all right");   dispatch(fetchCategories());alert("Category added")})
-      .catch((error) => console.log("Smth went wrong", error));
+   await  addCategory(value);
 
-   
   };
 
 
@@ -35,21 +32,19 @@ function AddCategory(props: any) {
     const selectedCategory = event.currentTarget.elements.namedItem('category') as HTMLSelectElement;
     const value  : ICategory = { name: selectedCategory.value };
     try {
-      await axios.delete("/remove-category", { data: value });
-      console.log("Category deleted successfully");
+      deleteCategory(value);
+      
       alert("Category removed");
-      dispatch(fetchCategories());
+   
     } catch (error) {
       console.error("Error deleting category", error);
     }
   };
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, []);
 
   if(!user || user.roles !== 'ADMIN' ){
     return <h1>Error....</h1>
   }
+
   return (
     <>
       <Row className="mb-4">
@@ -70,7 +65,7 @@ function AddCategory(props: any) {
       <Form onSubmit={handleDelete}>
         <Form.Group className="mb-3">
           <Form.Select aria-label="Default select example"  name="category">
-            {categories.map((data)=>(
+            {categories && categories.map((data)=>(
                    <option key={data.id} value={data.name}>{data.name}</option>
             ))}
           </Form.Select>

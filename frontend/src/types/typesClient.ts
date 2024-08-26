@@ -45,6 +45,7 @@ export interface movieAction {
 
 export interface PageParams {
   items: any[];
+  movies: IMovie[];
 }
 
 

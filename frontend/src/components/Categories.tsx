@@ -1,32 +1,27 @@
-import { useEffect } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import { useNavigate } from "react-router-dom";
-import { fetchCategories } from "../redux/slices/category";
-import { useAppDispatch, useAppSelector } from "../redux/store";
+
+import { useFetchCategoriesQuery } from "../redux/query";
 import { capitalizeFirstLetter } from "../utils/utils";
 
 function Categories() {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const loading = useAppSelector((state) => state.categories.loading);
-  const categories = useAppSelector((state) => state.categories.categories);
 
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, []);
+  const {data,isLoading,isError} = useFetchCategoriesQuery();
+  
   const handleCategory = async (endpoint: string) => {
     navigate(endpoint);
   };
 
   return (
     <DropdownButton id="dropdown-basic-button" title="Dropdown button">
-      {!loading &&
-          categories.map((data) => (
+      {!isLoading && !isError && data &&
+          data.map((item) => (
             <Dropdown.Item
-            onClick={() => handleCategory(`categories/${data.name}/page/1`)}
+            onClick={() => handleCategory(`categories/${item.name}/page/1`)}
           >
-            {capitalizeFirstLetter(data.name)}
+            {capitalizeFirstLetter(item.name)}
           </Dropdown.Item>
           ))}
     </DropdownButton>

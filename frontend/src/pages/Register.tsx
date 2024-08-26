@@ -2,12 +2,8 @@ import Button from "react-bootstrap/esm/Button";
 import Form from "react-bootstrap/esm/Form";
 import { useForm } from "react-hook-form";
 import { SubmitHandler } from "react-hook-form/dist/types/form";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchUserRegisterData } from "../redux/slices/auth";
-import { AppDispatch, useAppDispatch, useAppSelector } from "../redux/store";
-import { IRegisterForm } from "../types/typesRest";
-import { unwrapResult } from "@reduxjs/toolkit";
+import { useRegisterMutation } from "../redux/query";
 interface ModalProps {
   show: boolean;
   hide: () => void;
@@ -26,13 +22,14 @@ function Register(props: any) {
     formState: { errors },
   } = useForm<IFormInput>({ mode: "onChange" });
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  
+  const [regiterUser] = useRegisterMutation();
+  
   const onSubmit: SubmitHandler<IFormInput> = async (value: IFormInput) => {
     console.log(value);
     try {
-      const resultAction = await dispatch(
-        fetchUserRegisterData(value)
-      ).unwrap();
+      const resultAction = await regiterUser(value).unwrap();
+
       window.localStorage.setItem('token',resultAction.token);
       navigate('/');
     } catch (error) {

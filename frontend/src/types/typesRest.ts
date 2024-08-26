@@ -99,7 +99,10 @@ export interface IMovieComment{
   text : string;
   createdAt: Date;
 }
-
+export interface IMovieCommentId{
+  id: string | undefined;
+  comment: IMovieComment;
+}
 export interface IUserName{
   name : string;
 }

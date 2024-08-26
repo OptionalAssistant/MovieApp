@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { fetchMovieCategoryPage } from "../redux/slices/movie";
-import { useAppDispatch, useAppSelector } from "../redux/store";
+import { useFetchMovieCategoryPageQuery } from "../redux/query";
 import { capitalizeFirstLetter, constructPaginationList, MovieCount } from "../utils/utils";
 import Page from "./Page";
 
@@ -10,18 +9,13 @@ function Categories(props: any) {
   let { idCategory ,id} = useParams();
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
-  const dispatch = useAppDispatch();
-  const movies = useAppSelector(state => state.movies.movies);
-  const loading = useAppSelector(state=>state.movies.loading);
-  
+
+  const {data: categories,error,isLoading} = useFetchMovieCategoryPageQuery(`categories/${idCategory}/page/${id}`);
   useEffect(() => {
 
-    const fetchData = async () => {
-
-    try {
-      const data = await dispatch(fetchMovieCategoryPage(`categories/${idCategory}/page/${id}`)).unwrap();
-      
-      const pageCount = Math.ceil(data.total / MovieCount);
+   
+      if(categories){
+      const pageCount = Math.ceil(categories.total / MovieCount);
       const strLink = `categories/${idCategory}/page/`;
       let items: any;
 
@@ -29,24 +23,19 @@ function Categories(props: any) {
 
 
       setPaginationItems(items);
-    } catch (error) {
-     console.log("Failed to get category page");
-
-      
+  
     }
-  }
-    fetchData();
   }, [idCategory,id]);
 
   return (
     <>
       <h1>Categorie: {capitalizeFirstLetter(idCategory as string)}</h1>
-      {movies&& !loading && (
+      {categories?.movies && !isLoading && (
         <>
-          <Page items={paginationItems} />
+          <Page items={paginationItems} movies={categories.movies}/>
         </>
       )}
-       {!movies?.length&& !loading && (
+       {categories?.movies.length === 0 && !isLoading && (
         <>
           <h1>None</h1>
         </>

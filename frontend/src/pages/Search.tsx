@@ -3,58 +3,41 @@ import {
   useSearchParams
 } from "react-router-dom";
 
-import { fetchMovieSearchPage } from "../redux/slices/movie";
-import { useAppDispatch, useAppSelector } from "../redux/store";
 import { constructPaginationList, MovieCount } from "../utils/utils";
 import Page from "./Page";
+import { useFetchMovieSearchPageQuery } from "../redux/query";
 
 function Search(props: any) {
   const [searchParams] = useSearchParams();
 
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
-  const movies =  useAppSelector(state => state.movies.movies);
-  const loading = useAppSelector(state=>state.movies.loading) ;
+
   let page = searchParams.get("page");
+  const {data : movies,error,isLoading} = useFetchMovieSearchPageQuery(`search/?name=${searchParams.get("name")}&page=${page}`);
 
   if (!page) page = "1";
 
-  const dispatch = useAppDispatch();
-
   useEffect(() => {
-    const fetchData = async () => {
-
-      try {
- 
-        const data = await dispatch(fetchMovieSearchPage(`search/?name=${searchParams.get("name")}&page=${page}`)).unwrap();
-
-        
+    if(movies){
         let items: any;
-        const pageCount = Math.ceil(data.total / MovieCount);
+        const pageCount = Math.ceil(movies.total / MovieCount);
         const strLink = `search/?name=${searchParams.get("name")}&page=`
         items =  constructPaginationList({pageCount: pageCount,link : strLink,curPage:  Number(page)});
 
         setPaginationItems(items);
-          
-      }
-      catch(error)
-      {
-        console.log("Failed to fetch movies...\n");
-      }
-    };
-
-    fetchData();
-  }, [searchParams]);
+      } 
+  }, []);
 
   return (
     <>
-      {movies && !loading && (
+      {movies && !isLoading && (
         <>
         <h1>Results on search: {searchParams.get("name")}</h1>
-        <Page items={paginationItems} />
+        <Page items={paginationItems} movies={movies.movies}/>
           </>
       )}
-       {!movies && !loading && (
+       {!movies && !isLoading && (
         <h1>Movie with name: {searchParams.get("name")} not found</h1>
       )}
     </>

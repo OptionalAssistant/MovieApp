@@ -6,12 +6,10 @@ import Row from "react-bootstrap/esm/Row";
 import { useForm } from "react-hook-form";
 import { SubmitHandler } from "react-hook-form/dist/types/form";
 import { useNavigate } from "react-router-dom";
-import { fetchLoginMe } from "../redux/slices/auth";
-import { useAppDispatch, useAppSelector } from "../redux/store";
-import { ErrorResponse } from "../types/typesClient";
+import { useLoginMutation } from "../redux/query";
 import { ILoginForm } from "../types/typesRest";
-import { unwrapResult } from "@reduxjs/toolkit";
-
+import { useDispatch } from "react-redux";
+import { apiService } from "../redux/query";
 interface ModalProps {
   show: boolean;
   hide: () => void;
@@ -28,22 +26,24 @@ function ModalLogin(props: ModalProps) {
     setError,
     formState: { errors },
   } = useForm<IFormInput>({ mode: "onChange" });
-  const dispatch = useAppDispatch();
-
+  const [loginMe] = useLoginMutation();
+  const dispatch = useDispatch();
+  
   const onSubmit: SubmitHandler<IFormInput> = async (value: ILoginForm) => {
     
     try{
-      const data = await dispatch(fetchLoginMe(value));
-
-      const unwrap = unwrapResult(data);
-
       
-      window.localStorage.setItem('token',unwrap.token);
+      const data = await loginMe(value).unwrap();
+      console.log("token",data.token);
+      window.localStorage.setItem('token',data.token);
+      dispatch(apiService.util.invalidateTags(['User']));
+
+ 
       props.hide();
     }
-   catch(error){
-    console.log("error occured",error);
-    setError("password", { type: "custom", message: error as string});
+   catch(error : any){
+    console.log("error occured",error.data.message);
+    setError("password", { type: "custom", message: error.data.message});
    }
   };
 

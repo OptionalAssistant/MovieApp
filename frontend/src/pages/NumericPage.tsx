@@ -2,11 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Page from "../pages/Page";
 
-import { fetchMoviePage } from "../redux/slices/movie";
-import { useAppDispatch, useAppSelector } from "../redux/store";
 import axios from "../axios";
 import { movieNumber } from "../types/typesRest";
 import { constructPaginationList, MovieCount } from "../utils/utils";
+import { useFetchMoviePageQuery } from "../redux/query";
 
 function NumericPage(props: any) {
   let { id } = useParams<string>();
@@ -16,13 +15,14 @@ function NumericPage(props: any) {
   else numericId = 1;
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
-  const dispatch = useAppDispatch();
-  const movies = useAppSelector(state => state.movies.movies) ;
-  const loading = useAppSelector(state => state.movies.loading);
+
+  const {data ,isError,error,isLoading} = useFetchMoviePageQuery(numericId);
+
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await dispatch(fetchMoviePage(numericId)).unwrap();
+
         const size = await axios.get<movieNumber[]>(`/movies/number`);
 
         const pageCount = Math.ceil(size.data.length / MovieCount);
@@ -45,9 +45,9 @@ function NumericPage(props: any) {
   }, [numericId]);
   return (
     <>
-      {movies&& !loading && (
+      {data&& !isLoading && (
         <>
-          <Page items={paginationItems} />
+          <Page items={paginationItems} movies={data}/>
         </>
       )}
     </>

@@ -4,18 +4,20 @@ import Col from "react-bootstrap/esm/Col";
 import Row from "react-bootstrap/esm/Row";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "../axios";
-import { useAppDispatch, useAppSelector } from "../redux/store";
 import { IMovie } from "../types/typesRest";
+import { useDeleteMovieMutation, useFetchAuthMeQuery } from "../redux/query";
 
 function Movie({ movie }: { movie: IMovie }) {
-  const user = useAppSelector((state) => state.auth.user);
-  const dispatch = useAppDispatch();
+
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const {data : user,isLoading,error} = useFetchAuthMeQuery();
+  const [deleteMovie] = useDeleteMovieMutation();
+  
   const onDelete = async () => {
     try {
-      await axios.delete(`/movies/delete/${movie.id}`);
+      deleteMovie(Number(movie.id));
       alert("Movie sucessfully deleted");
     } catch (eror) {
       alert("ERROR");

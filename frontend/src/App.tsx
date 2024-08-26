@@ -2,34 +2,30 @@ import Container from "react-bootstrap/Container";
 import Header from "./components/header";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
+import AddCategory from "./pages/AddCategory";
+import AddMovie from './pages/AddMovie';
 import Categorie from "./pages/Categories";
 import FullMovie from "./pages/FullMovie";
 import { MainPage } from "./pages/Home";
+import NewMovies from "./pages/NewMovies";
 import NumericPage from "./pages/NumericPage";
 import PassRecovery from "./pages/PassRecovery";
+import PopularMovies from "./pages/PopularMovies";
 import Register from "./pages/Register";
 import Search from "./pages/Search";
-import { fetchAuthMe } from "./redux/slices/auth";
-import { useAppDispatch } from "./redux/store";
-import AddMovie from './pages/AddMovie';
-import AddCategory from "./pages/AddCategory";
-import NewMovies from "./pages/NewMovies";
-import PopularMovies from "./pages/PopularMovies";
+import { useFetchAuthMeQuery } from "./redux/query";
 function App() {
 
-  const dispatch = useAppDispatch();
-  useEffect(()=>{
-    dispatch(fetchAuthMe());
-  },[]);
 
+
+   useFetchAuthMeQuery();
 
   return (
     <Container>
       <Header />
-      <Routes>
-        <Route path="/auth/register" element={<Register />} />
+      {<Routes>
+         <Route path="/auth/register" element={<Register />} />
         <Route path="/" element={<MainPage />} />
         <Route path="/reset-password" element={<PassRecovery />} />
         <Route path="/pages/:id" element={<NumericPage />} />
@@ -41,7 +37,7 @@ function App() {
         <Route path="/admin-panel/category/add" element={<AddCategory />} />  
         <Route path="/new-movies/:id" element={<NewMovies />} />  
         <Route path="/popular/:id" element={<PopularMovies />} />  
-      </Routes>
+      </Routes> }
     </Container>
   );
 }

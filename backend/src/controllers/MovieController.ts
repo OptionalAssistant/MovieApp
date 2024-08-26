@@ -148,6 +148,7 @@ export const SearchMovie = async (
         categories: curCategories,
       } 
     }));
+
     return res.send({ movies: items, total: count });
   } catch (err) {
     return res
@@ -206,6 +207,8 @@ export const getAllCategories = async (req, res: Response<Category[]>) => {
 };
 
 export const addCategory = async (req: Request<{}, {}, ICategory>, res) => {
+  
+  console.log("VBOOD",req.body);
   try {
     const data = await CategoryModel.create({ name: req.body.name });
 
@@ -284,6 +287,9 @@ export const deleteMovie = async(req: Request<IMovieDelete>, res) => {
 
 export const editMovie = async(req : Request<IMovieDelete,{},IMovieForm>,res)=>{
  
+  console.log("ID",req.params.id);
+  console.log("BODY",req.body);
+  
  try{
   const movie = await MovieModel.findByPk(req.params.id);
 
@@ -320,7 +326,7 @@ export const addComment = async(req : Request<IMovieDelete,{},CombinedType>,res)
       if(!movie){
         return res.send({message : "Movie not found"});
       }
-
+      console.log("Body",req.body);
       console.log(req.body.text);
       const Comment = await CommentModel.create({text: req.body.text});
       
