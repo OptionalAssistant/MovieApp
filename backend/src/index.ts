@@ -17,6 +17,8 @@ import fs from "fs";
 import CheckAdminAuth from "./utils/CheckAdminAuth";
 import Comment from "./models/Comment";
 import User from './models/User';
+import MovieLikes from "./models/MovieLikes";
+import MovieDislikes from "./models/MovieDislikes";
 
 dotenv.config();
 
@@ -38,13 +40,28 @@ Comment.belongsTo(Movie);
 User.hasMany(Comment);
 Comment.belongsTo(User);
 
-sequelize.sync({ alter: true }) // Safely add new fields without dropping the table.
-    .then(() => {
-        console.log('Database & tables updated!');
-    })
-    .catch(err => {
-        console.error('Error updating tables:', err);
-    });
+// For likes
+Movie.belongsToMany(User, {
+  through: MovieLikes, // Junction table for likes
+  as: 'likedByUsers',
+});
+
+User.belongsToMany(Movie, {
+  through: MovieLikes,
+  as: 'likedMovies',
+});
+
+// For dislikes
+Movie.belongsToMany(User, {
+  through: MovieDislikes, // Junction table for dislikes
+  as: 'dislikedByUsers',
+});
+
+User.belongsToMany(Movie, {
+  through: MovieDislikes,
+  as: 'dislikedMovies',
+});
+
 const app = express();
 const filePath = path.join(__dirname, "..", "src", "views");
 
@@ -112,6 +129,9 @@ app.post(
   UserController.updatePassword
 );
 app.post("/movie/create", CheckAdminAuth, MovieController.create);
+app.post("/dislike-movie/:id",CheckAuth,MovieController.dislikeMovie);
+app.post("/like-movie/:id",CheckAuth,MovieController.likeMovie);
+
 app.get("/search", MovieController.SearchMovie);
 app.get("/categories/:idCategory/page/:id", MovieController.getCategory);
 app.get("/categories/all", MovieController.getAllCategories);
@@ -122,7 +142,7 @@ app.delete("/remove-category", CheckAdminAuth, MovieController.removeCategory);
 app.delete("/movies/delete/:id", CheckAdminAuth, MovieController.deleteMovie);
 app.put("/movies/edit/:id", CheckAdminAuth, MovieController.editMovie);
 app.get("/movies-new/:id",MovieController.getNewMovies);
-
+app.get("/movies-best/:id",MovieController.getBestMovies);
 app.delete("/image/delete/:path", async (req, res) => {
   const fileName = req.params.path;
   const filePath = path.join(__dirname, "..", "uploads", fileName);

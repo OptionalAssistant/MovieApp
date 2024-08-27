@@ -3,7 +3,9 @@ import Form from "react-bootstrap/esm/Form";
 import { useForm } from "react-hook-form";
 import { SubmitHandler } from "react-hook-form/dist/types/form";
 import { useNavigate } from "react-router-dom";
-import { useRegisterMutation } from "../redux/query";
+import { apiService, useRegisterMutation } from "../redux/query";
+import { ServerError } from "../types/typesClient";
+import { useDispatch } from "react-redux";
 interface ModalProps {
   show: boolean;
   hide: () => void;
@@ -24,16 +26,22 @@ function Register(props: any) {
   const navigate = useNavigate();
   
   const [regiterUser] = useRegisterMutation();
+  const dispatch = useDispatch();
   
   const onSubmit: SubmitHandler<IFormInput> = async (value: IFormInput) => {
     console.log(value);
     try {
-      const resultAction = await regiterUser(value).unwrap();
+      const data = await regiterUser(value).unwrap();
 
-      window.localStorage.setItem('token',resultAction.token);
+
+      window.localStorage.setItem('token',data.token);
+      dispatch(apiService.util.invalidateTags(['User']));
+
       navigate('/');
     } catch (error) {
-      setError("password", { type: "custom", message: error as string});
+      const err = error as ServerError;
+      console.log("eror",err.data.message);
+      setError("password", { type: "custom", message: err.data.message});
     }
   };
 

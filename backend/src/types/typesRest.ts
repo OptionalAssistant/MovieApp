@@ -38,11 +38,17 @@ export interface IMovie {
   imageUrl: string;
   categories: string[];
 }
-
+export interface InterfaceId{
+  id : number;
+}
 export interface IFullMovie extends IMovie{
     trailerUrl : string;
     description: string;
     commentCount: number;
+    dislikeCount: number;
+    likeCount: number;
+    isLiked: boolean;
+    isDisliked: boolean;
 }
 export interface movieNumber{
   length : number;

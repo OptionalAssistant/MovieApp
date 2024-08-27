@@ -29,7 +29,11 @@ export interface ErrorResponse {
     };
   };
 }
-
+export interface ServerError{
+  data:{
+    message: string;
+  }
+}
 export interface IMovieState {
   loading: boolean;
   error: string;

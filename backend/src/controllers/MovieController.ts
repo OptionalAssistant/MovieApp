@@ -2,21 +2,23 @@ import { Request, Response } from "express";
 import { Op } from "sequelize";
 import { default as Category, default as CategoryModel } from "../models/Category";
 import MovieModel from "../models/Movie";
-import { CombinedType, ICategoryName, IMovieDelete } from "../types/typesClient";
+import { CombinedType, IAuthMe, ICategoryName, IMovieDelete } from "../types/typesClient";
 import {
   ICategory,
   IFullMovie,
   IMovie,
+  IMovieComment,
   IMovieForm,
   IMovieResponce,
   IMovieSearchForm,
+  InterfaceId,
   MovieComment,
   MovieCommentResponse,
   movieNumber,
   PageParams,
   SearchMovieResponse
 } from "../types/typesRest";
-
+import jwt  from "jsonwebtoken";
 import CommentModel from '../models/Comment';
 import UserModel from '../models/User';
 
@@ -78,17 +80,48 @@ export const getMoviePage = async (
 };
 
 export const getFullMovie = async (
-  req: Request<PageParams>,
+  req: Request<PageParams,{},IAuthMe>,
   res: Response<IFullMovie>
 ) => {
   const { id } = req.params;
 
   try {
+
     const movie = await MovieModel.findByPk(id, { include: [Category] });
     const items = (await movie.getCategories()).map(
       (category) => category.name
     );
+    console.log("Dislike count");
+    const dislikeCount = await movie.countDislikedByUsers();
+    const likeCount = await movie.countLikedByUsers();
+    let isLiked  = false;
+    let isDisliked = false ;
 
+    const token = ( req.headers.authorization  || '').replace(/Bearer\s?/,'');
+    console.log("TOken",token);
+    if(token){
+            try{
+                const decoded = jwt.verify(token,process.env.SECRET_KEY);
+
+                const user = await UserModel.findByPk(decoded.id);
+
+                if(!user){
+                  return res.status(404);
+                }
+        
+               const dislikedMovies = await user.getDislikedMovies();
+               const likedMovies = await user.getLikedMovies();
+        
+                isLiked = likedMovies.some(item => item.id === movie.id);
+                isDisliked = dislikedMovies.some(item => item.id === movie.id);
+            }
+            catch(error)
+            {
+            }
+    }
+
+    console.log("Dislike count",dislikeCount);
+    console.log("Like count",likeCount);
 
     const Movie: IFullMovie = {
       id: movie.id,
@@ -99,7 +132,11 @@ export const getFullMovie = async (
       categories: items,
       imageUrl: movie.imageUrl,
       country: movie.country,
-      commentCount: movie.commentCount
+      commentCount: movie.commentCount,
+      dislikeCount : dislikeCount,
+      likeCount: likeCount,
+      isDisliked: isDisliked,
+      isLiked: isLiked
     };
 
     return res.send(Movie);
@@ -114,9 +151,9 @@ export const SearchMovie = async (
 ) => {
   const s_name = req.query.name;
   const id = req.query.page;
-
-  let index = id - 1;
-
+  console.log("id",id);
+  let index = id ? id-1 : 0;
+  console.log("Page",index);
   try {
     const movies = await MovieModel.findAll({
       where: {
@@ -127,11 +164,13 @@ export const SearchMovie = async (
       // offset: index, // Pagination offset
       // limit: movieCount,  // Number of records per page
     });
+
     const count = movies.length;
     const moviesSliced = movies.slice(
       index * movieCount,
       index * movieCount + movieCount
     );
+    console.log("ITESM",moviesSliced);
     if (!movies.length) {
       return res.status(404).json({ message: "Movie not found" });
     }
@@ -148,7 +187,7 @@ export const SearchMovie = async (
         categories: curCategories,
       } 
     }));
-
+    console.log("ITESM3",items);
     return res.send({ movies: items, total: count });
   } catch (err) {
     return res
@@ -222,7 +261,7 @@ export const addCategory = async (req: Request<{}, {}, ICategory>, res) => {
 
 export const create = async (
   req: Request<{}, {}, IMovieForm>,
-  res: Response<MovieModel>
+  res: Response<InterfaceId>
 ) => {
   try {
     const movie = await MovieModel.create({
@@ -242,7 +281,7 @@ export const create = async (
     );
     await movie.setCategories(categories);
 
-    return res.send(movie);
+    return res.send({id: movie.id});
   } catch (erorr) {
     //   return res.send({message: "Movie was not added.Error"});
   }
@@ -289,7 +328,7 @@ export const editMovie = async(req : Request<IMovieDelete,{},IMovieForm>,res)=>{
  
   console.log("ID",req.params.id);
   console.log("BODY",req.body);
-  
+
  try{
   const movie = await MovieModel.findByPk(req.params.id);
 
@@ -319,7 +358,7 @@ catch(error){
 }
 
 
-export const addComment = async(req : Request<IMovieDelete,{},CombinedType>,res)=>{
+export const addComment = async(req : Request<IMovieDelete,{},CombinedType<IMovieComment>>,res)=>{
     try{
       const movie = MovieModel.findByPk(req.params.id);
 
@@ -421,6 +460,113 @@ export const getPopularMovies = async(req : Request<PageParams>,res : Response<S
 
   try{
     const { rows: movies }  = await MovieModel.findAndCountAll(   {order: [['commentCount', 'DESC']],
+      offset: index,
+      limit: movieCount}
+    );
+    console.log("Moviess",index,movies);
+   let items: IMovie[] = await Promise.all(movies.map(async(movie)=>{
+      const categories = await movie.getCategories();
+  
+      const curCategories = categories.map(category =>category.name);
+      return{
+        id: movie.id,
+        name: movie.name,
+        date: movie.date,
+        country: movie.country,
+        imageUrl: movie.imageUrl,
+        categories: curCategories,
+      } 
+    }));
+    return res.send({ movies: items });
+  }
+  catch(error){
+    console.log("Something went wrong during getNewMovies",error);
+    res.send({message:"Error"});
+  }
+}
+
+
+export const dislikeMovie = async(req : Request<IMovieDelete>,res)=>{
+  try{
+    const movie = await MovieModel.findByPk(req.params.id);
+
+    if(!movie){
+      console.log("Error movie not found in dislike movie");
+      return res.status(404);
+    }
+    const curUser = await UserModel.findByPk(req.body.userId);
+
+    const likedUsers = await movie.getLikedByUsers();
+    const dislikedUsers = await movie.getDislikedByUsers();
+
+    let isLiked = likedUsers.some(user => user.id === req.body.userId);
+
+    if(isLiked){
+        await movie.removeLikedByUser(curUser);
+    }
+     
+    isLiked = dislikedUsers.some(user => user.id === req.body.userId);
+
+    if(isLiked){
+      await movie.removeDislikedByUser(curUser);
+    }
+    else{
+      await movie.addDislikedByUser(curUser);
+    }
+    (await movie).update({likesCount: (await (await movie).countLikedByUsers())});
+    return res.send({message:"Success"});
+  }
+  catch(error){
+      console.log("Ops something went wrong during dislikeMovie",error);
+  }
+}
+
+export const likeMovie = async(req: Request<IMovieDelete,{},CombinedType<IAuthMe>>,res)=>{
+  
+  try{
+    const movie = await MovieModel.findByPk(req.params.id);
+
+    if(!movie){
+      console.log("Error movie not found in like movie");
+      return res.status(404);
+    }
+    const curUser = await UserModel.findByPk(req.body.userId);
+
+    const likedUsers = await movie.getLikedByUsers();
+    const dislikedUsers = await movie.getDislikedByUsers();
+
+    let isLiked = dislikedUsers.some(user => user.id === req.body.userId);
+
+    if(isLiked){
+        await movie.removeDislikedByUser(curUser);
+    }
+     
+    isLiked = likedUsers.some(user => user.id === req.body.userId);
+
+    if(isLiked){
+      await movie.removeLikedByUser(curUser);
+    }
+    else{
+      await movie.addLikedByUser(curUser);
+    }
+    (await movie).update({likesCount: (await (await movie).countLikedByUsers())});
+    return res.send({message:"Success"});
+  }
+  catch(error){
+      console.log("Ops something went wrong during likeMovie",error);
+  }
+ 
+
+}
+
+
+export const getBestMovies = async(req : Request<PageParams>,res : Response<SearchMovieResponse>)=>{
+  const { id } = req.params;
+  console.log("id",id);
+  let index = (id - 1) * movieCount;
+
+  try{
+    const { rows: movies }  = await MovieModel.findAndCountAll(   {order: [['likesCount', 'DESC']],
       offset: index,
       limit: movieCount}
     );

@@ -22,6 +22,7 @@ import {
 } from "sequelize";
 
 import Comment from "./Comment";
+import Movie from "./Movie";
 // Define the User model, using IUser for the user property
 class User
   extends Model<InferAttributes<User>, InferCreationAttributes<User>>
@@ -44,6 +45,19 @@ class User
   declare hasComments: HasManyHasAssociationsMixin<Comment, number>;
   declare countComments: HasManyCountAssociationsMixin;
   declare createComments: HasManyCreateAssociationMixin<Comment, "id">;
+
+
+  declare getLikedMovies: HasManyGetAssociationsMixin<Movie>;
+  declare addLikedMovie: HasManyAddAssociationMixin<Movie, number>;
+  declare addLikedMovies: HasManyAddAssociationsMixin<Movie, number>;
+  declare removeLikedMovie: HasManyRemoveAssociationMixin<Movie, number>;
+  declare removeLikedMovies: HasManyRemoveAssociationsMixin<Movie, number>;
+
+  declare getDislikedMovies: HasManyGetAssociationsMixin<Movie>;
+  declare addDislikedMovie: HasManyAddAssociationMixin<Movie, number>;
+  declare addDislikedMovies: HasManyAddAssociationsMixin<Movie, number>;
+  declare removeDislikedMovie: HasManyRemoveAssociationMixin<Movie, number>;
+  declare removeDislikedMovies: HasManyRemoveAssociationsMixin<Movie, number>;
 }
 
 // Initialize the User model with actual Sequelize fields

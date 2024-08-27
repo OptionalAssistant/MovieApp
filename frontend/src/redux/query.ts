@@ -12,6 +12,8 @@ import {
   IMovieCommentId,
   IMovieModel,
   IMovieForm2,
+  InterfaceId,
+  IFullMovie,
 } from "../types/typesRest";
 
 export const apiService = createApi({
@@ -20,15 +22,15 @@ export const apiService = createApi({
     baseUrl: "http://localhost:4444/",
     prepareHeaders: (headers) => {
       const token = window.localStorage.getItem("token");
-      console.log("TOOOOEK",token);
+      console.log("TOOOOEK", token);
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
-      
+
       return headers;
     },
   }), // Adjust baseUrl if needed
-  tagTypes: ["Categories", "User", "Comments","Movies"],
+  tagTypes: ["Categories", "User", "Comments", "Movies","FullMovie","BestMovies"],
   endpoints: (builder) => ({
     // Category Endpoints
     fetchCategories: builder.query<Category[], void>({
@@ -43,14 +45,13 @@ export const apiService = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["User"],
     }),
     login: builder.mutation<UserDataToken, ILoginForm>({
       query: (body) => ({
         url: "/auth/login",
         method: "POST",
         body,
-      })
+      }),
     }),
     fetchAuthMe: builder.query<UserData, void>({
       query: () => "/auth/me",
@@ -105,36 +106,52 @@ export const apiService = createApi({
       invalidatesTags: ["Comments"],
     }),
     deleteMovie: builder.mutation<void, number>({
-        query: (id) => ({
-          url: `/movies/delete/${id}`,
-          method: "DELETE",
-        }),
-        invalidatesTags: ["Movies"],
+      query: (id) => ({
+        url: `/movies/delete/${id}`,
+        method: "DELETE",
       }),
-      createMovie: builder.mutation<void, IMovieForm2>({
-        query: (movie) => ({
-          url: "movie/create",
-          method: "POST",
-          body: movie
-        }),
-        invalidatesTags: ["Movies"],
+      invalidatesTags: ["Movies"],
+    }),
+    createMovie: builder.mutation<InterfaceId, IMovieForm2>({
+      query: (movie) => ({
+        url: "movie/create",
+        method: "POST",
+        body: movie,
       }),
-      editMovie: builder.mutation<void, IMovieForm2>({
-        query: (movie) => ({
-          url: `/movies/edit/${movie.id}`,
-          method: "PUT",
-          body: movie
-        }),
-        invalidatesTags: ["Movies"],
+      invalidatesTags: ["Movies"],
+    }),
+    editMovie: builder.mutation<void, IMovieForm2>({
+      query: (movie) => ({
+        url: `/movies/edit/${movie.id}`,
+        method: "PUT",
+        body: movie,
       }),
-      fetchPopularMovies: builder.query<ISearchMovieResponse, number>({
-        query: (num) => `/movies-popular/${num}`,
-          providesTags: ["Movies"],
-        }),
-        logout: builder.mutation<void, void>({
-            query: () => '', // This can be an empty string since no request is made
-            invalidatesTags: ['User'],
-          }),
+      invalidatesTags: ["Movies"],
+    }),
+    fetchPopularMovies: builder.query<ISearchMovieResponse, number>({
+      query: (num) => `/movies-popular/${num}`,
+      providesTags: ["Movies"],
+    }),
+    logout: builder.mutation<void, void>({
+      query: () => "", // This can be an empty string since no request is made
+      invalidatesTags: ["User",'FullMovie'],
+    }),
+    dislikeMovie: builder.mutation<void, number>({
+      query: (num)=> ({url:`/dislike-movie/${num}`,method:"POST"}) ,
+      invalidatesTags: ["FullMovie","BestMovies"],
+    }),
+    likeMovie: builder.mutation<void, number>({
+      query: (num)=> ({url:`/like-movie/${num}`,method:"POST"})   , // This can be an empty string since no request is made
+      invalidatesTags: ["FullMovie","BestMovies"],
+    }),
+    fetchFullMovie: builder.query<IFullMovie, number>({
+      query: (num) => `/movies/full/${num}`,
+      providesTags: ['FullMovie'], 
+    }),
+    fetchBestMovies: builder.query<ISearchMovieResponse, number>({
+      query: (num) => `/movies-best/${num}`,
+      providesTags: ['FullMovie',"BestMovies"], 
+    }),
     
   }),
 });
@@ -156,5 +173,9 @@ export const {
   useCreateMovieMutation,
   useEditMovieMutation,
   useFetchPopularMoviesQuery,
-  useLogoutMutation
+  useLogoutMutation,
+  useLikeMovieMutation,
+  useDislikeMovieMutation,
+  useFetchFullMovieQuery,
+  useFetchBestMoviesQuery
 } = apiService;

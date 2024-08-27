@@ -4,18 +4,37 @@ import { Link, useParams } from "react-router-dom";
 import axios from "../axios";
 import Comments from "../components/Comments";
 import { IFullMovie } from "../types/typesRest";
+import Button from "react-bootstrap/esm/Button";
+import Col from "react-bootstrap/esm/Col";
+import { useDislikeMovieMutation, useFetchFullMovieQuery, useLikeMovieMutation } from "../redux/query";
+
 function FullMovie() {
   const { id } = useParams();
-  const [movie, setData] = useState<IFullMovie>();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data } = await axios.get<IFullMovie>(`/movies/full/${id}`);
-      setData(data);
-      console.log("data",data);
-    };
-    fetchData();
-  }, [id]);
+  const [likeMovie] = useLikeMovieMutation();
+  const [dislikeMovie] = useDislikeMovieMutation();
+  const [isLiked,setLiked] = useState(false);
+  const [isDisliked,setDisliked] = useState(false);
+  const handleDislike = () => {
+    dislikeMovie(Number(id)).then(()=>setDisliked(!isDisliked)).catch(err => {
+      console.error('Failed to dislike movie:', err);
+    });
+  };
+  const handleLike = () => {
+    console.log("Is liked",isLiked);
+    likeMovie(Number(id)).then(()=>setLiked(!isLiked)).catch(err => {
+      console.error('Failed to like movie:', err);
+    });
+  };
+
+   const { data : movie, isLoading,error } = useFetchFullMovieQuery( Number(id));
+ 
+    useEffect(()=>{
+      if(movie && !isLoading){
+        setDisliked(movie.isDisliked);
+        setLiked(movie.isLiked);
+      }
+    },[movie, isLoading, error]);
 
   return movie ? (
     <>
@@ -29,9 +48,28 @@ function FullMovie() {
           {new Date(movie.date).toLocaleString("en-US", {
             year: "numeric",
             month: "long",
-            day : "numeric"
+            day: "numeric",
           })}
         </h4>
+        <Row>
+          {" "}
+          <h4>Dislikes : {movie.dislikeCount} </h4>
+          <Col lg={1}>
+            <Button variant={movie.isDisliked ? "danger" : "light"} size="lg"  onClick={handleDislike}>
+              Dislike
+            </Button>{" "}
+          </Col>
+        </Row>
+        <Row>
+          {" "}
+          <h4>Likes : {movie.likeCount}</h4>  
+          <Col lg={1}>
+            <Button variant={movie.isLiked ? "danger" : "light"} size="lg" onClick={handleLike}>
+              Like
+            </Button>{" "}
+          </Col>
+        </Row>
+
         <div>
           <img
             src={`http://localhost:4444/uploads/${movie.imageUrl}`}

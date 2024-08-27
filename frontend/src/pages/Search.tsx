@@ -14,9 +14,11 @@ function Search(props: any) {
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
 
   let page = searchParams.get("page");
+  if (!page) page = "1";
+
   const {data : movies,error,isLoading} = useFetchMovieSearchPageQuery(`search/?name=${searchParams.get("name")}&page=${page}`);
 
-  if (!page) page = "1";
+
 
   useEffect(() => {
     if(movies){
@@ -27,7 +29,7 @@ function Search(props: any) {
 
         setPaginationItems(items);
       } 
-  }, []);
+  }, [movies]);
 
   return (
     <>

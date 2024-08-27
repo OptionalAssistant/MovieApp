@@ -5,15 +5,15 @@ import { useEffect, useState } from "react";
 import { movieNumber } from "../types/typesRest";
 import axios from "../axios";
 import { constructPaginationList, MovieCount } from "../utils/utils";
-import { useFetchFreshMoviesQuery, useFetchPopularMoviesQuery } from "../redux/query";
+import { useFetchBestMoviesQuery, useFetchFreshMoviesQuery, useFetchPopularMoviesQuery } from "../redux/query";
 
-function PopularMovies(){
+function BestMovies(){
 
     const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
     
     const { id } = useParams();
 
-    const {data : movies ,isError,error,isLoading} = useFetchPopularMoviesQuery(Number(id));
+    const {data : movies ,isError,error,isLoading} = useFetchBestMoviesQuery(Number(id));
     useEffect(() => {
       const fetchData = async () => {
         try {
@@ -26,7 +26,7 @@ function PopularMovies(){
               const pageCount = Math.ceil(size.data.length /MovieCount);
               items = constructPaginationList({
                 pageCount: pageCount,
-                link: '/popular/',
+                link: '/most-likes/',
                 curPage: Number(id),
               });
       
@@ -49,7 +49,7 @@ function PopularMovies(){
 
     return (
       <>
-        <h1>Popular movies</h1>
+        <h1>Most liked movies</h1>
   
         {movies?.movies && !isLoading  && (
           <>
@@ -61,4 +61,4 @@ function PopularMovies(){
     );
 }
 
-export default PopularMovies;
+export default BestMovies;

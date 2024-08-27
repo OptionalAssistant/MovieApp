@@ -88,17 +88,20 @@ function AddMovie(props: any) {
           movieForm.id = id.toString();
 
         await editMovie(movieForm).unwrap(); // Ensure mutation completes
+        navigate(`/movies/${id}`);
       } catch (error) {
         console.log("Fail to edit movie", error);
       }
     } else {
       try {
-        await createMovie(movieForm).unwrap(); // Ensure mutation completes
+        const data = await createMovie(movieForm).unwrap(); // Ensure mutation completes
+        console.log("DATA id",data.id);
+          navigate(`/movies/${data.id}`);
       } catch (error) {
         console.log("Fail to create movie", error);
       }
     }
-    navigate(`/movies/${id}`);
+
   };
 
   const handleChangeFile = async (event: any) => {

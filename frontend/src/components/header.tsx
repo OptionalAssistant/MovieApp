@@ -123,6 +123,9 @@ function Header() {
         <Dropdown.Item    onClick={() => navigate('/new-movies/1')}>
             Most recent
         </Dropdown.Item>
+        <Dropdown.Item    onClick={() => navigate('/most-likes/1')}>
+            Most liked
+        </Dropdown.Item>
         <Dropdown.Item   onClick={() => navigate('/popular/1')}>
             Most popular
         </Dropdown.Item>
@@ -130,7 +133,7 @@ function Header() {
         </Col>
    
       </Row>
-      {user && !user.isActivated && (
+      {window.localStorage.getItem('token') &&user && !user.isActivated && (
         <Alert variant="danger">
           <Alert.Heading>Ooops your email is not verified</Alert.Heading>
           <p>Verify your email click on the burron below</p>

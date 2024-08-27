@@ -59,11 +59,18 @@ export interface IMovieForm2 {
 export interface movieNumber{
   length : number;
 }
+export interface InterfaceId{
+  id : number;
+}
 
 export interface IFullMovie extends IMovie{
   trailerUrl : string;
   description: string;
   commentCount : number;
+  dislikeCount: number;
+  likeCount: number;
+  isLiked: boolean;
+  isDisliked: boolean;
 }
 
 export interface IMovieSearchForm{

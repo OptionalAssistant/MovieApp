@@ -15,6 +15,7 @@ import PopularMovies from "./pages/PopularMovies";
 import Register from "./pages/Register";
 import Search from "./pages/Search";
 import { useFetchAuthMeQuery } from "./redux/query";
+import BestMovies from "./pages/BestMovies";
 function App() {
 
 
@@ -37,6 +38,7 @@ function App() {
         <Route path="/admin-panel/category/add" element={<AddCategory />} />  
         <Route path="/new-movies/:id" element={<NewMovies />} />  
         <Route path="/popular/:id" element={<PopularMovies />} />  
+        <Route path="/most-likes/:id" element={<BestMovies />} />  
       </Routes> }
     </Container>
   );

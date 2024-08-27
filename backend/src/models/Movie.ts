@@ -1,37 +1,40 @@
 import {
-    CreationOptional,
-    DataTypes,
-    HasManyAddAssociationMixin,
-    HasManyAddAssociationsMixin,
-    HasManyCountAssociationsMixin,
-    HasManyCreateAssociationMixin,
-    HasManyGetAssociationsMixin,
-    HasManyHasAssociationMixin,
-    HasManyHasAssociationsMixin,
-    HasManyRemoveAssociationMixin,
-    HasManyRemoveAssociationsMixin,
-    HasManySetAssociationsMixin,
-    InferAttributes,
-    InferCreationAttributes,
-    Model,
+  CreationOptional,
+  DataTypes,
+  HasManyAddAssociationMixin,
+  HasManyAddAssociationsMixin,
+  HasManyCountAssociationsMixin,
+  HasManyCreateAssociationMixin,
+  HasManyGetAssociationsMixin,
+  HasManyHasAssociationMixin,
+  HasManyHasAssociationsMixin,
+  HasManyRemoveAssociationMixin,
+  HasManyRemoveAssociationsMixin,
+  HasManySetAssociationsMixin,
+  InferAttributes,
+  InferCreationAttributes,
+  Model,
 } from "sequelize";
 import Category from "./Category";
 import sequelize from "./db";
 import Comment from "./Comment";
+import User from "./User";
 
 // Define the Movie model
-class Movie
-  extends Model<InferAttributes<Movie>, InferCreationAttributes<Movie>>
-{
+class Movie extends Model<
+  InferAttributes<Movie>,
+  InferCreationAttributes<Movie>
+> {
   declare id: CreationOptional<number>; // Assuming you have an auto-incrementing primary key
   declare name: string;
-  declare date:  Date;
+  declare date: Date;
   declare country: string;
   declare imageUrl: string;
   declare trailerUrl: string;
   declare description: string;
   declare commentCount: number;
-  
+  declare likesCount: number;
+
   declare getCategories: HasManyGetAssociationsMixin<Category>; // Note the null assertions!
   declare addCategory: HasManyAddAssociationMixin<Category, number>;
   declare addCategories: HasManyAddAssociationsMixin<Category, number>;
@@ -41,7 +44,7 @@ class Movie
   declare hasCategory: HasManyHasAssociationMixin<Category, number>;
   declare hasCategories: HasManyHasAssociationsMixin<Category, number>;
   declare countCategories: HasManyCountAssociationsMixin;
-  declare createCategory: HasManyCreateAssociationMixin<Category, 'id'>;
+  declare createCategory: HasManyCreateAssociationMixin<Category, "id">;
 
   declare getComments: HasManyGetAssociationsMixin<Comment>; // Note the null assertions!
   declare addComment: HasManyAddAssociationMixin<Comment, number>;
@@ -52,7 +55,29 @@ class Movie
   declare hasComment: HasManyHasAssociationMixin<Comment, number>;
   declare hasComments: HasManyHasAssociationsMixin<Comment, number>;
   declare countComments: HasManyCountAssociationsMixin;
-  declare createComments: HasManyCreateAssociationMixin<Comment, 'id'>;
+  declare createComments: HasManyCreateAssociationMixin<Comment, "id">;
+
+  declare getLikedByUsers: HasManyGetAssociationsMixin<User>;
+  declare addLikedByUser: HasManyAddAssociationMixin<User, number>;
+  declare addLikedByUsers: HasManyAddAssociationsMixin<User, number>;
+  declare setLikedByUsers: HasManySetAssociationsMixin<User, number>;
+  declare removeLikedByUser: HasManyRemoveAssociationMixin<User, number>;
+  declare removeLikedByUsers: HasManyRemoveAssociationsMixin<User, number>;
+  declare hasLikedByUser: HasManyHasAssociationMixin<User, number>;
+  declare hasLikedByUsers: HasManyHasAssociationsMixin<User, number>;
+  declare countLikedByUsers: HasManyCountAssociationsMixin;
+  declare createLikedByUser: HasManyCreateAssociationMixin<User, 'id'>;
+
+  declare getDislikedByUsers: HasManyGetAssociationsMixin<User>;
+  declare addDislikedByUser: HasManyAddAssociationMixin<User, number>;
+  declare addDislikedByUsers: HasManyAddAssociationsMixin<User, number>;
+  declare setDislikedByUsers: HasManySetAssociationsMixin<User, number>;
+  declare removeDislikedByUser: HasManyRemoveAssociationMixin<User, number>;
+  declare removeDislikedByUsers: HasManyRemoveAssociationsMixin<User, number>;
+  declare hasDislikedByUser: HasManyHasAssociationMixin<User, number>;
+  declare hasDislikedByUsers: HasManyHasAssociationsMixin<User, number>;
+  declare countDislikedByUsers: HasManyCountAssociationsMixin;
+  declare createDislikedByUser: HasManyCreateAssociationMixin<User, 'id'>;
 }
 
 // Initialize the Movie model with actual Sequelize fields
@@ -87,9 +112,13 @@ Movie.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    commentCount:{
+    commentCount: {
       type: DataTypes.INTEGER,
-      defaultValue:0
+      defaultValue: 0,
+    },
+    likesCount:{
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
     }
   },
   {

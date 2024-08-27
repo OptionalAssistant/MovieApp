@@ -11,7 +11,7 @@ export interface IUser {
 
 
 export interface IAuthMe{
-  userId : string;
+  userId : number;
 }
 
 export interface ActivateParams {
@@ -28,4 +28,4 @@ export interface IMovieDelete{
   id : number;
 }
 
-export type CombinedType = IAuthMe & IMovieComment;
+export type CombinedType<T> = IAuthMe & T;
