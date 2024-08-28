@@ -34,6 +34,7 @@ class User
   declare passwordHash: string;
   declare isActivated: boolean;
   declare roles: "USER" | "ADMIN"; // TypeScript type annotation
+  declare avatar: string;
 
   declare getComments: HasManyGetAssociationsMixin<Comment>; // Note the null assertions!
   declare addComment: HasManyAddAssociationMixin<Comment, number>;
@@ -88,6 +89,10 @@ User.init(
     roles: {
       type: DataTypes.ENUM("USER", "ADMIN"),
       defaultValue: "ADMIN",
+    },
+    avatar: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
   },
   {

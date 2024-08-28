@@ -3,11 +3,9 @@ import Col from "react-bootstrap/esm/Col";
 import Form from "react-bootstrap/esm/Form";
 import Row from "react-bootstrap/esm/Row";
 import { SubmitHandler, useForm } from "react-hook-form";
-import axios from "../axios";
 import { useAddCommentMutation, useFetchCommentsQuery } from "../redux/query";
 import { ErrorResponse } from "../types/typesClient";
-import { IMovieComment } from "../types/typesRest";
-import { IMovieCommentId } from "../types/typesRest";
+import { IMovieComment, IMovieCommentId } from "../types/typesRest";
 interface movieId {
   id: string | undefined;
   count: number;
@@ -79,6 +77,7 @@ function Comments(props: movieId) {
                 <h3>{formattedDate}</h3>
                 <h3>{data.name}</h3>
                 <p>{data.text}</p>
+                <img src={`http://localhost:4444/uploads/${data.avatar}`} alt="Poster" />
               </Col>
             </Row>
           );

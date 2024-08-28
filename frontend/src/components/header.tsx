@@ -16,11 +16,10 @@ import { IMovieSearchForm } from "../types/typesRest";
 import Canvas from "./Canvas";
 import ModalWindow from "./Login";
 
-
 function Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
 
-  const {data : user,isLoading,error} = useFetchAuthMeQuery();
+  const { data: user, isLoading, error } = useFetchAuthMeQuery();
 
   const [logout] = useLogoutMutation();
 
@@ -82,6 +81,7 @@ function Header() {
             <Button variant="primary">Home</Button>
           </Link>
         </Col>
+
         <Col lg={3}>
           <Form className="d-flex" onSubmit={handleSubmit(onSubmit)}>
             <Form.Control
@@ -102,6 +102,17 @@ function Header() {
           </Form>
         </Col>
         <Col lg={3}>{button}</Col>
+        {user && !error && !isLoading && (
+          <Col>
+            {" "}
+            <Button
+              variant="outline-warning btn btn-primary btn-md"
+              type="submit" onClick={()=> navigate('/profile')}
+            >
+              Profile
+            </Button>
+          </Col>
+        )}
         <Col>
           {/* <Button variant="outline-danger">Admin panel</Button> */}
           {user && user.isActivated && user.roles === "ADMIN" && (
@@ -115,25 +126,24 @@ function Header() {
       </Row>
       <Row>
         <Col>
-        {""}
-        <DropdownCategories />
+          {""}
+          <DropdownCategories />
         </Col>
         <Col>
-        <DropdownButton id="dropdown-basic-button" title="Sorting">
-        <Dropdown.Item    onClick={() => navigate('/new-movies/1')}>
-            Most recent
-        </Dropdown.Item>
-        <Dropdown.Item    onClick={() => navigate('/most-likes/1')}>
-            Most liked
-        </Dropdown.Item>
-        <Dropdown.Item   onClick={() => navigate('/popular/1')}>
-            Most popular
-        </Dropdown.Item>
-        </DropdownButton>
+          <DropdownButton id="dropdown-basic-button" title="Sorting">
+            <Dropdown.Item onClick={() => navigate("/new-movies/1")}>
+              Most recent
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => navigate("/most-likes/1")}>
+              Most liked
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => navigate("/popular/1")}>
+              Most popular
+            </Dropdown.Item>
+          </DropdownButton>
         </Col>
-   
       </Row>
-      {window.localStorage.getItem('token') &&user && !user.isActivated && (
+      {window.localStorage.getItem("token") && user && !user.isActivated && (
         <Alert variant="danger">
           <Alert.Heading>Ooops your email is not verified</Alert.Heading>
           <p>Verify your email click on the burron below</p>
@@ -144,8 +154,6 @@ function Header() {
       )}
 
       <ModalWindow show={modalShow} hide={() => setModalShow(false)} />
-
-   
     </>
   );
 }

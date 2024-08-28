@@ -5,17 +5,21 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Route, Routes } from "react-router-dom";
 import AddCategory from "./pages/AddCategory";
 import AddMovie from './pages/AddMovie';
+import BestMovies from "./pages/BestMovies";
 import Categorie from "./pages/Categories";
+import DislikedMovies from "./pages/DislikedMovies";
 import FullMovie from "./pages/FullMovie";
 import { MainPage } from "./pages/Home";
+import LikedMovies from "./pages/LikedMovies";
 import NewMovies from "./pages/NewMovies";
+import NotFoundPage from "./pages/NotFoundPage";
 import NumericPage from "./pages/NumericPage";
 import PassRecovery from "./pages/PassRecovery";
 import PopularMovies from "./pages/PopularMovies";
+import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import Search from "./pages/Search";
 import { useFetchAuthMeQuery } from "./redux/query";
-import BestMovies from "./pages/BestMovies";
 function App() {
 
 
@@ -39,8 +43,13 @@ function App() {
         <Route path="/new-movies/:id" element={<NewMovies />} />  
         <Route path="/popular/:id" element={<PopularMovies />} />  
         <Route path="/most-likes/:id" element={<BestMovies />} />  
+        <Route path="*" element={<NotFoundPage />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/liked/:id" element={<LikedMovies />} />
+        <Route path="/profile/disliked/:id" element={<DislikedMovies />} />
       </Routes> }
     </Container>
+   
   );
 }
 

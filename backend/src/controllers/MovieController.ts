@@ -6,6 +6,7 @@ import { CombinedType, IAuthMe, ICategoryName, IMovieDelete } from "../types/typ
 import {
   ICategory,
   IFullMovie,
+  IImageUrl,
   IMovie,
   IMovieComment,
   IMovieForm,
@@ -21,6 +22,9 @@ import {
 import jwt  from "jsonwebtoken";
 import CommentModel from '../models/Comment';
 import UserModel from '../models/User';
+import fs from "fs";
+import path from "path";
+import { error } from "console";
 
 const movieCount = 2;
 export const getMovies = async (req, res: Response<IMovie[]>) => {
@@ -98,11 +102,11 @@ export const getFullMovie = async (
     let isDisliked = false ;
 
     const token = ( req.headers.authorization  || '').replace(/Bearer\s?/,'');
-    console.log("TOken",token);
+    console.log("TOken!!",token);
     if(token){
             try{
                 const decoded = jwt.verify(token,process.env.SECRET_KEY);
-
+                console.log("HELLLOOO")
                 const user = await UserModel.findByPk(decoded.id);
 
                 if(!user){
@@ -117,11 +121,12 @@ export const getFullMovie = async (
             }
             catch(error)
             {
+              console.log("ewew",error);
             }
     }
 
-    console.log("Dislike count",dislikeCount);
-    console.log("Like count",likeCount);
+    console.log("Dislike count",isDisliked);
+    console.log("Like count",isLiked);
 
     const Movie: IFullMovie = {
       id: movie.id,
@@ -260,30 +265,44 @@ export const addCategory = async (req: Request<{}, {}, ICategory>, res) => {
 };
 
 export const create = async (
-  req: Request<{}, {}, IMovieForm>,
+  req/*: Request<{}, {}, IMovieForm>*/,
   res: Response<InterfaceId>
 ) => {
+ 
   try {
+    // Check if an image was provided
+    if (req.file) {
+      console.log("Avatar was provided");
+      // You can access the file via req.file, e.g., req.file.filename
+    } else {
+      console.log("Avatar was not provided");
+    }
+
     const movie = await MovieModel.create({
       name: req.body.name,
       date: req.body.date,
       country: req.body.country,
       trailerUrl: req.body.trailerUrl,
-      imageUrl: req.body.imageUrl,
+      imageUrl: req.file ? req.file.filename : null,  // Store filename if image was uploaded
       description: req.body.description,
     });
+    let categoriesArray: string[] = [];
+    if (req.body.categories) {
+        categoriesArray = JSON.parse(req.body.categories);
 
+    }
     const categories = await Promise.all(
-      req.body.categories.map(async (name) => {
+      categoriesArray.map(async (name) => {
         const category = await Category.findOne({ where: { name } });
         return category;
       })
     );
     await movie.setCategories(categories);
 
-    return res.send({id: movie.id});
-  } catch (erorr) {
-    //   return res.send({message: "Movie was not added.Error"});
+    return res.send({ id: movie.id });
+  } catch (error) {
+    console.log("ERROR", error);
+    return res.status(500);
   }
 };
 
@@ -315,6 +334,19 @@ export const deleteMovie = async(req: Request<IMovieDelete>, res) => {
     return  res.send("Error Nt foundfff");
     }
 
+    if(movie.imageUrl){
+
+      const filePath = path.join(__dirname, "..", ".." ,"uploads", movie.imageUrl);
+      console.log("File path",filePath);
+
+      fs.unlink(filePath, (err) => {
+  
+        if (err) {
+          console.log("Error deleting the file:", err);
+        }
+        console.log("All right");
+      });
+    }
     await movie.destroy();
     return res.send("All right");
 
@@ -324,23 +356,38 @@ export const deleteMovie = async(req: Request<IMovieDelete>, res) => {
   }
 };
 
-export const editMovie = async(req : Request<IMovieDelete,{},IMovieForm>,res)=>{
+export const editMovie = async(req /*: Request<IMovieDelete,{},IMovieForm>*/,res)=>{
  
-  console.log("ID",req.params.id);
-  console.log("BODY",req.body);
 
+  console.log("ree22",req.body);
  try{
   const movie = await MovieModel.findByPk(req.params.id);
 
+  if(req.file){
+    
+    const filePath = path.join(__dirname, "..", ".." ,"uploads", movie.imageUrl);
+    fs.unlink(filePath, (err) => {
+    
+      if (err) {
+        console.log("Error deleting the file:", err);
+      }
+      console.log("All right");
+    });
+  }
   movie.name = req.body.name;
   movie.date = req.body.date;
   movie.country = req.body.country;
   movie.trailerUrl =  req.body.trailerUrl;
-  movie.imageUrl = req.body.imageUrl;
+  movie.imageUrl = req.file ? req.file.filename : movie.imageUrl ;
   movie.description = req.body.description;
   
+  let categoriesArray: string[] = [];
+  if (req.body.categories) {
+      categoriesArray = JSON.parse(req.body.categories);
+
+  }
   const categories = await Promise.all(
-    req.body.categories.map(async (name) => {
+    categoriesArray.map(async (name) => {
       const category = await Category.findOne({ where: { name } });
       return category;
     })
@@ -409,6 +456,7 @@ export const getComments = async(req : Request<IMovieDelete>,res : Response<Movi
           name: user.name,
           text: comment.text,
           createdAt: comment.createdAt,
+          avatar: user.avatar
         };
       })
     );
@@ -590,4 +638,114 @@ export const getBestMovies = async(req : Request<PageParams>,res : Response<Sear
     console.log("Something went wrong during getNewMovies",error);
     res.send({message:"Error"});
   }
+}
+
+
+export const getFavourites = async(req : Request<{},{},IAuthMe> ,res : Response<IMovie[]>)=>{
+
+
+  try{
+    const user = await UserModel.findByPk(req.body.userId);
+
+    if(!user){
+        console.log("User not found");
+        return res.status(404);
+    }
+  
+    const movies = await  user.getLikedMovies();
+
+    let items: IMovie[] = await Promise.all(movies.map(async(movie)=>{
+      const categories = await movie.getCategories();
+  
+      const curCategories = categories.map(category =>category.name);
+      return{
+        id: movie.id,
+        name: movie.name,
+        date: movie.date,
+        country: movie.country,
+        imageUrl: movie.imageUrl,
+        categories: curCategories,
+      } 
+    }));
+    res.json(items);
+  }
+  catch(error){
+    console.log("Opps smth went wrong getFavoruiteMovies",error);
+    return res.status(404);
+  }
+
+
+}
+
+
+export  const getDisliked  = async(req : Request<{},{},IAuthMe> ,res : Response<IMovie[]>)=>{
+
+
+  try{
+    const user = await UserModel.findByPk(req.body.userId);
+
+    if(!user){
+        console.log("User not found");
+        return res.status(404);
+    }
+  
+    const movies = await  user.getDislikedMovies();
+
+    let items: IMovie[] = await Promise.all(movies.map(async(movie)=>{
+      const categories = await movie.getCategories();
+  
+      const curCategories = categories.map(category =>category.name);
+      return{
+        id: movie.id,
+        name: movie.name,
+        date: movie.date,
+        country: movie.country,
+        imageUrl: movie.imageUrl,
+        categories: curCategories,
+      } 
+    }));
+    res.json(items);
+  }
+  catch(error){
+    console.log("Opps smth went wrong getFavoruiteMovies",error);
+    return res.status(404);
+  }
+
+
+}
+
+export const  updateAvatar =  async(req /*: Request<{},{},CombinedType<IImageUrl>>*/ ,res)=>{
+
+    try {
+      console.log("USer id",req.file.filename);
+      const user = await UserModel.findByPk(req.body.userId);
+
+      if(!user){
+        return res.status(404).json({ message: "User not found" });
+      }
+      console.log("Avatar url",req.body.avatarUrl);
+
+      if(user.avatar){
+
+        const filePath = path.join(__dirname, "..", ".." ,"uploads", user.avatar);
+        console.log("File path",filePath);
+
+        fs.unlink(filePath, (err) => {
+    
+          if (err) {
+            console.log("Error deleting the file:", err);
+          }
+          console.log("All right");
+        });
+      }
+      user.avatar = req.file.filename;
+
+      await user.save();
+
+      return res.send({message: "Success"});
+    }
+    catch(error){
+        console.log("ooops smth went wrong during udationg avatar",error);
+        return res.send({message: "Error"});
+    }
 }

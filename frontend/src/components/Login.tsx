@@ -36,7 +36,7 @@ function ModalLogin(props: ModalProps) {
       const data = await loginMe(value).unwrap();
       console.log("token",data.token);
       window.localStorage.setItem('token',data.token);
-      dispatch(apiService.util.invalidateTags(['User']));
+      dispatch(apiService.util.invalidateTags(['User',"FullMovie"]));
 
  
       props.hide();

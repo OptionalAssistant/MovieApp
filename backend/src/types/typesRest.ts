@@ -5,6 +5,7 @@ export interface UserData {
   email: string;
   isActivated: boolean;
   roles : 'ADMIN' | 'USER';
+  avatar: string;
 }
 export interface UserDataToken {
   token: string;
@@ -86,7 +87,6 @@ export interface IMovieForm {
   date: Date;
   country : string;
   trailerUrl : string;
-  imageUrl: string;
   description : string;
   categories: string[];
 }
@@ -94,7 +94,7 @@ export interface IMovieForm {
 export interface IMovieComment{
   text : string;
   createdAt : Date;
-  
+  avatar : string;
 }
 
 export interface IUserName{
@@ -102,6 +102,9 @@ export interface IUserName{
 
 }
 
+export interface IImageUrl{
+  avatarUrl: string;
+}
 
 export type MovieComment = (IMovieComment & IUserName);
 

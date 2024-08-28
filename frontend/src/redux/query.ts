@@ -14,6 +14,7 @@ import {
   IMovieForm2,
   InterfaceId,
   IFullMovie,
+  IImageUrl,
 } from "../types/typesRest";
 
 export const apiService = createApi({
@@ -30,7 +31,16 @@ export const apiService = createApi({
       return headers;
     },
   }), // Adjust baseUrl if needed
-  tagTypes: ["Categories", "User", "Comments", "Movies","FullMovie","BestMovies"],
+  tagTypes: [
+    "Categories",
+    "User",
+    "Comments",
+    "Movies",
+    "FullMovie",
+    "BestMovies",
+    "Disliked",
+    "Favourites",
+  ],
   endpoints: (builder) => ({
     // Category Endpoints
     fetchCategories: builder.query<Category[], void>({
@@ -112,7 +122,7 @@ export const apiService = createApi({
       }),
       invalidatesTags: ["Movies"],
     }),
-    createMovie: builder.mutation<InterfaceId, IMovieForm2>({
+    createMovie: builder.mutation<InterfaceId, FormData>({
       query: (movie) => ({
         url: "movie/create",
         method: "POST",
@@ -120,13 +130,13 @@ export const apiService = createApi({
       }),
       invalidatesTags: ["Movies"],
     }),
-    editMovie: builder.mutation<void, IMovieForm2>({
-      query: (movie) => ({
-        url: `/movies/edit/${movie.id}`,
+    editMovie: builder.mutation<void, { id: string; formData: FormData }>({
+      query: ({ id, formData }) => ({
+        url: `/movies/edit/${id}`,
         method: "PUT",
-        body: movie,
+        body: formData,
       }),
-      invalidatesTags: ["Movies"],
+      invalidatesTags: ["Movies","FullMovie"],
     }),
     fetchPopularMovies: builder.query<ISearchMovieResponse, number>({
       query: (num) => `/movies-popular/${num}`,
@@ -134,25 +144,39 @@ export const apiService = createApi({
     }),
     logout: builder.mutation<void, void>({
       query: () => "", // This can be an empty string since no request is made
-      invalidatesTags: ["User",'FullMovie'],
+      invalidatesTags: ["User", "FullMovie"],
     }),
     dislikeMovie: builder.mutation<void, number>({
-      query: (num)=> ({url:`/dislike-movie/${num}`,method:"POST"}) ,
-      invalidatesTags: ["FullMovie","BestMovies"],
+      query: (num) => ({ url: `/dislike-movie/${num}`, method: "POST" }),
+      invalidatesTags: ["FullMovie", "BestMovies", "Disliked"],
     }),
     likeMovie: builder.mutation<void, number>({
-      query: (num)=> ({url:`/like-movie/${num}`,method:"POST"})   , // This can be an empty string since no request is made
-      invalidatesTags: ["FullMovie","BestMovies"],
+      query: (num) => ({ url: `/like-movie/${num}`, method: "POST" }), // This can be an empty string since no request is made
+      invalidatesTags: ["FullMovie", "BestMovies", "Favourites"],
     }),
     fetchFullMovie: builder.query<IFullMovie, number>({
       query: (num) => `/movies/full/${num}`,
-      providesTags: ['FullMovie'], 
+      providesTags: ["FullMovie"],
     }),
     fetchBestMovies: builder.query<ISearchMovieResponse, number>({
       query: (num) => `/movies-best/${num}`,
-      providesTags: ['FullMovie',"BestMovies"], 
+      providesTags: ["FullMovie", "BestMovies"],
     }),
-    
+    fetchUserLikedMovies: builder.query<IMovie[], number>({
+      query: (id) => `/favourites/${id}`,
+      providesTags: ["Favourites"],
+    }),
+    fetchUserDisikedMovies: builder.query<IMovie[], number>({
+      query: (id) => `/unliked/${id}`,
+      providesTags: ["Disliked"],
+    }),
+    updateAvatar: builder.mutation<void, FormData>({
+      query: (data) => ({
+        url: "/update-avatar",
+        method: "PUT",
+        body: data}), // This can be an empty string since no request is made
+      invalidatesTags: ["User","Comments"],
+    }),
   }),
 });
 
@@ -177,5 +201,8 @@ export const {
   useLikeMovieMutation,
   useDislikeMovieMutation,
   useFetchFullMovieQuery,
-  useFetchBestMoviesQuery
+  useFetchBestMoviesQuery,
+  useFetchUserLikedMoviesQuery,
+  useFetchUserDisikedMoviesQuery,
+  useUpdateAvatarMutation
 } = apiService;

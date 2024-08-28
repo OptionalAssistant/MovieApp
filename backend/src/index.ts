@@ -3,22 +3,22 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { body } from "express-validator";
-import multer from "multer";
+
 import path from "path";
 import { MovieController, UserController } from "./controllers";
+import Category from "./models/Category";
+import CategoryMovie from "./models/CategoryMovie";
+import Comment from "./models/Comment";
 import sequelize from "./models/db";
+import Movie from "./models/Movie";
+import MovieDislikes from "./models/MovieDislikes";
+import MovieLikes from "./models/MovieLikes";
+import User from './models/User';
+import CheckAdminAuth from "./utils/CheckAdminAuth";
 import CheckAuth from "./utils/CheckAuth";
 import handleValidationErrors from "./utils/handleValidationErrors";
 import { loginValidation, registerValidation } from "./validations";
-import Movie from "./models/Movie";
-import Category from "./models/Category";
-import CategoryMovie from "./models/CategoryMovie";
-import fs from "fs";
-import CheckAdminAuth from "./utils/CheckAdminAuth";
-import Comment from "./models/Comment";
-import User from './models/User';
-import MovieLikes from "./models/MovieLikes";
-import MovieDislikes from "./models/MovieDislikes";
+import { conditionalImageUpload } from "./utils/MulterMiddleware";
 
 dotenv.config();
 
@@ -69,24 +69,7 @@ app.set("views", filePath);
 app.set("view engine", "ejs");
 
 // Multer storage configuration
-const storage = multer.diskStorage({
-  destination: (_, __, cb) => {
-    cb(null, "uploads");
-  },
-  filename: (_, file, cb) => {
-    const date = new Date();
-    const formattedDate = date
-      .toISOString()
-      .replace(/[:T]/g, "-")
-      .split(".")[0]; // Format date as YYYY-MM-DD-HH-MM-SS
-    const ext = path.extname(file.originalname);
 
-    const newFilename = `${formattedDate}${ext}`;
-    cb(null, newFilename); // Pass the new filename
-  },
-});
-
-const upload = multer({ storage });
 
 app.use(express.json());
 app.use(cors());
@@ -128,7 +111,7 @@ app.post(
   handleValidationErrors,
   UserController.updatePassword
 );
-app.post("/movie/create", CheckAdminAuth, MovieController.create);
+  app.post("/movie/create", CheckAdminAuth,conditionalImageUpload,MovieController.create);
 app.post("/dislike-movie/:id",CheckAuth,MovieController.dislikeMovie);
 app.post("/like-movie/:id",CheckAuth,MovieController.likeMovie);
 
@@ -140,27 +123,12 @@ app.post("/add-comment/:id", CheckAuth, MovieController.addComment);
 app.get('/get-comments/:id',MovieController.getComments);
 app.delete("/remove-category", CheckAdminAuth, MovieController.removeCategory);
 app.delete("/movies/delete/:id", CheckAdminAuth, MovieController.deleteMovie);
-app.put("/movies/edit/:id", CheckAdminAuth, MovieController.editMovie);
+app.put("/movies/edit/:id", CheckAdminAuth,conditionalImageUpload, MovieController.editMovie);
 app.get("/movies-new/:id",MovieController.getNewMovies);
 app.get("/movies-best/:id",MovieController.getBestMovies);
-app.delete("/image/delete/:path", async (req, res) => {
-  const fileName = req.params.path;
-  const filePath = path.join(__dirname, "..", "uploads", fileName);
-  console.log("Path", filePath);
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      console.error("Error deleting the file:", err);
-      return res.status(500).send("Error deleting the file");
-    }
-    res.send("File deleted successfully");
-  });
-});
+app.get("/favourites/:id",CheckAuth,MovieController.getFavourites);
+app.put("/update-avatar",CheckAuth,conditionalImageUpload,MovieController.updateAvatar);
 
-app.post("/upload", upload.single("image"), (req: any, res) => {
-  console.log(req.file.filename);
-  res.json({
-    url: `${req.file.filename}`,
-  });
-});
+app.get("/unliked/:id",CheckAuth,MovieController.getDisliked);
 
 app.listen(process.env.PORT);

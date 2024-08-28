@@ -26,7 +26,7 @@ import User from "./User";
 
 
 // Define the Category model
-class Comment extends Model<InferAttributes<Comment>, InferCreationAttributes<Comment>> implements IMovieComment{
+class Comment extends Model<InferAttributes<Comment>, InferCreationAttributes<Comment>> {
   declare id: CreationOptional<number>; // Primary key with auto-increment
   declare text: string;
   declare createdAt: CreationOptional<Date>;

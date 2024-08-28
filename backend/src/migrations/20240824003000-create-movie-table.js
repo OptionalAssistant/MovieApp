@@ -22,7 +22,7 @@ module.exports = {
       },
       imageUrl: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       trailerUrl: {
         type: Sequelize.STRING,

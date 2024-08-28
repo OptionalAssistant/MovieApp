@@ -1,4 +1,3 @@
-import { IMovieComment } from "./typesRest";
 
 export interface IUser {
   id : number;
@@ -6,7 +5,8 @@ export interface IUser {
   email: string;
   passwordHash: string;
   isActivated: boolean;
-  roles: 'ADMIN' | 'USER'
+  roles: 'ADMIN' | 'USER';
+  avatar: string;
 }
 
 

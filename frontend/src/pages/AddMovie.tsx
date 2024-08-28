@@ -37,7 +37,9 @@ function AddMovie(props: any) {
     error,
   } = useFetchCategoriesQuery();
 
-  const [imageUrl, setImageUrl] = useState("");
+  const [posterUrl, setImageUrl] = useState("");
+  const [file, setFile] = useState<File | null>(null); 
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const navigate = useNavigate();
   const { data: user } = useFetchAuthMeQuery();
@@ -58,8 +60,8 @@ function AddMovie(props: any) {
           setValue("country", data.data.country);
           setValue("trailerUrl", data.data.trailerUrl);
           setValue("description", data.data.description);
-          setImageUrl(data.data.imageUrl);
           setSelectedCategories([...data.data.categories]);
+          setImageUrl(`http://localhost:4444/uploads/${data.data.imageUrl}`);
         })
         .catch((error) => {
           console.log("never error", error);
@@ -68,57 +70,53 @@ function AddMovie(props: any) {
   }, [id, setValue]);
 
   const onSubmit: SubmitHandler<IMovieForm> = async (value: IMovieForm) => {
-    value.imageUrl = imageUrl;
     value.categories = selectedCategories;
+    const formData = new FormData();
 
-    const { year, month, day } = value.date;
-    const parsedDate = new Date(year, month - 1, day); // month - 1 since Date() expects a zero-based month
-    const movieForm: IMovieForm2 = {
-      ...value,
-      date: parsedDate,
+    // Append file if it exists
+    if (file) {
+      formData.append("image", file);
+    }
   
-    };
-
-    console.log("Movie form", movieForm );
-
-    if (isEdit) {
-      try {
-        
-        if(id)
-          movieForm.id = id.toString();
-
-        await editMovie(movieForm).unwrap(); // Ensure mutation completes
+    // Append non-file fields to the FormData
+    formData.append("name", value.name);
+    formData.append("country", value.country);
+    formData.append("trailerUrl", value.trailerUrl);
+    formData.append("description", value.description);
+  
+    // Append date fields
+    const { year, month, day } = value.date;
+    const parsedDate = new Date(year, month - 1, day);
+    formData.append("date", parsedDate.toISOString());
+  
+    // Append categories
+    value.categories = selectedCategories; // Add selected categories to value
+    formData.append("categories", JSON.stringify(selectedCategories)); // Send as a JSON string
+  
+    try {
+      if (isEdit) {
+        if (id) {
+          formData.append("id", id.toString());
+          await editMovie({ id, formData }).unwrap(); 
+        }
+  
         navigate(`/movies/${id}`);
-      } catch (error) {
-        console.log("Fail to edit movie", error);
+      } else {
+        const data = await createMovie(formData).unwrap(); // Use formData for creation
+        navigate(`/movies/${data.id}`);
       }
-    } else {
-      try {
-        const data = await createMovie(movieForm).unwrap(); // Ensure mutation completes
-        console.log("DATA id",data.id);
-          navigate(`/movies/${data.id}`);
-      } catch (error) {
-        console.log("Fail to create movie", error);
-      }
+    } catch (error) {
+      console.log("Fail to submit movie form", error);
     }
 
   };
 
-  const handleChangeFile = async (event: any) => {
-    try {
-      if (imageUrl) {
-        console.log("image already was loaded. Delete it\n");
-        await axios.delete(`/image/delete/${imageUrl}`);
-        setImageUrl("");
-      }
-      const formData = new FormData();
-      formData.append("image", event.target.files[0]);
-
-      const { data } = await axios.post("/upload", formData);
-      setImageUrl(data.url);
-    } catch (err) {
-      console.log(err);
-      alert("Ошибка при загрузке файла!");
+  const handleChangeFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      const imageUrl = URL.createObjectURL(selectedFile);
+      setImageUrl(imageUrl);
+      setFile(selectedFile);
     }
   };
 
@@ -153,11 +151,15 @@ function AddMovie(props: any) {
       </Form.Group>
       <Form.Group controlId="formFile" className="mb-3">
         <Form.Label>Poster</Form.Label>
-        <Form.Control type="file" onChange={handleChangeFile} />
+        <Form.Control type="file" name="image" onChange={handleChangeFile} />
       </Form.Group>
-      {imageUrl && (
-        <img src={`http://localhost:4444/uploads/${imageUrl}`} alt="Poster" />
-      )}
+      {posterUrl && (
+          <img
+            src={posterUrl}
+            alt="Avatar preview"
+            style={{ width: "240px", height: "300px", display: "block" }}
+          />
+        )}
       <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
         <Form.Label>Year</Form.Label>
         <Form.Control

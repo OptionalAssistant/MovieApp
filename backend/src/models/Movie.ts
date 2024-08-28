@@ -102,11 +102,11 @@ Movie.init(
     },
     imageUrl: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     trailerUrl: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     description: {
       type: DataTypes.TEXT,
