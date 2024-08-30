@@ -5,20 +5,24 @@ import dotenv from "dotenv";
 import { body } from "express-validator";
 
 import path from "path";
-import { MovieController, UserController } from "./controllers";
-import Category from "./models/Category";
-import CategoryMovie from "./models/CategoryMovie";
-import Comment from "./models/Comment";
+import { MovieController, PersonController, UserController } from "./controllers";
 import sequelize from "./models/db";
-import Movie from "./models/Movie";
-import MovieDislikes from "./models/MovieDislikes";
-import MovieLikes from "./models/MovieLikes";
-import User from './models/User';
 import CheckAdminAuth from "./utils/CheckAdminAuth";
 import CheckAuth from "./utils/CheckAuth";
 import handleValidationErrors from "./utils/handleValidationErrors";
-import { loginValidation, registerValidation } from "./validations";
 import { conditionalImageUpload } from "./utils/MulterMiddleware";
+import { loginValidation, registerValidation } from "./validations";
+import Category from './models/Category';
+import Movie from './models/Movie';
+import CategoryMovie from './models/CategoryMovie';
+import User from './models/User';
+import MovieLikes from './models/MovieLikes';
+import Comment
+ from './models/Comment';
+import MovieDislikes from './models/MovieDislikes';
+import Person from './models/Person';
+import DirectorMovie from './models/DirectorMovie';
+import ActorMovie from './models/ActorMovie';
 
 dotenv.config();
 
@@ -31,37 +35,44 @@ sequelize
     console.error("Unable to connect to the database:", error);
   });
 
-Movie.belongsToMany(Category, { through: CategoryMovie });
-Category.belongsToMany(Movie, { through: CategoryMovie });
-
-Movie.hasMany(Comment);
-Comment.belongsTo(Movie);
-
-User.hasMany(Comment);
-Comment.belongsTo(User);
-
-// For likes
-Movie.belongsToMany(User, {
-  through: MovieLikes, // Junction table for likes
-  as: 'likedByUsers',
-});
-
-User.belongsToMany(Movie, {
-  through: MovieLikes,
-  as: 'likedMovies',
-});
-
-// For dislikes
-Movie.belongsToMany(User, {
-  through: MovieDislikes, // Junction table for dislikes
-  as: 'dislikedByUsers',
-});
-
-User.belongsToMany(Movie, {
-  through: MovieDislikes,
-  as: 'dislikedMovies',
-});
-
+  Movie.belongsToMany(Category, { through: CategoryMovie });
+  Category.belongsToMany(Movie, { through: CategoryMovie });
+  
+  Movie.hasMany(Comment);
+  Comment.belongsTo(Movie);
+  
+  User.hasMany(Comment);
+  Comment.belongsTo(User);
+  
+  // For likes
+  Movie.belongsToMany(User, {
+    through: MovieLikes, // Junction table for likes
+    as: 'likedByUsers',
+  });
+  
+  User.belongsToMany(Movie, {
+    through: MovieLikes,
+    as: 'likedMovies',
+  });
+  
+  // For dislikes
+  Movie.belongsToMany(User, {
+    through: MovieDislikes, // Junction table for dislikes
+    as: 'dislikedByUsers',
+  });
+  
+  User.belongsToMany(Movie, {
+    through: MovieDislikes,
+    as: 'dislikedMovies',
+  });
+  
+  
+  Movie.belongsToMany(Person, { through: DirectorMovie, as: 'directors' });
+  Person.belongsToMany(Movie, { through: DirectorMovie, as: 'directedMovies' });
+  
+  // Movie - Actor Association
+  Movie.belongsToMany(Person, { through: ActorMovie, as: 'actors' });
+  Person.belongsToMany(Movie, { through: ActorMovie, as: 'actedMovies' });
 const app = express();
 const filePath = path.join(__dirname, "..", "src", "views");
 
@@ -123,12 +134,18 @@ app.post("/add-comment/:id", CheckAuth, MovieController.addComment);
 app.get('/get-comments/:id',MovieController.getComments);
 app.delete("/remove-category", CheckAdminAuth, MovieController.removeCategory);
 app.delete("/movies/delete/:id", CheckAdminAuth, MovieController.deleteMovie);
+app.delete("/persons/delete/:id",CheckAdminAuth,PersonController.deletePerson);
+
 app.put("/movies/edit/:id", CheckAdminAuth,conditionalImageUpload, MovieController.editMovie);
 app.get("/movies-new/:id",MovieController.getNewMovies);
 app.get("/movies-best/:id",MovieController.getBestMovies);
 app.get("/favourites/:id",CheckAuth,MovieController.getFavourites);
 app.put("/update-avatar",CheckAuth,conditionalImageUpload,MovieController.updateAvatar);
-
+app.post("/add/movie",CheckAdminAuth,)
 app.get("/unliked/:id",CheckAuth,MovieController.getDisliked);
-
+app.get("/persons",MovieController.getPersons);
+app.put("/add/person",CheckAdminAuth,conditionalImageUpload,PersonController.addPerson);
+app.get(`/person/:id`,PersonController.getPerson);
+app.get(`/persons/full/:id`,PersonController.getFullPerson);
+app.put("/persons/edit/:id",CheckAdminAuth,conditionalImageUpload,PersonController.editPerson);
 app.listen(process.env.PORT);

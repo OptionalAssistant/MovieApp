@@ -42,6 +42,10 @@ export interface IMovie {
 export interface InterfaceId{
   id : number;
 }
+export interface PersonsAct{
+  id : number;
+  name : string;
+}
 export interface IFullMovie extends IMovie{
     trailerUrl : string;
     description: string;
@@ -50,13 +54,16 @@ export interface IFullMovie extends IMovie{
     likeCount: number;
     isLiked: boolean;
     isDisliked: boolean;
+    directors: PersonsAct[];
+    actors: PersonsAct[];
 }
 export interface movieNumber{
   length : number;
 }
 export type IPutMovieResponce = IMovie | IResponceError;
 export type IMovieResponce = IMovie[] | IResponceError;
-
+export type IPersonResponce = IPerson | IResponceError;
+export type IFullPersonResponce = IFullPerson | IResponceError;
 export interface PageParams {
   id: number;
 }
@@ -89,6 +96,8 @@ export interface IMovieForm {
   trailerUrl : string;
   description : string;
   categories: string[];
+  actors: string[];
+  directors: string[];
 }
 
 export interface IMovieComment{
@@ -112,3 +121,21 @@ export type MovieCommentResponse = MovieComment[]  | IResponceError;
 
 
 
+
+export interface IPerson{
+  id : number;
+  date: Date;
+  birthplace: string;
+  name: string;
+  tall: string;
+  avatarUrl: string;
+}
+
+export interface IFullPerson  extends IPerson{
+  actorMovies: IMovie[];
+  directorMovies: IMovie[]; 
+}
+export interface IFullPerson  extends IPerson{
+  actorMovies: IMovie[];
+  directorMovies: IMovie[]; 
+}

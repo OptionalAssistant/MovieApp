@@ -47,8 +47,7 @@ export interface movieAction {
   payload: IMovie[] | null;
 }
 
-export interface PageParams {
-  items: any[];
+export interface IMovieList {
   movies: IMovie[];
 }
 

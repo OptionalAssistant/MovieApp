@@ -15,6 +15,8 @@ import {
   InterfaceId,
   IFullMovie,
   IImageUrl,
+  IPerson,
+  IFullPerson,
 } from "../types/typesRest";
 
 export const apiService = createApi({
@@ -40,6 +42,8 @@ export const apiService = createApi({
     "BestMovies",
     "Disliked",
     "Favourites",
+    "Persons",
+    "FullPerson"
   ],
   endpoints: (builder) => ({
     // Category Endpoints
@@ -148,11 +152,11 @@ export const apiService = createApi({
     }),
     dislikeMovie: builder.mutation<void, number>({
       query: (num) => ({ url: `/dislike-movie/${num}`, method: "POST" }),
-      invalidatesTags: ["FullMovie", "BestMovies", "Disliked"],
+      invalidatesTags: ["FullMovie", "BestMovies", "Disliked","Favourites"],
     }),
     likeMovie: builder.mutation<void, number>({
       query: (num) => ({ url: `/like-movie/${num}`, method: "POST" }), // This can be an empty string since no request is made
-      invalidatesTags: ["FullMovie", "BestMovies", "Favourites"],
+      invalidatesTags: ["FullMovie", "BestMovies", "Favourites","Disliked"],
     }),
     fetchFullMovie: builder.query<IFullMovie, number>({
       query: (num) => `/movies/full/${num}`,
@@ -177,7 +181,39 @@ export const apiService = createApi({
         body: data}), // This can be an empty string since no request is made
       invalidatesTags: ["User","Comments"],
     }),
+    fetchPersons: builder.query<IPerson[], void>({
+      query: () => `/persons`,
+      providesTags: ["Persons"],
+    }),
+    createPerson: builder.mutation<InterfaceId, FormData>({
+      query: (person) => ({
+        url: "/add/person",
+        method: "PUT",
+        body: person,
+      }),
+      invalidatesTags: ["Persons"],
+    }),
+    editPerson: builder.mutation<void, { id: string; formData: FormData }>({
+      query: ({ id, formData }) => ({
+        url: `/persons/edit/${id}`,
+        method: "PUT",
+        body: formData,
+      }),
+      invalidatesTags: ["FullPerson","Persons"],
+    }),
+    fetchFullPerson: builder.query<IFullPerson, number>({
+      query: (num) => `/persons/full/${num}`,
+      providesTags: ["FullPerson"],
+    }),
+    deletePerson: builder.mutation<void, number>({
+      query: (num) => ({
+        url: `/persons/delete/${num}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Persons"],
+    }),
   }),
+  
 });
 
 export const {
@@ -204,5 +240,10 @@ export const {
   useFetchBestMoviesQuery,
   useFetchUserLikedMoviesQuery,
   useFetchUserDisikedMoviesQuery,
-  useUpdateAvatarMutation
+  useUpdateAvatarMutation,
+  useFetchPersonsQuery,
+  useCreatePersonMutation,
+  useEditPersonMutation,
+  useFetchFullPersonQuery,
+  useDeletePersonMutation
 } = apiService;

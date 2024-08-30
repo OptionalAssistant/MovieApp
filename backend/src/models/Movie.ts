@@ -19,6 +19,7 @@ import Category from "./Category";
 import sequelize from "./db";
 import Comment from "./Comment";
 import User from "./User";
+import Person from "./Person";
 
 // Define the Movie model
 class Movie extends Model<
@@ -78,6 +79,29 @@ class Movie extends Model<
   declare hasDislikedByUsers: HasManyHasAssociationsMixin<User, number>;
   declare countDislikedByUsers: HasManyCountAssociationsMixin;
   declare createDislikedByUser: HasManyCreateAssociationMixin<User, 'id'>;
+
+  declare getDirectors: HasManyGetAssociationsMixin<Person>;
+  declare addDirector: HasManyAddAssociationMixin<Person, number>;
+  declare addDirectors: HasManyAddAssociationsMixin<Person, number>;
+  declare setDirectors: HasManySetAssociationsMixin<Person, number>;
+  declare removeDirector: HasManyRemoveAssociationMixin<Person, number>;
+  declare removeDirectors: HasManyRemoveAssociationsMixin<Person, number>;
+  declare hasDirector: HasManyHasAssociationMixin<Person, number>;
+  declare hasDirectors: HasManyHasAssociationsMixin<Person, number>;
+  declare countDirectors: HasManyCountAssociationsMixin;
+  declare createDirector: HasManyCreateAssociationMixin<Person, 'id'>;
+
+  // Methods for Actors
+  declare getActors: HasManyGetAssociationsMixin<Person>;
+  declare addActor: HasManyAddAssociationMixin<Person, number>;
+  declare addActors: HasManyAddAssociationsMixin<Person, number>;
+  declare setActors: HasManySetAssociationsMixin<Person, number>;
+  declare removeActor: HasManyRemoveAssociationMixin<Person, number>;
+  declare removeActors: HasManyRemoveAssociationsMixin<Person, number>;
+  declare hasActor: HasManyHasAssociationMixin<Person, number>;
+  declare hasActors: HasManyHasAssociationsMixin<Person, number>;
+  declare countActors: HasManyCountAssociationsMixin;
+  declare createActor: HasManyCreateAssociationMixin<Person, 'id'>;
 }
 
 // Initialize the Movie model with actual Sequelize fields

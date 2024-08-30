@@ -35,7 +35,8 @@ function FullMovie() {
         setLiked(movie.isLiked);
       }
     },[movie, isLoading, error]);
-
+    if(movie)
+      console.log(movie);
   return movie ? (
     <>
       <Row className="justify-content-md-center">
@@ -51,6 +52,34 @@ function FullMovie() {
             day: "numeric",
           })}
         </h4>
+        <Row>
+        <h3>Режиссер: </h3>
+        {!movie.directors?.length ? (
+          <h2>None</h2>
+        ) : (
+          movie.directors.map((item, index) => {
+            return (
+              <Link to={`/persons/${item.id}`}>
+                <h4>{item.name}</h4>
+                <br />
+              </Link>
+            );
+          })
+        )}
+        <h3>Актеры</h3>
+        {!movie.actors?.length ? (
+          <h2>None</h2>
+        ) : (
+          movie.actors.map((item, index) => {
+            return (
+              <Link to={`/persons/${item.id}`}>
+                <h4>{item.name}</h4>
+                <br />
+              </Link>
+            );
+          })
+        )}
+      </Row>
         <Row>
           {" "}
           <h4>Dislikes : {movie.dislikeCount} </h4>

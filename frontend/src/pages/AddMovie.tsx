@@ -1,7 +1,7 @@
 import Button from "react-bootstrap/esm/Button";
 import Form from "react-bootstrap/esm/Form";
 import { useEffect, useState } from "react";
-import { FormGroup } from "react-bootstrap";
+import { CloseButton, Col, FormGroup, Row } from "react-bootstrap";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../axios";
@@ -38,9 +38,15 @@ function AddMovie(props: any) {
   } = useFetchCategoriesQuery();
 
   const [posterUrl, setImageUrl] = useState("");
-  const [file, setFile] = useState<File | null>(null); 
+  const [file, setFile] = useState<File | null>(null);
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [actors, setActors] = useState<string[]>([]);
+  const [actorName, setActorName] = useState<string>("");
+
+  const [directorName,setDirectorName] = useState<string>("");
+  const [directors, setDirectors] = useState<string[]>([]);
+
   const navigate = useNavigate();
   const { data: user } = useFetchAuthMeQuery();
 
@@ -61,6 +67,9 @@ function AddMovie(props: any) {
           setValue("trailerUrl", data.data.trailerUrl);
           setValue("description", data.data.description);
           setSelectedCategories([...data.data.categories]);
+          setActors(data.data.actors.map((item) => item.name));
+          setDirectors(data.data.directors.map((item) => item.name));
+
           setImageUrl(`http://localhost:4444/uploads/${data.data.imageUrl}`);
         })
         .catch((error) => {
@@ -77,29 +86,30 @@ function AddMovie(props: any) {
     if (file) {
       formData.append("image", file);
     }
-  
+
     // Append non-file fields to the FormData
     formData.append("name", value.name);
     formData.append("country", value.country);
     formData.append("trailerUrl", value.trailerUrl);
     formData.append("description", value.description);
-  
+
     // Append date fields
     const { year, month, day } = value.date;
     const parsedDate = new Date(year, month - 1, day);
     formData.append("date", parsedDate.toISOString());
-  
+    formData.append("actors",JSON.stringify(actors));
+    formData.append("directors",JSON.stringify(directors));
     // Append categories
     value.categories = selectedCategories; // Add selected categories to value
     formData.append("categories", JSON.stringify(selectedCategories)); // Send as a JSON string
-  
+
     try {
       if (isEdit) {
         if (id) {
           formData.append("id", id.toString());
-          await editMovie({ id, formData }).unwrap(); 
+          await editMovie({ id, formData }).unwrap();
         }
-  
+
         navigate(`/movies/${id}`);
       } else {
         const data = await createMovie(formData).unwrap(); // Use formData for creation
@@ -108,7 +118,6 @@ function AddMovie(props: any) {
     } catch (error) {
       console.log("Fail to submit movie form", error);
     }
-
   };
 
   const handleChangeFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,6 +142,29 @@ function AddMovie(props: any) {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setActorName(e.target.value);
+  };
+
+  const handleAddActor = () => {
+    if (actorName.trim()) {
+      setActors([...actors, actorName]);
+      setActorName(""); // Clear the input after adding
+    }
+  };
+
+  const handleDirectorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDirectorName(e.target.value);
+  };
+
+  const handleAddDirector = () => {
+    if (directorName.trim()) {
+      setDirectors([...directors, directorName]);
+      setDirectorName(""); // Clear the input after adding
+    }
+  };
+
+
   if (!user || user.roles !== "ADMIN") {
     return <h1>Error: Unauthorized access</h1>;
   }
@@ -154,12 +186,12 @@ function AddMovie(props: any) {
         <Form.Control type="file" name="image" onChange={handleChangeFile} />
       </Form.Group>
       {posterUrl && (
-          <img
-            src={posterUrl}
-            alt="Avatar preview"
-            style={{ width: "240px", height: "300px", display: "block" }}
-          />
-        )}
+        <img
+          src={posterUrl}
+          alt="Avatar preview"
+          style={{ width: "240px", height: "300px", display: "block" }}
+        />
+      )}
       <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
         <Form.Label>Year</Form.Label>
         <Form.Control
@@ -193,9 +225,7 @@ function AddMovie(props: any) {
             max: { value: 31, message: "Invalid day number" },
           })}
         />
-        {errors.date?.day?.message && (
-          <span>{errors.date.day.message}</span>
-        )}
+        {errors.date?.day?.message && <span>{errors.date.day.message}</span>}
       </Form.Group>
       <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
         <Form.Label>Country</Form.Label>
@@ -232,6 +262,57 @@ function AddMovie(props: any) {
           ))}
         </FormGroup>
       )}
+      <h2>Actors</h2>
+      <Form>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Actor</Form.Label>
+          <Form.Control
+            placeholder="Enter actor"
+            name="name"
+            value={actorName}
+            onChange={handleInputChange}
+          />
+          <Button onClick={handleAddActor}>Add</Button>
+        </Form.Group>
+      </Form>
+      <Row>
+        <FormGroup>
+          {actors.length > 0 &&
+            actors.map((data) => (
+              <>
+                <Col lg={1}>
+                  <span>{data}</span>
+                  <CloseButton onClick={()=>setActors(actors.filter(item=> item != data))}></CloseButton>
+                </Col>
+              </>
+            ))}
+        </FormGroup>
+      </Row>
+      <h2>Directors</h2>
+      <Form>
+        <Form.Group className="mb-3" >
+          <Form.Label>Director</Form.Label>
+          <Form.Control
+            placeholder="Enter director"
+            value={directorName}
+            onChange={handleDirectorChange}
+          />
+          <Button onClick={handleAddDirector}>Add</Button>
+        </Form.Group>
+      </Form>
+      <Row>
+        <FormGroup>
+          {directors.length > 0 &&
+            directors.map((data) => (
+              <>
+                <Col lg={1}>
+                  <span>{data}</span>
+                  <CloseButton onClick={()=>setDirectors(directors.filter(item=> item != data))}></CloseButton>
+                </Col>
+              </>
+            ))}
+        </FormGroup>
+      </Row>
       <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
         <Form.Label>Description</Form.Label>
         <Form.Control

@@ -4,12 +4,12 @@ import Col from "react-bootstrap/esm/Col";
 import Row from "react-bootstrap/esm/Row";
 
 import Movie from "../components/Movie";
-import { PageParams } from "../types/typesClient";
+import { IMovieList } from "../types/typesClient";
 
 import "../App.css";
 
 
-function Page(props: PageParams) {
+function MovieList(props: IMovieList) {
 
   return (
     <>
@@ -20,13 +20,9 @@ function Page(props: PageParams) {
             </Col>
           ))}
       </Row>
-      <Row>
-        {" "}
-        {props.items}
-      </Row>
-      <br />
+
     </>
   );
 }
 
-export default Page;
+export default MovieList;

@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useFetchMovieCategoryPageQuery } from "../redux/query";
 import { capitalizeFirstLetter, constructPaginationList, MovieCount } from "../utils/utils";
-import Page from "./Page";
+import Page from "./MovieList";
+import MovieList from "./MovieList";
+import Row from "react-bootstrap/esm/Row";
 
 
 function Categories(props: any) {
@@ -31,8 +33,9 @@ function Categories(props: any) {
     <>
       <h1>Categorie: {capitalizeFirstLetter(idCategory as string)}</h1>
       {categories?.movies && !isLoading && (
-        <>
-          <Page items={paginationItems} movies={categories.movies}/>
+          <>
+          <MovieList  movies={categories.movies}/>
+          <Row> {paginationItems}</Row>
         </>
       )}
        {categories?.movies.length === 0 && !isLoading && (

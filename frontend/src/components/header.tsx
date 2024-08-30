@@ -15,11 +15,12 @@ import { useFetchAuthMeQuery, useLogoutMutation } from "../redux/query";
 import { IMovieSearchForm } from "../types/typesRest";
 import Canvas from "./Canvas";
 import ModalWindow from "./Login";
+import SearchComponent from "./SearchComponent";
 
 function Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
 
-  const { data: user, isLoading, error } = useFetchAuthMeQuery();
+  const { data: user, isLoading, isError } = useFetchAuthMeQuery();
 
   const [logout] = useLogoutMutation();
 
@@ -49,7 +50,7 @@ function Header() {
   ) => {
     navigate(`/search/?name=${value.name}`);
   };
-  if (user && !error && !isLoading) {
+  if (user && !isError && !isLoading) {
     button = (
       <Button
         variant="danger"
@@ -81,7 +82,7 @@ function Header() {
             <Button variant="primary">Home</Button>
           </Link>
         </Col>
-
+        <SearchComponent/>
         <Col lg={3}>
           <Form className="d-flex" onSubmit={handleSubmit(onSubmit)}>
             <Form.Control
@@ -101,8 +102,9 @@ function Header() {
             </Button>
           </Form>
         </Col>
+        <Col><Button variant="outline-primary" onClick={()=>navigate("/persons")}>Actors</Button></Col>
         <Col lg={3}>{button}</Col>
-        {user && !error && !isLoading && (
+        {user && !isError && !isLoading && (
           <Col>
             {" "}
             <Button
@@ -114,8 +116,7 @@ function Header() {
           </Col>
         )}
         <Col>
-          {/* <Button variant="outline-danger">Admin panel</Button> */}
-          {user && user.isActivated && user.roles === "ADMIN" && (
+          {user && user.isActivated && user.roles === "ADMIN"&& !isError && (
             <Canvas
               variant="outline-danger"
               placement={"end"}
@@ -143,7 +144,7 @@ function Header() {
           </DropdownButton>
         </Col>
       </Row>
-      {window.localStorage.getItem("token") && user && !user.isActivated && (
+      {window.localStorage.getItem("token") && user  && !user.isActivated && (
         <Alert variant="danger">
           <Alert.Heading>Ooops your email is not verified</Alert.Heading>
           <p>Verify your email click on the burron below</p>

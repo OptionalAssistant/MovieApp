@@ -20,6 +20,9 @@ import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import Search from "./pages/Search";
 import { useFetchAuthMeQuery } from "./redux/query";
+import Persons from "./pages/PersonsPage";
+import AddPerson from "./pages/AddPerson";
+import FullPerson from "./pages/FullPerson";
 function App() {
 
 
@@ -47,10 +50,15 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/liked/:id" element={<LikedMovies />} />
         <Route path="/profile/disliked/:id" element={<DislikedMovies />} />
+        <Route path="/admin-panel/person/add" element={<AddPerson />} />
+        <Route path="/admin-panel/person/:id/edit" element={<AddPerson />} />
+        <Route path="/persons" element={<Persons />} />
+        <Route path="/persons/:id" element={<FullPerson />} />
       </Routes> }
     </Container>
    
   );
 }
+
 
 export default App;

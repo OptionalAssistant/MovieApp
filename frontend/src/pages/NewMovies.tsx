@@ -4,7 +4,8 @@ import axios from "../axios";
 import { useFetchFreshMoviesQuery } from "../redux/query";
 import { movieNumber } from "../types/typesRest";
 import { constructPaginationList, MovieCount } from "../utils/utils";
-import Page from "./Page";
+import MovieList from "./MovieList";
+import Row from "react-bootstrap/esm/Row";
 
 function NewMovies(props: any) {
 
@@ -53,9 +54,10 @@ function NewMovies(props: any) {
       <h1>New movies</h1>
 
       {movies?.movies && !isLoading && (
-        <>
-          <Page items={paginationItems} movies={movies.movies}/>
-        </>
+      <>
+      <MovieList movies={movies.movies} />
+      <Row> {paginationItems}</Row>
+    </>
       )}
 
     </>

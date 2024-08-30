@@ -45,6 +45,8 @@ export interface IMovieForm {
   trailerUrl : string;
   description : string;
   categories: string[];
+  actors: string[];
+  directors: string[];
 }
 export interface IMovieForm2 {
   id : String;
@@ -61,6 +63,10 @@ export interface movieNumber{
 export interface InterfaceId{
   id : number;
 }
+export interface PersonsAct{
+  id : number;
+  name : string;
+}
 
 export interface IFullMovie extends IMovie{
   trailerUrl : string;
@@ -70,6 +76,8 @@ export interface IFullMovie extends IMovie{
   likeCount: number;
   isLiked: boolean;
   isDisliked: boolean;
+  directors: PersonsAct[];
+  actors: PersonsAct[];
 }
 
 export interface IMovieSearchForm{
@@ -121,3 +129,32 @@ export interface IImageUrl{
 
 
 export type MovieComment = IMovieComment & IUserName;
+
+
+export interface IPerson{
+  id : number;
+  date: Date;
+  birthplace: string;
+  name: string;
+  tall: string;
+  avatarUrl: string;
+}
+
+export interface IFullPerson  extends IPerson{
+  actorMovies: IMovie[];
+  directorMovies: IMovie[]; 
+}
+export interface IPersonForm{
+  date: Date_ ;
+  birthplace: string;
+  name: string;
+  tall: string;
+}
+
+export interface IPersonFull{
+  date: Date;
+  birthplace: string;
+  name: string;
+  tall: string;
+}
+

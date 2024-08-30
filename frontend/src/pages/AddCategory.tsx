@@ -21,9 +21,7 @@ function AddCategory(props: any) {
   const [deleteCategory] = useDeleteCategoryMutation();
 
   const onSubmit: SubmitHandler<ICategory> = async (value: ICategory) => {
-    console.log("Log value", value);
    await  addCategory(value);
-
   };
 
 
@@ -33,7 +31,6 @@ function AddCategory(props: any) {
     const value  : ICategory = { name: selectedCategory.value };
     try {
       deleteCategory(value);
-      
       alert("Category removed");
    
     } catch (error) {

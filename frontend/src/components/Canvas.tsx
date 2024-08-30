@@ -1,10 +1,8 @@
-import Offcanvas from "react-bootstrap/esm/Offcanvas";
 import { useState } from "react";
 import Button from "react-bootstrap/esm/Button";
+import Offcanvas from "react-bootstrap/esm/Offcanvas";
 import Row from "react-bootstrap/esm/Row";
 import { useNavigate } from "react-router-dom";
-import Dropdown from "react-bootstrap/esm/Dropdown";
-import { Form } from "react-bootstrap";
 
 interface CanvasProps {
   name: string;
@@ -52,6 +50,18 @@ function Canvas({ name, ...props }: CanvasProps) {
               }}
             >
               Add/Remove category
+            </Button>
+          </Row>
+          <Row className="mt-2">
+            <Button
+              variant="outline-dark"
+              type="button"
+              onClick={() => {
+                navigate("/admin-panel/person/add");
+                handleClose();
+              }}
+            >
+              Add person
             </Button>
           </Row>
         </Offcanvas.Body>

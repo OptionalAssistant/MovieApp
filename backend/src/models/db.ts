@@ -7,5 +7,6 @@ import {Sequelize} from 'sequelize';
     // host: 'db',  // Replace with the IP address from the inspect command
     logging: false
   });
-  
+
+
 export default sequelize;

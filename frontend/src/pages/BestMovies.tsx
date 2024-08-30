@@ -1,11 +1,13 @@
 import { useParams } from "react-router-dom";
 
-import Page from "./Page";
 import { useEffect, useState } from "react";
-import { movieNumber } from "../types/typesRest";
 import axios from "../axios";
+import { useFetchBestMoviesQuery } from "../redux/query";
+import { movieNumber } from "../types/typesRest";
 import { constructPaginationList, MovieCount } from "../utils/utils";
-import { useFetchBestMoviesQuery, useFetchFreshMoviesQuery, useFetchPopularMoviesQuery } from "../redux/query";
+import Page from "./MovieList";
+import MovieList from "./MovieList";
+import Row from "react-bootstrap/esm/Row";
 
 function BestMovies(){
 
@@ -53,7 +55,8 @@ function BestMovies(){
   
         {movies?.movies && !isLoading  && (
           <>
-            <Page items={paginationItems} movies={movies.movies}/>
+            <MovieList  movies={movies.movies}/>
+            <Row> {paginationItems}</Row>
           </>
         )}
   
