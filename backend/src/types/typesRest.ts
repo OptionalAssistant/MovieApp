@@ -79,14 +79,22 @@ export interface IMovieNumber{
 }
 
 
-export interface ISearchMovieResponse {
-  movies : IMovie[];
+
+export interface ISearchResponse<T> {
+  movies : T[];
   total? : number;
 }
 export interface ICategory{
   name: string;
 }
-export type SearchMovieResponse = ISearchMovieResponse | IResponceError;
+export interface ISearchPersonResponse {
+  people : IPerson[];
+  total? : number;
+}
+
+export type SearchMovieResponse = ISearchResponse<IMovie> | IResponceError;
+
+export type SearchActorReponse=  ISearchPersonResponse | IResponceError;
 
 export interface IMovieForm {
   id : String;

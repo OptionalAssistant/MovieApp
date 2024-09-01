@@ -44,7 +44,7 @@ export const constructPaginationList = (props: IPaginationList) => {
     <Pagination>
       {props.curPage > 1 && (
         <Pagination.Prev>
-          <Link  to={createLink(props.curPage -1 )}>
+          <Link  to={createLink(props.curPage -1 )}  style={{ textDecoration: "none" }}>
             <span>Prev</span>
           </Link>
         </Pagination.Prev>
@@ -77,7 +77,7 @@ export const constructPaginationList = (props: IPaginationList) => {
         </>)}
       {props.curPage < props.pageCount && (
         <Pagination.Next>
-          <Link to={createLink(props.curPage + 1)}>
+          <Link to={createLink(props.curPage + 1)}  style={{ textDecoration: "none" }}>
             {" "}
             <span>Next</span>{" "}
           </Link>
@@ -92,4 +92,4 @@ export const capitalizeFirstLetter = (str : string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export const MovieCount = 2;
+export const MovieCount = 12;

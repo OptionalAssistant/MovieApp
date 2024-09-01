@@ -27,6 +27,7 @@ function Person({ person }: { person: IPerson }) {
   };
   return (
     <>
+
       <Card>
         <div></div>
         <Card.Link as={Link} to={`/persons/${person.id}`}>

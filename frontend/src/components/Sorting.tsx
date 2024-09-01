@@ -7,9 +7,14 @@ import { capitalizeFirstLetter } from "../utils/utils";
 import Row from "react-bootstrap/esm/Row";
 import Col from "react-bootstrap/esm/Col";
 
-function Categories() {
+function Sorting() {
   const { data, isLoading, isError } = useFetchCategoriesQuery();
 
+  const dropdownItems = [
+    { navigate: "new-movies", name: "Most recent" },
+    { navigate: "most-likes", name: "Most liked" },
+    { navigate: "popular", name: "Most popular" },
+  ];
   return (
     <>
       <Row
@@ -20,11 +25,11 @@ function Categories() {
           height: '100%', // Ensures full height
         }}
       >
-        <h3 style={{ color: "white" }}>Categories</h3>
+        <h3 style={{ color: "white" }}>Sorting</h3>
         {!isLoading &&
           !isError &&
           data &&
-          data.map((item) => (
+          dropdownItems.map((item) => (
             <Col
               key={item.name}
               xs={6} // 2 columns on extra small screens
@@ -34,7 +39,7 @@ function Categories() {
               className="mb-3" // Optional: margin bottom for spacing
             >
               <Link
-                to={`categories/${item.name}/page/1`}
+                to={`${item.navigate}/1`}
                 className="text-decoration-none"
                 style={{ color: "white" }} // Ensure closing bracket is present
               >
@@ -48,4 +53,4 @@ function Categories() {
   );
 }
 
-export default Categories;
+export default Sorting;

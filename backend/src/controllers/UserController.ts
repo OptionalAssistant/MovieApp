@@ -8,7 +8,8 @@ import { AuthMeResponce, ILoginForm, IRegisterForm, LoginResponce, UserData, Use
 
 import { Request,Response } from "express";
 import { ActivateParams, IAuthMe } from "../types/typesClient.js";
-
+import path from 'path';
+import fs from 'fs';
 
 export const register = async (req : Request<{},{},IRegisterForm>, res : Response<LoginResponce> ) => {
   try {
@@ -263,4 +264,34 @@ export const activateLink = async(req: Request<ActivateParams>,res)=>{
         console.log(error);
         return res.send("Link is expired....\n");
       }
+}
+
+export const deleteAvatar = async(req: Request<{},{},IAuthMe>,res)=>{
+  try {
+
+    const user = await UserModel.findByPk(req.body.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.avatar) {
+      const filePath = path.join(__dirname, "..", "..", "uploads", user.avatar);
+
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.log("Error deleting the file:", err);
+        }
+        console.log("All right");
+      });
+      user.avatar = null;
+    }
+
+    await user.save();
+
+    return res.send({ message: "Success" });
+  } catch (error) {
+    console.log("ooops smth went wrong during udationg avatar", error);
+    return res.send({ message: "Error" });
+  }
 }

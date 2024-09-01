@@ -88,7 +88,10 @@ export interface ISearchMovieResponse {
   movies : IMovie[];
   total : number;
 }
-
+export interface ISearchPersonResponse {
+  people : IPerson[];
+  total : number;
+}
 export interface Category{
   id : number;
   name : string;

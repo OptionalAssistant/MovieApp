@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
+import Row from "react-bootstrap/esm/Row";
 import { useParams } from "react-router-dom";
 import axios from "../axios";
+import MovieList from "../components/MovieList";
 import ProfilerNav from "../components/ProfileNav";
 import { useFetchUserLikedMoviesQuery } from "../redux/query";
 import { movieNumber } from "../types/typesRest";
 import { constructPaginationList, MovieCount } from "../utils/utils";
-import Page from "./MovieList";
-import MovieList from "./MovieList";
-import Row from "react-bootstrap/esm/Row";
 
 function LikedMovies() {
   const id = useParams();

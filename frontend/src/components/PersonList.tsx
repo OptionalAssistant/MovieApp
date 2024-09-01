@@ -14,9 +14,9 @@ function PersonList({ persons }: PersonListProps){
         {!persons.length ? (
           <h1>None</h1>
         ) : (
-          <Row xs={1} md={3} className="g-4 mb-3 card-fixed">
+          <Row xs={1} sm={2} md={3} xl={4} className="g-4 mb-3">
             {persons.map((data, idx) => (
-              <Col key={idx} className="equal-height">
+              <Col key={idx} >
                 <Person person={data} />
               </Col>
             ))}

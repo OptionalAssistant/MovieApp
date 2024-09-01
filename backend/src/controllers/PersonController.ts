@@ -1,9 +1,11 @@
-import { IPersonResponce, IPerson, PageParams, IFullPersonResponce, IMovie } from "../types/typesRest";
 import { Request, Response } from "express";
-import PersonModel from "../models/Person";
-import path from "path";
 import fs from "fs";
+import path from "path";
+import { Op } from "sequelize";
+import { default as Person, default as PersonModel } from "../models/Person";
 import { IMovieDelete } from "../types/typesClient";
+import { IFullPersonResponce, IMovie, IMovieSearchForm, IPerson, IPersonResponce, PageParams, SearchActorReponse } from "../types/typesRest";
+const movieCount = 12;
 
 export const addPerson = async (
   req /*: Request<{},{},IPersonForm>*/,
@@ -187,3 +189,54 @@ export const deletePerson = async(req : Request<IMovieDelete>,res)=>{
       }
 
 }
+
+export const getPersons = async(req : Request,res : Response<Person[]>)=>{
+
+  try{
+    const people = await PersonModel.findAll({
+      order: [
+        ['name', 'ASC']  // Replace 'name' with the column you want to order by
+      ]
+    });
+
+      return res.send(people);
+  }
+  catch{
+      return res.status(404);
+  }
+}
+
+export const Search = async (
+  req: Request<{}, {}, {}, IMovieSearchForm>,
+  res: Response<SearchActorReponse>
+) => {
+  const s_name = req.query.name;
+  const id = req.query.page;
+
+  let index = id ? id - 1 : 0;
+
+  try {
+    const people = await PersonModel.findAll({
+      where: {
+        name: {
+          [Op.iLike]: `%${s_name}%`, // Case-insensitive search
+        },
+      },
+    });
+
+    const count = people.length;
+    const moviesSliced = people.slice(
+      index * movieCount,
+      index * movieCount + movieCount
+    );
+
+    if (!people.length) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+    return res.send({ people: people, total: count });
+  } catch (err) {
+    return res
+      .status(404)
+      .json({ message: "Opps something went wrong during request\n" });
+  }
+};

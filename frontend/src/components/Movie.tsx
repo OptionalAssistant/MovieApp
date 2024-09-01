@@ -29,7 +29,6 @@ function Movie({ movie }: { movie: IMovie }) {
   return (
     <>
       <Card>
-        <div></div>
         <Card.Link as={Link} to={`/movies/${movie.id}`}>
           {" "}
           <Card.Img
@@ -37,10 +36,11 @@ function Movie({ movie }: { movie: IMovie }) {
             src={`http://localhost:4444/uploads/${movie.imageUrl}`}
             height={250}
             width={156}
+             className="movie-image"
           />  
         </Card.Link>
 
-        <Card.Body>
+        <Card.Body >
           <Card.Title className="mb-3">{movie.name}</Card.Title>
           <Card.Subtitle className="mb-3">
             Year {" "} 

@@ -32,7 +32,7 @@ import {
   SearchMovieResponse
 } from "../types/typesRest";
 
-const movieCount = 2;
+const movieCount = 12;
 export const getMovies = async (req, res: Response<IMovie[]>) => {
   const movies = await MovieModel.findAll();
 
@@ -111,11 +111,11 @@ export const getFullMovie = async (
     let isDisliked = false;
 
     const token = (req.headers.authorization || "").replace(/Bearer\s?/, "");
-    console.log("TOken!!", token);
+
     if (token) {
       try {
         const decoded = jwt.verify(token, process.env.SECRET_KEY);
-        console.log("HELLLOOO");
+
         const user = await UserModel.findByPk(decoded.id);
 
         if (!user) {
@@ -134,8 +134,7 @@ export const getFullMovie = async (
       }
     }
 
-    console.log("Dislike count", isDisliked);
-    console.log("Like count", isLiked);
+
 
     const directors = (await movie.getDirectors()).map(director => ({
       name: director.name,
@@ -197,7 +196,7 @@ export const SearchMovie = async (
       index * movieCount,
       index * movieCount + movieCount
     );
-    console.log("ITESM", moviesSliced);
+
     if (!movies.length) {
       return res.status(404).json({ message: "Movie not found" });
     }
@@ -216,7 +215,7 @@ export const SearchMovie = async (
         };
       })
     );
-    console.log("ITESM3", items);
+
     return res.send({ movies: items, total: count });
   } catch (err) {
     return res
@@ -407,6 +406,9 @@ export const deleteMovie = async (req: Request<IMovieDelete>, res) => {
           "uploads",
           movie.imageUrl
         );
+        console.log("Req file",req.file);
+        
+
         fs.unlink(filePath, (err) => {
           if (err) {
             console.log("Error deleting the file:", err);
@@ -459,7 +461,9 @@ export const deleteMovie = async (req: Request<IMovieDelete>, res) => {
       );
       console.log("Directors",directors);
       await movie.setDirectors(directors);
-  
+      
+      await movie.save();
+
       return res.send({ id: movie.id });
 
     } catch (error) {
@@ -832,15 +836,3 @@ export const updateAvatar = async (
   }
 };
 
-
-export const getPersons = async(req : Request,res : Response<Person[]>)=>{
-
-  try{
-      const persons = await Person.findAll();
-
-      return res.send(persons);
-  }
-  catch{
-      return res.status(404);
-  }
-}

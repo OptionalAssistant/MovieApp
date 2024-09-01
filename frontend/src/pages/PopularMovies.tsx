@@ -3,10 +3,10 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Row from "react-bootstrap/esm/Row";
 import axios from "../axios";
+import MovieList from "../components/MovieList";
 import { useFetchPopularMoviesQuery } from "../redux/query";
 import { movieNumber } from "../types/typesRest";
 import { constructPaginationList, MovieCount } from "../utils/utils";
-import MovieList from "./MovieList";
 
 function PopularMovies(){
 

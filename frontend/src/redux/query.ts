@@ -17,6 +17,7 @@ import {
   IImageUrl,
   IPerson,
   IFullPerson,
+  ISearchPersonResponse,
 } from "../types/typesRest";
 
 export const apiService = createApi({
@@ -212,6 +213,16 @@ export const apiService = createApi({
       }),
       invalidatesTags: ["Persons"],
     }),
+    deleteAvatar: builder.mutation<void, void>({
+      query: () => ({
+        url: "/delete-avatar",
+        method: "DELETE"}), // This can be an empty string since no request is made
+      invalidatesTags: ["User","Comments"],
+    }),
+    fetchPersonSearchPage: builder.query<ISearchPersonResponse, string>({
+      query: (query) => `${query}`,
+      providesTags: ["Persons"],
+    }),
   }),
   
 });
@@ -245,5 +256,7 @@ export const {
   useCreatePersonMutation,
   useEditPersonMutation,
   useFetchFullPersonQuery,
-  useDeletePersonMutation
+  useDeletePersonMutation,
+  useDeleteAvatarMutation,
+  useFetchPersonSearchPageQuery,
 } = apiService;

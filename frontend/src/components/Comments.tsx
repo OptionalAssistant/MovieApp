@@ -6,6 +6,8 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useAddCommentMutation, useFetchCommentsQuery } from "../redux/query";
 import { ErrorResponse } from "../types/typesClient";
 import { IMovieComment, IMovieCommentId } from "../types/typesRest";
+import Image from "react-bootstrap/Image";
+
 interface movieId {
   id: string | undefined;
   count: number;
@@ -18,25 +20,22 @@ function Comments(props: movieId) {
     formState: { errors },
   } = useForm<IMovieComment>({ mode: "onSubmit" });
 
-  const { data: comments, isLoading } = useFetchCommentsQuery(
-    Number(props.id)
-  );
+  const { data: comments, isLoading } = useFetchCommentsQuery(Number(props.id));
 
   const [addComment] = useAddCommentMutation();
 
   const onSubmit: SubmitHandler<IMovieComment> = async (
     value: IMovieComment
   ) => {
-    try{
-      const  commId : IMovieCommentId = {id: props.id,comment : value};
-      console.log("dsds",commId.comment );
+    try {
+      const commId: IMovieCommentId = { id: props.id, comment: value };
+      console.log("dsds", commId.comment);
 
-      const data =  await  addComment(commId)
+      const data = await addComment(commId);
+    } catch (error) {
+      const err = error as ErrorResponse;
+      alert(err.response.data.message);
     }
-      catch(error){
-        const err = error as ErrorResponse;
-        alert(err.response.data.message);
-      };
   };
 
   return (
@@ -70,16 +69,38 @@ function Comments(props: movieId) {
               day: "numeric",
             }
           );
-          console.log("Props", props.count);
           return (
-            <Row key={idx} className="equal-height">
-              <Col>
-                <h3>{formattedDate}</h3>
-                <h3>{data.name}</h3>
-                <p>{data.text}</p>
-                <img src={`http://localhost:4444/uploads/${data.avatar}`} alt="Poster" />
-              </Col>
-            </Row>
+              <div key={idx}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  flexDirection: "row",
+                }}
+                className="equal-height mt-3"
+              >
+                <Image
+                  src={data.avatar ?`http://localhost:4444/uploads/${data.avatar}` : `http://localhost:4444/uploads/default.jpg`}
+                  alt="Poster"
+                  roundedCircle
+                  width="60px"
+                  height="60px"
+                  style={{ display: "inline-block" }}
+                />
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    marginLeft: "10px"
+                  }}
+                >
+                  <p style={{ fontWeight: "bold" }}>
+                    {data.name} {formattedDate}{" "}
+                  </p>
+
+                  <p style={{ marginTop: "-10px" }}>{data.text} </p>
+                </div>
+              </div>
           );
         })}
     </>

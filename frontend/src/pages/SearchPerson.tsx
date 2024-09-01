@@ -3,8 +3,9 @@ import { useSearchParams } from "react-router-dom";
 
 import { Row } from "react-bootstrap";
 import MovieList from "../components/MovieList";
-import { useFetchMovieSearchPageQuery } from "../redux/query";
+import { useFetchPersonSearchPageQuery } from "../redux/query";
 import { constructPaginationList, MovieCount } from "../utils/utils";
+import PersonList from "../components/PersonList";
 
 
 function Search(props : any) {
@@ -16,38 +17,22 @@ function Search(props : any) {
   if (!page) page = "1";
 
   const {
-    data : movies,
+    data : people,
     error,
     isLoading,
-  } = useFetchMovieSearchPageQuery(
-    `search/main/?name=${searchParams.get("name")}&page=${page}`
+  } = useFetchPersonSearchPageQuery(
+    `search/actor/?name=${searchParams.get("name")}&page=${page}`
   );
-
-  useEffect(() => {
-    if (movies) {
-      let items: any;
-      const pageCount = Math.ceil(movies.total / MovieCount);
-      const strLink = `search/main/?name=${searchParams.get("name")}&page=`;
-      items = constructPaginationList({
-        pageCount: pageCount,
-        link: strLink,
-        curPage: Number(page),
-      });
-
-      setPaginationItems(items);
-    }
-  }, [movies]);
 
   return (
     <>
-      {movies && !isLoading && (
+      {people && !isLoading && (
         <>
           <h1>Results on search: {searchParams.get("name")}</h1>
-          <MovieList movies={movies.movies} />
-          <Row> {paginationItems}</Row>
+          <PersonList persons={people.people} />
         </>
       )}
-      {!movies && !isLoading && (
+      {!people && !isLoading && (
         <h1>Movie with name: {searchParams.get("name")} not found</h1>
       )}
     </>

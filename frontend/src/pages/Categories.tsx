@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
+import Row from "react-bootstrap/esm/Row";
 import { useParams } from "react-router-dom";
+import MovieList from "../components/MovieList";
 import { useFetchMovieCategoryPageQuery } from "../redux/query";
 import { capitalizeFirstLetter, constructPaginationList, MovieCount } from "../utils/utils";
-import Page from "./MovieList";
-import MovieList from "./MovieList";
-import Row from "react-bootstrap/esm/Row";
 
 
 function Categories(props: any) {

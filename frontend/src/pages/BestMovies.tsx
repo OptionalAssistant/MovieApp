@@ -1,13 +1,12 @@
 import { useParams } from "react-router-dom";
 
 import { useEffect, useState } from "react";
+import Row from "react-bootstrap/esm/Row";
 import axios from "../axios";
+import MovieList from "../components/MovieList";
 import { useFetchBestMoviesQuery } from "../redux/query";
 import { movieNumber } from "../types/typesRest";
 import { constructPaginationList, MovieCount } from "../utils/utils";
-import Page from "./MovieList";
-import MovieList from "./MovieList";
-import Row from "react-bootstrap/esm/Row";
 
 function BestMovies(){
 

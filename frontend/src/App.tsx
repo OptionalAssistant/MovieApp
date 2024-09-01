@@ -23,6 +23,7 @@ import { useFetchAuthMeQuery } from "./redux/query";
 import Persons from "./pages/PersonsPage";
 import AddPerson from "./pages/AddPerson";
 import FullPerson from "./pages/FullPerson";
+import SearchPerson from './pages/SearchPerson';
 function App() {
 
 
@@ -30,7 +31,7 @@ function App() {
    useFetchAuthMeQuery();
 
   return (
-    <Container>
+    <Container style={{backgroundColor:""}}>
       <Header />
       {<Routes>
          <Route path="/auth/register" element={<Register />} />
@@ -38,7 +39,8 @@ function App() {
         <Route path="/reset-password" element={<PassRecovery />} />
         <Route path="/pages/:id" element={<NumericPage />} />
         <Route path="/movies/:id" element={<FullMovie />} />
-        <Route path="/search" element={<Search />} />
+        <Route path="/search/main" element={<Search />} />
+       <Route path="/search/actor" element={<SearchPerson/>} />
         <Route path="/categories/:idCategory/page/:id" element={<Categorie />} />
         <Route path="/admin-panel/add/" element={<AddMovie />} />
         <Route path="/admin-panel/add/:id/edit" element={<AddMovie />} />

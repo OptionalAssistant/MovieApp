@@ -126,7 +126,9 @@ app.post(
 app.post("/dislike-movie/:id",CheckAuth,MovieController.dislikeMovie);
 app.post("/like-movie/:id",CheckAuth,MovieController.likeMovie);
 
-app.get("/search", MovieController.SearchMovie);
+app.get("/search/main", MovieController.SearchMovie);
+app.get("/search/actor", PersonController.Search);
+
 app.get("/categories/:idCategory/page/:id", MovieController.getCategory);
 app.get("/categories/all", MovieController.getAllCategories);
 app.post("/add-category", CheckAdminAuth, MovieController.addCategory);
@@ -135,6 +137,7 @@ app.get('/get-comments/:id',MovieController.getComments);
 app.delete("/remove-category", CheckAdminAuth, MovieController.removeCategory);
 app.delete("/movies/delete/:id", CheckAdminAuth, MovieController.deleteMovie);
 app.delete("/persons/delete/:id",CheckAdminAuth,PersonController.deletePerson);
+app.delete('/delete-avatar',CheckAuth,UserController.deleteAvatar)
 
 app.put("/movies/edit/:id", CheckAdminAuth,conditionalImageUpload, MovieController.editMovie);
 app.get("/movies-new/:id",MovieController.getNewMovies);
@@ -143,7 +146,7 @@ app.get("/favourites/:id",CheckAuth,MovieController.getFavourites);
 app.put("/update-avatar",CheckAuth,conditionalImageUpload,MovieController.updateAvatar);
 app.post("/add/movie",CheckAdminAuth,)
 app.get("/unliked/:id",CheckAuth,MovieController.getDisliked);
-app.get("/persons",MovieController.getPersons);
+app.get("/persons",PersonController.getPersons);
 app.put("/add/person",CheckAdminAuth,conditionalImageUpload,PersonController.addPerson);
 app.get(`/person/:id`,PersonController.getPerson);
 app.get(`/persons/full/:id`,PersonController.getFullPerson);

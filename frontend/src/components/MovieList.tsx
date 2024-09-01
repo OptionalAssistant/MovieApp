@@ -1,10 +1,9 @@
-import { useContext } from "react";
 
 import Col from "react-bootstrap/esm/Col";
 import Row from "react-bootstrap/esm/Row";
 
-import Movie from "../components/Movie";
 import { IMovieList } from "../types/typesClient";
+import Movie from "./Movie";
 
 import "../App.css";
 
@@ -13,9 +12,9 @@ function MovieList(props: IMovieList) {
 
   return (
     <>
-      <Row xs={1} md={3} className="g-4  mb-3 card-fixed">
+      <Row  xs={1} sm={2} md={3} xl={4} className="g-4 mb-3">
           {props.movies.map((data, idx) => (
-            <Col key={idx} className="equal-height">
+            <Col key={idx} >
               <Movie movie={data} />
             </Col>
           ))}
