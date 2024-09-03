@@ -19,18 +19,18 @@ function Canvas({ name, ...props }: CanvasProps) {
 
   return (
     <>
-      <Button variant="outline-danger" onClick={handleShow} className="me-2">
-        {name}
+      <Button variant="outline-danger" onClick={handleShow} className="me-2" >
+        {name}  
       </Button>
       <Offcanvas show={show} onHide={handleClose} {...props}>
-        <Offcanvas.Header closeButton>
+        <Offcanvas.Header closeButton >
           <Offcanvas.Title>Panel</Offcanvas.Title>
-        </Offcanvas.Header>
+        </Offcanvas.Header >
         <Offcanvas.Body>
           <Row>
             {" "}
             <Button
-              variant="outline-dark"
+              variant="dark button-outline btn btn-primary btn-md"
               type="button"
               onClick={() => {
                 navigate("/admin-panel/add");
@@ -42,7 +42,7 @@ function Canvas({ name, ...props }: CanvasProps) {
           </Row>
           <Row className="mt-2">
             <Button
-              variant="outline-dark"
+                 variant="dark button-outline btn btn-primary btn-md"
               type="button"
               onClick={() => {
                 navigate("/admin-panel/category/add");
@@ -54,7 +54,7 @@ function Canvas({ name, ...props }: CanvasProps) {
           </Row>
           <Row className="mt-2">
             <Button
-              variant="outline-dark"
+                  variant="dark button-outline btn btn-primary btn-md"
               type="button"
               onClick={() => {
                 navigate("/admin-panel/person/add");

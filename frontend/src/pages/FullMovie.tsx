@@ -162,16 +162,14 @@ function FullMovie() {
       </Row>
       <Row className="pb-4">
         <h2>Трейлер</h2>
-        <div>
+        <div className="ratio ratio-16x9">
           <iframe
-            width="560"
-            height="315"
-            style={{ border: "none" }}
             src={movie.trailerUrl}
             title="YouTube video player"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
+            style={{ border: "none" }}
           ></iframe>
         </div>
         <h2>О чем фильм {movie.name}</h2>

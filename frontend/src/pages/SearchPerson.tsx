@@ -6,6 +6,7 @@ import MovieList from "../components/MovieList";
 import { useFetchPersonSearchPageQuery } from "../redux/query";
 import { constructPaginationList, MovieCount } from "../utils/utils";
 import PersonList from "../components/PersonList";
+import SearchButton from "../components/SearchButton";
 
 
 function Search(props : any) {
@@ -18,21 +19,22 @@ function Search(props : any) {
 
   const {
     data : people,
-    error,
     isLoading,
+    isError
   } = useFetchPersonSearchPageQuery(
     `search/actor/?name=${searchParams.get("name")}&page=${page}`
   );
-
+  
   return (
     <>
-      {people && !isLoading && (
+         <SearchButton placeholder="Enter actor name" navigationLink="/search/actor/?name="/>
+      {people && !isError && !isLoading && (
         <>
           <h1>Results on search: {searchParams.get("name")}</h1>
           <PersonList persons={people.people} />
         </>
       )}
-      {!people && !isLoading && (
+      {isError && !isLoading && (
         <h1>Movie with name: {searchParams.get("name")} not found</h1>
       )}
     </>

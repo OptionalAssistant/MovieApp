@@ -17,8 +17,8 @@ function Search(props : any) {
 
   const {
     data : movies,
-    error,
     isLoading,
+    isError
   } = useFetchMovieSearchPageQuery(
     `search/main/?name=${searchParams.get("name")}&page=${page}`
   );
@@ -40,14 +40,14 @@ function Search(props : any) {
 
   return (
     <>
-      {movies && !isLoading && (
+      {movies && !isError && !isLoading  && (
         <>
           <h1>Results on search: {searchParams.get("name")}</h1>
           <MovieList movies={movies.movies} />
           <Row> {paginationItems}</Row>
         </>
       )}
-      {!movies && !isLoading && (
+      {isError && !isLoading && (
         <h1>Movie with name: {searchParams.get("name")} not found</h1>
       )}
     </>

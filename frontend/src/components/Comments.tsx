@@ -4,7 +4,7 @@ import Form from "react-bootstrap/esm/Form";
 import Row from "react-bootstrap/esm/Row";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useAddCommentMutation, useFetchCommentsQuery } from "../redux/query";
-import { ErrorResponse } from "../types/typesClient";
+import { ServerError } from "../types/typesClient";
 import { IMovieComment, IMovieCommentId } from "../types/typesRest";
 import Image from "react-bootstrap/Image";
 
@@ -20,7 +20,7 @@ function Comments(props: movieId) {
     formState: { errors },
   } = useForm<IMovieComment>({ mode: "onSubmit" });
 
-  const { data: comments, isLoading } = useFetchCommentsQuery(Number(props.id));
+  const { data: comments, isLoading ,isError} = useFetchCommentsQuery(Number(props.id));
 
   const [addComment] = useAddCommentMutation();
 
@@ -29,15 +29,14 @@ function Comments(props: movieId) {
   ) => {
     try {
       const commId: IMovieCommentId = { id: props.id, comment: value };
-      console.log("dsds", commId.comment);
-
-      const data = await addComment(commId);
+       const response =  await addComment(commId).unwrap();
+       console.log("response",response);
     } catch (error) {
-      const err = error as ErrorResponse;
-      alert(err.response.data.message);
+      console.log("Error",error);
+      const err = error as ServerError;
+      alert(err.data.message);
     }
   };
-
   return (
     <>
       <h3>Комментарии : {props.count}</h3>
@@ -47,6 +46,7 @@ function Comments(props: movieId) {
           <Form.Control
             as="textarea"
             rows={3}
+              className="me-2 form-control"
             placeholder="Enter comment..."
             {...register("text", {
               required: "Comment cant be empty",
@@ -55,11 +55,10 @@ function Comments(props: movieId) {
           {errors.text && <span>{errors.text.message}</span>}
         </Form.Group>
 
-        <Button type="submit">Send</Button>
+        <Button         variant="dark button-outline btn btn-primary btn-md" type="submit">Send</Button>
       </Form>
-
-      {!isLoading &&
-        comments &&
+      {!isLoading && 
+        comments && !isError&&
         comments.map((data, idx) => {
           const formattedDate = new Date(data.createdAt).toLocaleString(
             "en-US",

@@ -36,6 +36,7 @@ class Movie extends Model<
   declare commentCount: number;
   declare likesCount: number;
 
+  
   declare getCategories: HasManyGetAssociationsMixin<Category>; // Note the null assertions!
   declare addCategory: HasManyAddAssociationMixin<Category, number>;
   declare addCategories: HasManyAddAssociationsMixin<Category, number>;

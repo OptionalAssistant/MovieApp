@@ -71,10 +71,10 @@ function AddPerson(props: any) {
             await editPerson({ id, formData }).unwrap(); 
           }
     
-          // navigate(`/persons/${id}`);
+          navigate(`/persons/${id}`);
         } else {
           const data = await createPerson(formData).unwrap(); // Use formData for creation
-          // navigate(`/persons/${data.id}`);
+          navigate(`/persons/${data.id}`);
         }
       } catch (error) {
         console.log("Fail to submit movie form", error);

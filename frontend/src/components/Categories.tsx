@@ -1,11 +1,9 @@
-import Dropdown from "react-bootstrap/Dropdown";
-import DropdownButton from "react-bootstrap/DropdownButton";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
+import Col from "react-bootstrap/esm/Col";
+import Row from "react-bootstrap/esm/Row";
 import { useFetchCategoriesQuery } from "../redux/query";
 import { capitalizeFirstLetter } from "../utils/utils";
-import Row from "react-bootstrap/esm/Row";
-import Col from "react-bootstrap/esm/Col";
 
 function Categories() {
   const { data, isLoading, isError } = useFetchCategoriesQuery();
@@ -14,13 +12,13 @@ function Categories() {
     <>
       <Row
         style={{
-          backgroundColor: "#433c4b",
+          backgroundColor: "#433c4b", 
           padding: "20px",
           borderRadius: "5px",
           height: '100%', // Ensures full height
         }}
       >
-        <h3 style={{ color: "white" }}>Categories</h3>
+        <h3>Categories</h3>
         {!isLoading &&
           !isError &&
           data &&
@@ -36,7 +34,6 @@ function Categories() {
               <Link
                 to={`categories/${item.name}/page/1`}
                 className="text-decoration-none"
-                style={{ color: "white" }} // Ensure closing bracket is present
               >
                 {capitalizeFirstLetter(item.name)}
               </Link>

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import PersonList from "../components/PersonList";
 import { useFetchPersonsQuery } from "../redux/query";
 import { IMovieSearchForm } from "../types/typesRest";
-
+import SearchButton from '../components/SearchButton';
 
 function Persons(props: any) {
   const { data : persons, isError, isLoading } = useFetchPersonsQuery();
@@ -32,24 +32,7 @@ function Persons(props: any) {
     <>
       <h1>Actors: </h1>
 
-      <Form className="d-flex mb-3" onSubmit={handleSubmit(onSubmit)}>
-            <Form.Control
-              type="search"
-              placeholder="Enter actor name"
-              className="me-2"
-              aria-label="Search"
-              {...register("name", {
-                required: "Actor name is required",
-              })}
-              style={{maxWidth:"500px"}}
-            />
-            <Button
-              variant="outline-success btn btn-primary btn-md"
-              type="submit"
-            >
-              Search
-            </Button>
-          </Form>
+     <SearchButton placeholder="Enter actor name" navigationLink="/search/actor/?name="/>
           
       {persons && <PersonList persons={persons}/>}
     </>

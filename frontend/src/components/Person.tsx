@@ -28,7 +28,7 @@ function Person({ person }: { person: IPerson }) {
   return (
     <>
 
-      <Card>
+      <Card >
         <div></div>
         <Card.Link as={Link} to={`/persons/${person.id}`}>
           {" "}
@@ -41,13 +41,13 @@ function Person({ person }: { person: IPerson }) {
         </Card.Link>
 
         <Card.Body>
-          <Card.Title className="mb-3">{person.name}</Card.Title>
+          <Card.Title className="mb-3" style={{color:"#E0E0E0"}}>{person.name}</Card.Title>
           <Row>
             {user && user.roles === "ADMIN" && user.isActivated && (
               <>
                 <Col className="mr-3">
                   <Button
-                    variant="danger"
+                 variant="dark button-outline btn btn-primary btn-md"
                     type="button"
                     className="mr-3"
                     onClick={onDelete}
@@ -57,7 +57,7 @@ function Person({ person }: { person: IPerson }) {
                 </Col>
                 <Col className="mr-3">
                   <Button
-                    variant="info"
+                 variant="dark button-outline btn btn-primary btn-md"
                     type="button"
                     className="mr-3"
                     onClick={onEdit}

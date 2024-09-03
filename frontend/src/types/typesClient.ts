@@ -22,13 +22,6 @@ export interface authAction {
   payload: UserData | null;
 }
 
-export interface ErrorResponse {
-  response: {
-    data: {
-      message: string;
-    };
-  };
-}
 export interface ServerError{
   data:{
     message: string;

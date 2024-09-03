@@ -1,5 +1,111 @@
+/* Body */
 body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  background-color: #121212; /* Main background color */
+  color: #E0E0E0; /* Default text color */
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container */
+.container {
+  background-color: #1E1E1E; /* Slightly lighter background for containers */
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Cards */
+.card {
+  background-color: #1E1E1E; /* Card background */
+  border: 1px solid #333333; /* Card border color */
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+/* Links */
+a {
+  color: #BB86FC; /* Accent color for links */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+
+.form-control {
+  background-color: #333333; /* Dark background for input field */
+  border-color: #555555; /* Border color */
+  color: #E0E0E0; /* Text color */
+}
+
+.form-control::placeholder {
+  color: #888888; /* Placeholder text color */
+}
+
+.form-control:focus {
+  color: white; /* Placeholder text color */
+  background-color: #333333; /* Dark background for input field */
+  border-color: #BB86FC; /* Border color on focus */
+  box-shadow: 0 0 0 0.2rem rgba(187, 134, 252, 0.25); /* Focus shadow */
+}
+
+/* Add this CSS to your stylesheet or a CSS module */
+
+.button-primary {
+  background-color: #BB86FC; /* Accent color for buttons */
+  border: none;
+  color: #121212; /* Text color on button */
+}
+
+.button-primary:hover {
+  background-color: #8C4CFC; /* Darker shade on hover */
+  color: #FFFFFF; /* Text color on hover */
+}
+
+.button-outline {
+  border-color: #BB86FC; /* Border color */
+  color: #BB86FC; /* Text color */
+}
+
+.button-outline:hover {
+  background-color: #BB86FC; /* Background color on hover */
+  color: #121212; /* Text color on hover */
+}
+
+/* styles.css */
+.modal-dark .modal-content {
+  background-color: #343a40; /* Dark background color for the modal */
+  color: #f8f9fa; /* Light text color */
+}
+
+.modal-dark .modal-header,
+.modal-dark .modal-footer {
+  border-color: #454d55; /* Darker border for header and footer */
+}
+
+.modal-dark .modal-title {
+  color: #f8f9fa; /* Light text color for the title */
+}
+
+.modal-dark .btn-dark {
+  background-color: #495057; /* Dark button color */
+  border-color: #495057;
+}
+
+.modal-dark .btn-dark:hover {
+  background-color: #343a40; /* Slightly darker on hover */
+  border-color: #343a40;
+}
+
+.modal-dark .form-control {
+  background-color: #495057; /* Dark background for input fields */
+  border-color: #6c757d; /* Darker border */
+  color: #f8f9fa; /* Light text color */
+}
+
+.modal-dark .form-control::placeholder {
+  color: #ced4da; /* Light placeholder text */
+}

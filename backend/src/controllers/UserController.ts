@@ -254,7 +254,7 @@ export const activateLink = async(req: Request<ActivateParams>,res)=>{
       try{
         const secret = process.env.SECRET_KEY + User.isActivated;
     
-        const verify = jwt.verify(token,secret);
+        jwt.verify(token,secret);
         
        await User.update({isActivated: true});
     

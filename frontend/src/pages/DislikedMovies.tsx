@@ -1,45 +1,40 @@
 import { useEffect, useState } from "react";
 import Row from "react-bootstrap/esm/Row";
 import { useParams } from "react-router-dom";
-import axios from "../axios";
 import MovieList from "../components/MovieList";
 import ProfilerNav from "../components/ProfileNav";
 import { useFetchUserDisikedMoviesQuery } from "../redux/query";
-import { movieNumber } from "../types/typesRest";
 import { constructPaginationList, MovieCount } from "../utils/utils";
 
-function LikedMovies() {
-  const id = useParams();
+function DislikedMovies() {
+  const {id} = useParams();
 
-  const { data: movies, isLoading } = useFetchUserDisikedMoviesQuery(
-    Number(id)
-  );
+  const {
+    data: movies,
+    isLoading,
+    isError,
+  } = useFetchUserDisikedMoviesQuery(Number(id));
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const size = await axios.get<movieNumber[]>(`/movies/number`);
 
-        const pageCount = Math.ceil(size.data.length / MovieCount);
 
-        let items: any;
+  useEffect(()=>{
+    if (!isLoading && movies) {
+      let items: any;
+      const pageCount = Math.ceil(movies.total / MovieCount);
+  
+      items = constructPaginationList({
+        pageCount: pageCount,
+        link: "/profile/disliked/",
+        curPage: Number(id),
+      });
+  
+      setPaginationItems(items);
+    }
+  },[movies,isLoading]);
 
-        items = constructPaginationList({
-          pageCount: pageCount,
-          link: "/profile/disliked/",
-          curPage: Number(id),
-        });
-
-        setPaginationItems(items);
-      } catch (error) {
-        console.log("Something went wrong during fetchPage");
-      }
-    };
-
-    fetchData();
-  }, [id]);
+  if (isError) return <h1>Failed to fetch movies...</h1>;
 
   return (
     <>
@@ -48,7 +43,7 @@ function LikedMovies() {
 
       {!isLoading && movies && (
         <>
-          <MovieList movies={movies} />
+          <MovieList movies={movies.movies} />
           <Row> {paginationItems}</Row>
         </>
       )}
@@ -56,4 +51,4 @@ function LikedMovies() {
   );
 }
 
-export default LikedMovies;
+export default DislikedMovies;

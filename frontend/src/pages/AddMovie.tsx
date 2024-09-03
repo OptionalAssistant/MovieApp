@@ -258,6 +258,7 @@ function AddMovie(props: any) {
               id={`inline-checkbox-${data.id}`} // Assuming `data.id` is unique for each item
               onChange={handleCheckboxChange}
               checked={selectedCategories.includes(data.name)} // Check if the name is in selectedCategories
+              
             />
           ))}
         </FormGroup>
@@ -272,7 +273,7 @@ function AddMovie(props: any) {
             value={actorName}
             onChange={handleInputChange}
           />
-          <Button onClick={handleAddActor}>Add</Button>
+          <Button onClick={handleAddActor} style={{marginTop:"15px"}}>Add</Button>
         </Form.Group>
       </Form>
       <Row>
@@ -296,8 +297,8 @@ function AddMovie(props: any) {
             placeholder="Enter director"
             value={directorName}
             onChange={handleDirectorChange}
-          />
-          <Button onClick={handleAddDirector}>Add</Button>
+          />  
+          <Button onClick={handleAddDirector} style={{marginTop:"15px"}}>Add</Button>
         </Form.Group>
       </Form>
       <Row>
@@ -324,7 +325,7 @@ function AddMovie(props: any) {
         />
         {errors.description && <span>{errors.description.message}</span>}
       </Form.Group>
-      <Button variant="outline-dark" type="submit" className="mb-4">
+      <Button          variant="dark button-outline btn btn-primary btn-md" type="submit" className="mb-4">
         {isEdit ? "Save" : "Submit"}
       </Button>
     </Form>

@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import { Button, Form, Row } from "react-bootstrap";
 import { SubmitHandler, useForm } from "react-hook-form";
-import axios from "../axios";
 import { useAddCategoryMutation, useDeleteCategoryMutation, useFetchAuthMeQuery, useFetchCategoriesQuery } from "../redux/query";
 import { ICategory } from "../types/typesRest";
 
@@ -61,7 +59,7 @@ function AddCategory(props: any) {
       </Row>
       <Form onSubmit={handleDelete}>
         <Form.Group className="mb-3">
-          <Form.Select aria-label="Default select example"  name="category">
+          <Form.Select aria-label="Default select example"  name="category" className="form-control">
             {categories && categories.map((data)=>(
                    <option key={data.id} value={data.name}>{data.name}</option>
             ))}

@@ -4,21 +4,24 @@ import path from "path";
 import { Op } from "sequelize";
 import { default as Person, default as PersonModel } from "../models/Person";
 import { IMovieDelete } from "../types/typesClient";
-import { IFullPersonResponce, IMovie, IMovieSearchForm, IPerson, IPersonResponce, PageParams, SearchActorReponse } from "../types/typesRest";
-const movieCount = 12;
+import {
+  IFullPersonResponce,
+  IMovieSearchForm,
+  IPersonResponce,
+  PageParams,
+  SearchActorReponse
+} from "../types/typesRest";
+import { processMovies } from "../utils/common";
 
 export const addPerson = async (
-  req /*: Request<{},{},IPersonForm>*/,
+  req /*: Request<{},{},PersonModel>*/,
   res: Response
 ) => {
   try {
-    const person = await PersonModel.create({
-      name: req.body.name,
-      date: req.body.date,
-      birthplace: req.body.birthplace,
-      tall: req.body.tall,
-      avatarUrl: req.file ? req.file.filename : null, // Store filename if image was uploaded
-    });
+    const actor = req.body;
+    actor.avatarUrl =  req.file ? req.file.filename : null;
+
+    const person = await PersonModel.create(actor);
 
     return res.send({ id: person.id });
   } catch (error) {
@@ -38,15 +41,7 @@ export const getPerson = async (
       return res.send({ message: "Person not found" });
     }
 
-    const person_: IPerson = {
-      id: person.id,
-      date: person.date,
-      birthplace: person.birthplace,
-      name: person.name,
-      tall: person.tall,
-      avatarUrl: person.avatarUrl,
-    };
-    return res.send(person_);
+    return res.send(person);
   } catch (error) {
     console.log("ERROR", error);
     return res.status(500);
@@ -59,8 +54,15 @@ export const editPerson = async (
 ) => {
   try {
     const person = await PersonModel.findByPk(req.params.id);
+  
+    if (!person) {
+      return res.status(404).send({ message: "Person not found" });
+    }
+    
+    const actorUpdates: Partial<PersonModel> = req.body;
+    actorUpdates.avatarUrl = req.file ? req.file.filename : null;
 
-    if (req.file) {
+    if (req.file && person.avatarUrl) {
       const filePath = path.join(
         __dirname,
         "..",
@@ -75,145 +77,105 @@ export const editPerson = async (
         console.log("All right");
       });
     }
-    person.name = req.body.name;
-    person.date = req.body.date;
-    person.birthplace = req.body.birthplace;
-    person.avatarUrl = req.file ? req.file.filename : person.avatarUrl;
-    person.tall = req.body.tall;
 
-    await person.save();
+    await person.update(actorUpdates);
 
-    return res.send({ message: "Movie updated" });
+    return res.send({ message: "Actor updated" });
   } catch (error) {
-    console.log("Something wennnt wrong");
+    console.log("Something wennnt wrong",error);
     return res.send({ message: "Error during updating" });
   }
 };
 
+export const getFullPerson = async (
+  req: Request<PageParams>,
+  res: Response<IFullPersonResponce>
+) => {
+  try {
+    const person = await PersonModel.findByPk(req.params.id);
 
-export const getFullPerson = async(  req: Request<PageParams>,
-    res: Response<IFullPersonResponce>)=>{
+    if (!person) {
+      return res.send({ message: "Person not found" });
+    }
 
+    const directedMovies = await person.getDirectedMovies();
+    const actedMovies = await person.getActedMovies();
 
-        try {
-            const person = await PersonModel.findByPk(req.params.id);
-        
-            if (!person) {
-              return res.send({ message: "Person not found" });
-            }
-        
-            const directedMovies = await person.getDirectedMovies();
-            const actedMovies = await person.getActedMovies();
+    let itemsDirected = await processMovies(directedMovies);
 
-            let itemsDirected: IMovie[] = await Promise.all(
-                directedMovies.map(async (movie) => {
-                  const categories = await movie.getCategories();
-            
-                  const curCategories = categories.map((category) => category.name);
-                  return {
-                    id: movie.id,
-                    name: movie.name,
-                    date: movie.date,
-                    country: movie.country,
-                    imageUrl: movie.imageUrl,
-                    categories: curCategories,
-                  };
-                }));
+    let itemsActed = await processMovies(actedMovies);
 
-                let itemsActed: IMovie[] = await Promise.all(
-                    actedMovies.map(async (movie) => {
-                      const categories = await movie.getCategories();
-                
-                      const curCategories = categories.map((category) => category.name);
-                      return {
-                        id: movie.id,
-                        name: movie.name,
-                        date: movie.date,
-                        country: movie.country,
-                        imageUrl: movie.imageUrl,
-                        categories: curCategories,
-                      };
-                    }));
-                
-            const person_: IFullPersonResponce = {
-              id: person.id,
-              date: person.date,
-              birthplace: person.birthplace,
-              name: person.name,
-              tall: person.tall,
-              avatarUrl: person.avatarUrl,
-              directorMovies: itemsDirected,
-              actorMovies:  itemsActed
-            };
+    const person_: IFullPersonResponce = {
+      id: person.id,
+      date: person.date,
+      birthplace: person.birthplace,
+      name: person.name,
+      tall: person.tall,
+      avatarUrl: person.avatarUrl,
+      directorMovies: itemsDirected,
+      actorMovies: itemsActed,
+    };
 
-            return res.send(person_);
-          } catch (error) {
-            console.log("ERROR", error);
-            return res.status(500);
-          }
-}
+    return res.send(person_);
+  } catch (error) {
+    console.log("ERROR", error);
+    return res.status(500);
+  }
+};
 
+export const deletePerson = async (req: Request<IMovieDelete>, res) => {
+  try {
+    const person = await PersonModel.findByPk(req.params.id);
 
-export const deletePerson = async(req : Request<IMovieDelete>,res)=>{
+    if (!person) {
+      console.log("Oops smth went wrong..\n");
+      return res.send("Error Nt foundfff");
+    }
 
-    try {
-        const person = await PersonModel.findByPk(req.params.id);
-    
-        if (!person) {
-          console.log("Oops smth went wrong..\n");
-          return res.send("Error Nt foundfff");
+    if (person.avatarUrl) {
+      const filePath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "uploads",
+        person.avatarUrl
+      );
+      console.log("File path", filePath);
+
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.log("Error deleting the file:", err);
         }
-    
-        if (person.avatarUrl) {
-          const filePath = path.join(
-            __dirname,
-            "..",
-            "..",
-            "uploads",
-            person.avatarUrl
-          );
-          console.log("File path", filePath);
-    
-          fs.unlink(filePath, (err) => {
-            if (err) {
-              console.log("Error deleting the file:", err);
-            }
-            console.log("All right");
-          });
-        }
-        await person.destroy();
-        return res.send("All right");
-      } catch (erorr) {
-        console.log("Oops smth went wrong..\n");
-        return res.send("Error");
-      }
+        console.log("All right");
+      });
+    }
+    await person.destroy();
+    return res.send("All right");
+  } catch (erorr) {
+    console.log("Oops smth went wrong..\n");
+    return res.send("Error");
+  }
+};
 
-}
-
-export const getPersons = async(req : Request,res : Response<Person[]>)=>{
-
-  try{
+export const getPersons = async (req: Request, res: Response<Person[]>) => {
+  try {
     const people = await PersonModel.findAll({
       order: [
-        ['name', 'ASC']  // Replace 'name' with the column you want to order by
-      ]
+        ["name", "ASC"], // Replace 'name' with the column you want to order by
+      ],
     });
 
-      return res.send(people);
+    return res.send(people);
+  } catch {
+    return res.status(404);
   }
-  catch{
-      return res.status(404);
-  }
-}
+};
 
 export const Search = async (
   req: Request<{}, {}, {}, IMovieSearchForm>,
   res: Response<SearchActorReponse>
 ) => {
   const s_name = req.query.name;
-  const id = req.query.page;
-
-  let index = id ? id - 1 : 0;
 
   try {
     const people = await PersonModel.findAll({
@@ -225,13 +187,9 @@ export const Search = async (
     });
 
     const count = people.length;
-    const moviesSliced = people.slice(
-      index * movieCount,
-      index * movieCount + movieCount
-    );
 
     if (!people.length) {
-      return res.status(404).json({ message: "Movie not found" });
+      return res.status(404).json({ message: "Person not found" });
     }
     return res.send({ people: people, total: count });
   } catch (err) {

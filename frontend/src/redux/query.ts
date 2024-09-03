@@ -26,7 +26,6 @@ export const apiService = createApi({
     baseUrl: "http://localhost:4444/",
     prepareHeaders: (headers) => {
       const token = window.localStorage.getItem("token");
-      console.log("TOOOOEK", token);
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
@@ -74,7 +73,7 @@ export const apiService = createApi({
     }),
 
     // Movie Endpoints
-    fetchMoviePage: builder.query<IMovie[], number>({
+    fetchMoviePage: builder.query<ISearchMovieResponse, number>({
       query: (num) => `/movies/pages/${num}`,
       providesTags: ["Movies"],
     }),
@@ -167,11 +166,11 @@ export const apiService = createApi({
       query: (num) => `/movies-best/${num}`,
       providesTags: ["FullMovie", "BestMovies"],
     }),
-    fetchUserLikedMovies: builder.query<IMovie[], number>({
+    fetchUserLikedMovies: builder.query<ISearchMovieResponse, number>({
       query: (id) => `/favourites/${id}`,
       providesTags: ["Favourites"],
     }),
-    fetchUserDisikedMovies: builder.query<IMovie[], number>({
+    fetchUserDisikedMovies: builder.query<ISearchMovieResponse, number>({
       query: (id) => `/unliked/${id}`,
       providesTags: ["Disliked"],
     }),

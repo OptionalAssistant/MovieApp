@@ -41,7 +41,7 @@ export const constructPaginationList = (props: IPaginationList) => {
 
 
   return (
-    <Pagination>
+    <Pagination >
       {props.curPage > 1 && (
         <Pagination.Prev>
           <Link  to={createLink(props.curPage -1 )}  style={{ textDecoration: "none" }}>

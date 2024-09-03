@@ -1,44 +1,36 @@
 import { useEffect, useState } from "react";
 import Row from "react-bootstrap/esm/Row";
 import { useParams } from "react-router-dom";
-import axios from "../axios";
 import MovieList from "../components/MovieList";
 import ProfilerNav from "../components/ProfileNav";
 import { useFetchUserLikedMoviesQuery } from "../redux/query";
-import { movieNumber } from "../types/typesRest";
 import { constructPaginationList, MovieCount } from "../utils/utils";
 
 function LikedMovies() {
-  const id = useParams();
+  const {id} = useParams();
 
-  const { data: movies, isLoading } = useFetchUserLikedMoviesQuery(Number(id));
+  const { data: movies, isLoading ,isError} = useFetchUserLikedMoviesQuery(Number(id));
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const size = await axios.get<movieNumber[]>(`/movies/number`);
 
-        const pageCount = Math.ceil(size.data.length / MovieCount);
 
-        let items: any;
+  useEffect(()=>{
+    if (!isLoading && movies) {
+      let items: any;
+      const pageCount = Math.ceil(movies.total / MovieCount);
+      console.log("1111",movies.total,pageCount);
+      items = constructPaginationList({
+        pageCount: pageCount,
+        link: "/profile/liked/",
+        curPage: Number(id),
+      });
+  
+      setPaginationItems(items);
+    }
+  },[movies,isLoading]);
 
-        items = constructPaginationList({
-          pageCount: pageCount,
-          link: "/profile/liked/",
-          curPage: Number(id),
-        });
-
-        setPaginationItems(items);
-      } catch (error) {
-        console.log("Something went wrong during fetchPage");
-      }
-    };
-
-    fetchData();
-  }, [id]);
-
+  if (isError) return <h1>Failed to fetch movies...</h1>;
   return (
     <>
       <ProfilerNav />
@@ -46,7 +38,7 @@ function LikedMovies() {
       
       {!isLoading && movies && (
         <>
-          <MovieList movies={movies} />
+          <MovieList movies={movies.movies} />
           <Row> {paginationItems}</Row>
         </>
       )}

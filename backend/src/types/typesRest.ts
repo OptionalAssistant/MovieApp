@@ -1,3 +1,4 @@
+import Person from "../models/Person";
 
 
 export interface UserData {
@@ -62,7 +63,7 @@ export interface movieNumber{
 }
 export type IPutMovieResponce = IMovie | IResponceError;
 export type IMovieResponce = IMovie[] | IResponceError;
-export type IPersonResponce = IPerson | IResponceError;
+export type IPersonResponce = Person | IResponceError;
 export type IFullPersonResponce = IFullPerson | IResponceError;
 export interface PageParams {
   id: number;
@@ -80,19 +81,19 @@ export interface IMovieNumber{
 
 
 
-export interface ISearchResponse<T> {
-  movies : T[];
-  total? : number;
+export interface ISearchMovieResponse {
+  movies : IMovie[];
+  total : number;
 }
 export interface ICategory{
   name: string;
 }
 export interface ISearchPersonResponse {
   people : IPerson[];
-  total? : number;
+  total : number;
 }
 
-export type SearchMovieResponse = ISearchResponse<IMovie> | IResponceError;
+export type SearchMovieResponse = ISearchMovieResponse | IResponceError;
 
 export type SearchActorReponse=  ISearchPersonResponse | IResponceError;
 
@@ -147,3 +148,5 @@ export interface IFullPerson  extends IPerson{
   actorMovies: IMovie[];
   directorMovies: IMovie[]; 
 }
+
+

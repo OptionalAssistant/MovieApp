@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 export const store = configureStore({
   reducer: {
     // Add the API slice reducer
-    [apiService.reducerPath]: apiService.reducer,
+    [apiService.reducerPath]: apiService. reducer,
   },
   // Adding the apiService middleware enables caching, invalidation, polling, and other features of RTK Query
   middleware: (getDefaultMiddleware) =>

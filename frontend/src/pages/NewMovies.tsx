@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import Row from "react-bootstrap/esm/Row";
 import { useParams } from "react-router-dom";
-import axios from "../axios";
 import MovieList from "../components/MovieList";
 import { useFetchFreshMoviesQuery } from "../redux/query";
-import { movieNumber } from "../types/typesRest";
 import { constructPaginationList, MovieCount } from "../utils/utils";
 
 function NewMovies(props: any) {
@@ -13,42 +11,27 @@ function NewMovies(props: any) {
   
   const { id } = useParams();
 
-  const {data :movies,isLoading,error} = useFetchFreshMoviesQuery(`${id}`);
+  const {data :movies,isLoading,isError} = useFetchFreshMoviesQuery(`${id}`);
   
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-   
-        const fetchData = async () => {
-          try {
-       
-            const size = await axios.get<movieNumber[]>(`/movies/number`);
-            let items: any;
-            const pageCount = Math.ceil(size.data.length /MovieCount);
-            items = constructPaginationList({
-              pageCount: pageCount,
-              link: '/new-movies/',
-              curPage: Number(id),
-            });
-    
-            setPaginationItems(items);
-          } catch (error) {
-            console.log("Failed to fetch movies...\n");
-          }
-        };
-    
-        fetchData();
-      } catch (error) {
-        console.log("Failed to fetch movies...\n");
-      }
-    };
 
-    fetchData();
-  }, [id]);
-  if(movies?.movies && !isLoading)
-  {
-    console.log("WHHHSHSHSHS");
-  }
+
+  useEffect(()=>{
+    if (!isLoading && movies) {
+      let items: any;
+      const pageCount = Math.ceil(movies.total / MovieCount);
+
+      items = constructPaginationList({
+        pageCount: pageCount,
+        link: "/new-movies/",
+        curPage: Number(id),
+      });
+  
+      setPaginationItems(items);
+    }
+  },[movies,isLoading]);
+
+  if (isError) return <h1>Failed to fetch movies...</h1>;
+
   return (
     <>
       <h1>New movies</h1>

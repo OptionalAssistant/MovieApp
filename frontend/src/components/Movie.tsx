@@ -3,9 +3,8 @@ import Card from "react-bootstrap/esm/Card";
 import Col from "react-bootstrap/esm/Col";
 import Row from "react-bootstrap/esm/Row";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axios from "../axios";
-import { IMovie } from "../types/typesRest";
 import { useDeleteMovieMutation, useFetchAuthMeQuery } from "../redux/query";
+import { IMovie } from "../types/typesRest";
 
 function Movie({ movie }: { movie: IMovie }) {
 
@@ -28,7 +27,7 @@ function Movie({ movie }: { movie: IMovie }) {
   };
   return (
     <>
-      <Card>
+      <Card className="card">
         <Card.Link as={Link} to={`/movies/${movie.id}`}>
           {" "}
           <Card.Img
@@ -41,8 +40,8 @@ function Movie({ movie }: { movie: IMovie }) {
         </Card.Link>
 
         <Card.Body >
-          <Card.Title className="mb-3">{movie.name}</Card.Title>
-          <Card.Subtitle className="mb-3">
+          <Card.Title className="mb-3" style={{color:"#E0E0E0"}}>{movie.name}</Card.Title>
+          <Card.Subtitle className="mb-3" style={{color:"#E0E0E0"}}>
             Year {" "} 
           {new Date(movie.date).toLocaleString("en-US", {
             year: "numeric",
@@ -51,7 +50,7 @@ function Movie({ movie }: { movie: IMovie }) {
           <Row>
             <Col className="mr-3">
               <Card.Link as={Link} to={`/movies/${movie.id}`}>
-                <Button variant="primary" type="button" className="mr-3">
+                <Button    variant="dark button-outline btn btn-primary btn-md" type="button" className="mr-3 mb-3">
                   Watch
                 </Button>
               </Card.Link>
@@ -60,7 +59,7 @@ function Movie({ movie }: { movie: IMovie }) {
               <>
                 <Col className="mr-3">
                   <Button
-                    variant="danger"
+                 variant="dark button-outline btn btn-primary btn-md"
                     type="button"
                     className="mr-3"
                     onClick={onDelete}
@@ -70,7 +69,7 @@ function Movie({ movie }: { movie: IMovie }) {
                 </Col>
                 <Col className="mr-3">
                   <Button
-                    variant="info"
+                    variant="dark button-outline btn btn-primary btn-md"  
                     type="button"
                     className="mr-3"
                     onClick={onEdit}

@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Row from "react-bootstrap/esm/Row";
-import axios from "../axios";
 import MovieList from "../components/MovieList";
 import { useFetchMoviePageQuery } from "../redux/query";
-import { movieNumber } from "../types/typesRest";
 import { constructPaginationList, MovieCount } from "../utils/utils";
 
 function NumericPage(props: any) {
-  let { id } = useParams<string>();
+  
+  const { id } = useParams();
   let numericId: number;
 
   if (id) numericId = Number(id);
@@ -17,37 +16,34 @@ function NumericPage(props: any) {
 
   const [paginationItems, setPaginationItems] = useState<JSX.Element[]>([]);
 
-  const { data , isError, error, isLoading } = useFetchMoviePageQuery(numericId);
+  const { data : movies , isError, error, isLoading } = useFetchMoviePageQuery(numericId);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const size = await axios.get<movieNumber[]>(`/movies/number`);
+  useEffect(()=>{
+    if (!isLoading && movies) {
+      let items: any;
+      console.log("Number id",numericId );
+      const pageCount = Math.ceil(movies.total / MovieCount);
+      console.log("Movieeee",movies.total,pageCount);
+      items = constructPaginationList({
+        pageCount: pageCount,
+        link: "/pages/",
+        curPage: Number(numericId),
+      });
+      console.log("commmon");
+      setPaginationItems(items);
+    
+    }
+  },[movies,isLoading]);
 
-        const pageCount = Math.ceil(size.data.length / MovieCount);
+  if (isError) return <h1>Failed to fetch movies...</h1>;
 
-        let items: any;
 
-        items = constructPaginationList({
-          pageCount: pageCount,
-          link: "/pages/",
-          curPage: numericId,
-        });
-
-        setPaginationItems(items);
-      } catch (error) {
-        console.log("Something went wrong during fetchPage");
-      }
-    };
-
-    fetchData();
-  }, [numericId]);
   return (
     <>
-      {data && !isLoading && (
+      {movies && !isLoading && (
         <>
-          <MovieList movies={data} />
-          <Row> {paginationItems}</Row>
+          <MovieList movies={movies.movies} />
+          <Row>   {paginationItems}</Row>
         </>
       )}
     </>

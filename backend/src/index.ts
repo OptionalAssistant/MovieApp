@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import { body } from "express-validator";
 
 import path from "path";
-import { MovieController, PersonController, UserController } from "./controllers";
+import { CommentController, MovieController, PersonController, UserController } from "./controllers";
 import sequelize from "./models/db";
 import CheckAdminAuth from "./utils/CheckAdminAuth";
 import CheckAuth from "./utils/CheckAuth";
@@ -111,7 +111,6 @@ app.get("/activate/:id/:token", UserController.activateLink);
 app.get("/reset-password/:id/:token", UserController.resetPassword);
 app.get("/movies", MovieController.getMovies);
 app.get("/movies/pages/:id", MovieController.getMoviePage);
-app.get("/movies/number", MovieController.getMoviesNumber);
 app.get("/movies/full/:id", MovieController.getFullMovie);
 app.get(`/movies-popular/:id`,MovieController.getPopularMovies);
 app.post(
@@ -132,8 +131,8 @@ app.get("/search/actor", PersonController.Search);
 app.get("/categories/:idCategory/page/:id", MovieController.getCategory);
 app.get("/categories/all", MovieController.getAllCategories);
 app.post("/add-category", CheckAdminAuth, MovieController.addCategory);
-app.post("/add-comment/:id", CheckAuth, MovieController.addComment);
-app.get('/get-comments/:id',MovieController.getComments);
+app.post("/add-comment/:id", CheckAuth, CommentController.addComment);
+app.get('/get-comments/:id',CommentController.getComments);
 app.delete("/remove-category", CheckAdminAuth, MovieController.removeCategory);
 app.delete("/movies/delete/:id", CheckAdminAuth, MovieController.deleteMovie);
 app.delete("/persons/delete/:id",CheckAdminAuth,PersonController.deletePerson);

@@ -2,17 +2,15 @@ import React from "react";
 import Alert from "react-bootstrap/esm/Alert";
 import Button from "react-bootstrap/esm/Button";
 import Col from "react-bootstrap/esm/Col";
-import Form from "react-bootstrap/esm/Form";
 import Row from "react-bootstrap/esm/Row";
-import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../axios";
 
 import Categories from "../components/Categories";
 import { useFetchAuthMeQuery, useLogoutMutation } from "../redux/query";
-import { IMovieSearchForm } from "../types/typesRest";
 import Canvas from "./Canvas";
 import ModalWindow from "./Login";
+import SearchButton from "./SearchButton";
 import Sorting from "./Sorting";
 
 function Header() {
@@ -21,13 +19,6 @@ function Header() {
   const { data: user, isLoading, isError } = useFetchAuthMeQuery();
 
   const [logout] = useLogoutMutation();
-
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors },
-  } = useForm<IMovieSearchForm>({ mode: "onSubmit" });
 
   let button;
   const navigate = useNavigate();
@@ -43,11 +34,7 @@ function Header() {
         alert(`Ooops. Message dont sending to email: ${user?.email}`);
       });
   };
-  const onSubmit: SubmitHandler<IMovieSearchForm> = async (
-    value: IMovieSearchForm
-  ) => {
-    navigate(`/search/main/?name=${value.name}`);
-  };
+
   if (user && !isError && !isLoading) {
     button = (
       <Button
@@ -63,7 +50,7 @@ function Header() {
   } else {
     button = (
       <Button
-        variant="primary"
+        variant="dark button-outline btn btn-primary btn-md"
         type="button"
         onClick={() => setModalShow(true)}
       >
@@ -77,32 +64,20 @@ function Header() {
       <Row className="mt-4 mb-4">
         <Col lg={3} className="btn-md">
           <Link to="/">
-            <Button variant="primary">Home</Button>
+            <Button variant="dark button-outline btn btn-primary btn-md">
+              Home
+            </Button>
           </Link>
         </Col>
         <Col lg={3}>
-          <Form className="d-flex" onSubmit={handleSubmit(onSubmit)}>
-            <Form.Control
-              type="search"
-              placeholder="Enter movie name"
-              className="me-2"
-              aria-label="Search"
-              {...register("name", {
-                required: "Movie name is required",
-              })}
-              style={{maxWidth:"200px"}}
-            />
-            <Button
-              variant="outline-success btn btn-primary btn-md"
-              type="submit"
-            >
-              Search
-            </Button>
-          </Form>
+          <SearchButton
+            placeholder="Enter movie name"
+            navigationLink="/search/main/?name="
+          />
         </Col>
         <Col>
           <Button
-            variant="outline-primary"
+            variant="dark button-outline btn btn-primary btn-md"
             onClick={() => navigate("/persons")}
           >
             Actors
@@ -113,8 +88,7 @@ function Header() {
           <Col>
             {" "}
             <Button
-              variant="outline-warning btn btn-primary btn-md"
-              type="submit"
+              variant="dark button-outline btn btn-primary btn-md"
               onClick={() => navigate("/profile")}
             >
               Profile
@@ -126,19 +100,21 @@ function Header() {
             <Canvas
               variant="outline-danger"
               placement={"end"}
-              name={"admin panel"}
+              name={"admin"}
             ></Canvas>
           )}
         </Col>
       </Row>
-      <Row className="g-3"> {/* g-3 for gutters to ensure spacing between columns */}
-  <Col xs={12} md={6} className="mb-3 mt-2 pe-md-3 ps-md-3">
-    <Categories />
-  </Col>
-  <Col xs={12} md={6} className="mb-3 mt-2 pe-md-3 ps-md-3">
-    <Sorting />
-  </Col>
-</Row>
+      <Row className="g-3">
+        {" "}
+        {/* g-3 for gutters to ensure spacing between columns */}
+        <Col xs={12} md={6} className="mb-3 mt-2 pe-md-3 ps-md-3">
+          <Categories />
+        </Col>
+        <Col xs={12} md={6} className="mb-3 mt-2 pe-md-3 ps-md-3">
+          <Sorting />
+        </Col>
+      </Row>
       {window.localStorage.getItem("token") && user && !user.isActivated && (
         <Alert variant="danger">
           <Alert.Heading>Ooops your email is not verified</Alert.Heading>

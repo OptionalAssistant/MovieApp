@@ -63,11 +63,12 @@ function ModalLogin(props: ModalProps) {
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
       centered
+      className="modal-dark" 
     >
       <Modal.Header>
         <Modal.Title id="contained-modal-title-vcenter">Login</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body >
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
@@ -103,7 +104,7 @@ function ModalLogin(props: ModalProps) {
 
           <Row className="justify-content-between mb-3">
             <Col className="col-sm-auto">
-              <Button variant="primary" type="submit">
+              <Button variant="dark button-outline btn btn-primary btn-md" type="submit" >
                 Login
               </Button>
             </Col>
@@ -113,6 +114,7 @@ function ModalLogin(props: ModalProps) {
           <Col className="col-md-auto">
             <Button
               className="btn btn-info"
+              variant="dark button-outline btn btn-primary btn-md"
               role="button"
               type="button"
               onClick={handleclick}
@@ -121,14 +123,14 @@ function ModalLogin(props: ModalProps) {
             </Button>
           </Col>
           <Col className="col-md-auto">
-            <Button variant="primary" type="button" onClick={forgetPassword}>
+            <Button variant="dark button-outline btn btn-primary btn-md" type="button" onClick={forgetPassword}>
               Forget password
             </Button>
           </Col>
         </Row>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={props.hide}>Close</Button>
+        <Button onClick={props.hide} variant="dark button-outline btn btn-primary btn-md">Close</Button>
       </Modal.Footer>
     </Modal>
   );

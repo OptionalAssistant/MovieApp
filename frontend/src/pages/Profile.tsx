@@ -46,7 +46,10 @@ function Profile() {
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="formEmail">
           <Form.Label>Email address</Form.Label>
-          <Form.Control value={user?.email || "Loading..."} disabled />
+          <Form.Control value={user?.email || "Loading..."} disabled   style={{
+          backgroundColor: "#433c4b",
+          marginBottom:"10px"
+        }}/>
         </Form.Group>
 
         <Form.Group controlId="formFile" className="mb-3">

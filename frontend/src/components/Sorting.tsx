@@ -25,7 +25,7 @@ function Sorting() {
           height: '100%', // Ensures full height
         }}
       >
-        <h3 style={{ color: "white" }}>Sorting</h3>
+        <h3>Sorting</h3>
         {!isLoading &&
           !isError &&
           data &&
@@ -36,12 +36,11 @@ function Sorting() {
               sm={4} // 3 columns on small screens
               md={3} // 4 columns on medium screens
               lg={2} // 6 columns on large screens
-              className="mb-3" // Optional: margin bottom for spacing
+              className="mb-3" // Optional: margin bottom for spacin
             >
               <Link
                 to={`${item.navigate}/1`}
                 className="text-decoration-none"
-                style={{ color: "white" }} // Ensure closing bracket is present
               >
                 {capitalizeFirstLetter(item.name)}
               </Link>

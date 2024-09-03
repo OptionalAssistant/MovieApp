@@ -31,7 +31,7 @@ function App() {
    useFetchAuthMeQuery();
 
   return (
-    <Container style={{backgroundColor:""}}>
+    <Container className="container">
       <Header />
       {<Routes>
          <Route path="/auth/register" element={<Register />} />
@@ -40,7 +40,7 @@ function App() {
         <Route path="/pages/:id" element={<NumericPage />} />
         <Route path="/movies/:id" element={<FullMovie />} />
         <Route path="/search/main" element={<Search />} />
-       <Route path="/search/actor" element={<SearchPerson/>} />
+         <Route path="/search/actor" element={<SearchPerson/>} />
         <Route path="/categories/:idCategory/page/:id" element={<Categorie />} />
         <Route path="/admin-panel/add/" element={<AddMovie />} />
         <Route path="/admin-panel/add/:id/edit" element={<AddMovie />} />
