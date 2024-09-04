@@ -157,12 +157,17 @@ export const deletePerson = async (req: Request<IMovieDelete>, res) => {
   }
 };
 
-export const getPersons = async (req: Request, res: Response<Person[]>) => {
+export const getPersons = async (req: Request<IMovieDelete>, res: Response<Person[]>) => {
+  
+  const {id} = req.params;
+  const index = (id -1) * 12;
   try {
     const people = await PersonModel.findAll({
       order: [
         ["name", "ASC"], // Replace 'name' with the column you want to order by
       ],
+      offset: index,
+      limit: 12,
     });
 
     return res.send(people);

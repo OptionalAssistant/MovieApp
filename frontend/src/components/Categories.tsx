@@ -24,7 +24,7 @@ function Categories() {
           data &&
           data.map((item) => (
             <Col
-              key={item.name}
+              key={item.id}
               xs={6} // 2 columns on extra small screens
               sm={4} // 3 columns on small screens
               md={3} // 4 columns on medium screens

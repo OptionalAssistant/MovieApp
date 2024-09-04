@@ -45,7 +45,7 @@ function Person({ person }: { person: IPerson }) {
           <Row>
             {user && user.roles === "ADMIN" && user.isActivated && (
               <>
-                <Col className="mr-3">
+                <Col className="mr-3 mb-3">
                   <Button
                  variant="dark button-outline btn btn-primary btn-md"
                     type="button"

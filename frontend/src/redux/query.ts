@@ -1,23 +1,19 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   Category,
-  UserData,
-  UserDataToken,
-  ILoginForm,
-  IRegisterForm,
-  MovieComment,
-  IMovie,
-  ISearchMovieResponse,
   ICategory,
-  IMovieCommentId,
-  IMovieModel,
-  IMovieForm2,
-  InterfaceId,
   IFullMovie,
-  IImageUrl,
-  IPerson,
   IFullPerson,
+  ILoginForm,
+  IMovieCommentId,
+  InterfaceId,
+  IPerson,
+  IRegisterForm,
+  ISearchMovieResponse,
   ISearchPersonResponse,
+  MovieComment,
+  UserData,
+  UserDataToken
 } from "../types/typesRest";
 
 export const apiService = createApi({
@@ -181,8 +177,8 @@ export const apiService = createApi({
         body: data}), // This can be an empty string since no request is made
       invalidatesTags: ["User","Comments"],
     }),
-    fetchPersons: builder.query<IPerson[], void>({
-      query: () => `/persons`,
+    fetchPersons: builder.query<IPerson[], number>({
+      query: (num) => `/persons/${num}`,
       providesTags: ["Persons"],
     }),
     createPerson: builder.mutation<InterfaceId, FormData>({

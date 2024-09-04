@@ -4,34 +4,42 @@ import CommentModel from "../models/Comment";
 import MovieModel from "../models/Movie";
 import UserModel from "../models/User";
 import { Request, Response } from "express";
+import sequelize from "../models/db";
+
 
 export const addComment = async (
     req: Request<IMovieDelete, {}, CombinedType<IMovieComment>>,
     res
   ) => {
+    const transaction = await sequelize.transaction();
+    
     try {
-      const movie = MovieModel.findByPk(req.params.id);
+      const movie = await MovieModel.findByPk(req.params.id,{transaction});
   
       if (!movie) {
         return res.send({ message: "Movie not found" });
       }
   
-      const Comment = await CommentModel.create({ text: req.body.text });
+      const Comment = await CommentModel.create({ text: req.body.text },{transaction});
   
-      (await movie).addComment(Comment);
+      (await movie).addComment(Comment,{transaction});
   
-      const user = UserModel.findByPk(req.body.userId);
+      const user = await UserModel.findByPk(req.body.userId,{transaction});
   
       if (!user) {
         return res.send({ message: "User not found" });
       }
   
-      (await user).addComment(Comment);
-      (await movie).update({
-        commentCount: (await (await movie).getComments()).length,
-      });
+      await user.addComment(Comment,{transaction});  
+      const commentCount = (await movie.getComments({transaction})).length;  
+      await movie.update({ commentCount},{transaction}); 
+
+      await transaction.commit();
       return res.send({ message: "Success" });
     } catch (error) {
+      
+      await transaction.rollback();
+      
       console.log("Oppps something went wrong during add comment", error);
       return res.send({ message: "Error" });
     }

@@ -143,9 +143,8 @@ app.get("/movies-new/:id",MovieController.getNewMovies);
 app.get("/movies-best/:id",MovieController.getBestMovies);
 app.get("/favourites/:id",CheckAuth,MovieController.getFavourites);
 app.put("/update-avatar",CheckAuth,conditionalImageUpload,MovieController.updateAvatar);
-app.post("/add/movie",CheckAdminAuth,)
 app.get("/unliked/:id",CheckAuth,MovieController.getDisliked);
-app.get("/persons",PersonController.getPersons);
+app.get("/persons/:id",PersonController.getPersons);
 app.put("/add/person",CheckAdminAuth,conditionalImageUpload,PersonController.addPerson);
 app.get(`/person/:id`,PersonController.getPerson);
 app.get(`/persons/full/:id`,PersonController.getFullPerson);

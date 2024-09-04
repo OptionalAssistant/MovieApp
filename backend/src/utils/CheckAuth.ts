@@ -18,14 +18,13 @@ export default (req : Request<{},{},IAuthMe>,res,next)=>{
             }
             catch(error)
             {
-                console.log("Error");
-                return res.status(403).json({
+                return res.status(401).json({
                     message:"Вы не авторизованы!(Что то пошло не так)"
                 });
             }
     }
     else{
-        return res.status(403).json({
+        return res.status(401).json({
             message:"Вы не авторизованы"
         });
     }

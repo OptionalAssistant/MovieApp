@@ -12,6 +12,9 @@ import Canvas from "./Canvas";
 import ModalWindow from "./Login";
 import SearchButton from "./SearchButton";
 import Sorting from "./Sorting";
+import Navbar from "react-bootstrap/esm/Navbar";
+import Nav from "react-bootstrap/esm/Nav";
+import NavDropdown from "react-bootstrap/esm/NavDropdown";
 
 function Header() {
   const [modalShow, setModalShow] = React.useState<boolean>(false);
@@ -50,7 +53,7 @@ function Header() {
   } else {
     button = (
       <Button
-        variant="dark button-outline btn btn-primary btn-md"
+       variant="dark button-outline btn btn-primary btn-md"
         type="button"
         onClick={() => setModalShow(true)}
       >
@@ -61,51 +64,67 @@ function Header() {
 
   return (
     <>
-      <Row className="mt-4 mb-4">
-        <Col lg={3} className="btn-md">
-          <Link to="/">
-            <Button variant="dark button-outline btn btn-primary btn-md">
-              Home
-            </Button>
-          </Link>
-        </Col>
-        <Col lg={3}>
-          <SearchButton
-            placeholder="Enter movie name"
-            navigationLink="/search/main/?name="
-          />
-        </Col>
-        <Col>
-          <Button
-            variant="dark button-outline btn btn-primary btn-md"
-            onClick={() => navigate("/persons")}
+      <Navbar
+        expand="lg"
+        style={{
+          backgroundColor: "#1E1E1E" /* Card background */,
+          border: "1px solid #333333" /* Card border color */,
+          borderRadius: "8px" /* Card border radius */,
+          marginBottom:"10px"
+        }}
+      >
+        <Navbar.Toggle
+          aria-controls="navbarScroll"
+          style={{ backgroundColor: "white" }}
+        />
+
+        {/* Collapsible content */}
+        <Navbar.Collapse id="navbarScroll">
+          <Nav
+            className="me-auto my-2 my-lg-0 d-flex align-items-center justify-content-around w-100  "
+            style={{ maxHeight: "100px" }}
+            navbarScroll
           >
-            Actors
-          </Button>
-        </Col>
-        <Col lg={3}>{button}</Col>
-        {user && !isError && !isLoading && (
-          <Col>
-            {" "}
-            <Button
-              variant="dark button-outline btn btn-primary btn-md"
-              onClick={() => navigate("/profile")}
-            >
-              Profile
-            </Button>
-          </Col>
-        )}
-        <Col>
-          {user && user.isActivated && user.roles === "ADMIN" && !isError && (
-            <Canvas
-              variant="outline-danger"
-              placement={"end"}
-              name={"admin"}
-            ></Canvas>
-          )}
-        </Col>
-      </Row>
-      <Row className="g-3">
+            {/* Home Link */}
+            <Nav.Link as={Link} to="/">
+              <Button variant="dark button-outline btn btn-primary btn-md">
+                Home
+              </Button>
+            </Nav.Link>
+
+            <Nav.Link onClick={() => navigate("/persons")}>
+              <Button variant="dark button-outline btn btn-primary btn-md">
+                Actors
+              </Button>
+            </Nav.Link>
+            {user && !isError && !isLoading && (
+              <Nav.Link onClick={() => navigate("/profile")}>
+                <Button variant="dark button-outline btn btn-primary btn-md">
+                  Profile
+                </Button>
+              </Nav.Link>
+            )}
+            <Nav.Item >{button}</Nav.Item>
+            <Nav.Item className="my-2 my-lg-0">
+              {user &&
+                user.isActivated &&
+                user.roles === "ADMIN" &&
+                !isError && (
+                  <Canvas
+                    variant="outline-danger"
+                    placement={"end"}
+                    name={"admin"}
+                  ></Canvas>
+                )}
+            </Nav.Item>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
+      <SearchButton
+                placeholder="Enter movie name"
+                navigationLink="/search/main/?name="
+              />
+      <Row className="g-3 mt-4">
         {" "}
         {/* g-3 for gutters to ensure spacing between columns */}
         <Col xs={12} md={6} className="mb-3 mt-2 pe-md-3 ps-md-3">

@@ -27,6 +27,7 @@ import {
   SearchMovieResponse
 } from "../types/typesRest";
 import { processActors, processCategories, processMovies } from "../utils/common";
+import sequelize from "../models/db";
 
 const movieCount = 12;
 
@@ -150,6 +151,7 @@ export const SearchMovie = async (
         name: {
           [Op.iLike]: `%${s_name}%`, // Case-insensitive search
         },
+        
       },
       // offset: index, // Pagination offset
       // limit: movieCount,  // Number of records per page
@@ -227,27 +229,30 @@ export const create = async (
   req /* :Request<{}, {}, IMovieForm>*/,
   res: Response<InterfaceId>
 ) => {
+  const transaction = await sequelize.transaction();
   try {
     console.log("req", req.body);
     const data: Partial<MovieModel> = req.body;
     data.imageUrl = req.file ? req.file.filename : null;
 
-    const movie = await MovieModel.create(data);
+    const movie = await MovieModel.create(data,{ transaction });
 
-    const categories = await processCategories(req.body.categories);
+    const categories = await processCategories(req.body.categories,transaction);
 
     await movie.setCategories(
       categories.filter((category) => category !== null)
-    );
+    ,{transaction});
 
-    const actors = await processActors(req.body.actors);
-    await movie.setActors(actors.filter((actor) => actor !== null));
+    const actors = await processActors(req.body.actors,transaction);
+    await movie.setActors(actors.filter((actor) => actor !== null),{transaction});
 
-    const directors = await processActors(req.body.directors);
-    await movie.setDirectors( directors.filter((director) => director !== null));
+    const directors = await processActors(req.body.directors,transaction);
+    await movie.setDirectors( directors.filter((director) => director !== null),{transaction});
 
+    await transaction.commit();
     return res.send({ id: movie.id });
   } catch (error) {
+    await transaction.rollback();
     console.error("Error creating movie:", error);
     return res.status(500);
   }
@@ -310,8 +315,10 @@ export const editMovie = async (
   req /*: Request<IMovieDelete,{},IMovieForm>*/,
   res
 ) => {
+  const transaction = await sequelize.transaction();
+
   try {
-    const movie = await MovieModel.findByPk(req.params.id);
+    const movie = await MovieModel.findByPk(req.params.id, { transaction });
     console.log("Movvii", req.body);
     if (req.file) {
       const filePath = path.join(
@@ -337,22 +344,24 @@ export const editMovie = async (
     movie.imageUrl = req.file ? req.file.filename : movie.imageUrl;
     movie.description = req.body.description;
 
-    const categories = await processCategories(req.body.categories);
+    const categories = await processCategories(req.body.categories,transaction);
 
-    await movie.setCategories(categories);
+    await movie.setCategories(categories, { transaction });
 
-    const actors = await processActors(req.body.actors);
-    await movie.setActors(actors);
+    const actors = await processActors(req.body.actors,transaction);
+    await movie.setActors(actors, { transaction });
 
-    const directors = await processActors(req.body.directors);
+    const directors = await processActors(req.body.directors,transaction);
 
-    await movie.setDirectors(directors);
+    await movie.setDirectors(directors, { transaction });
 
     await movie.save();
 
+    await transaction.commit();
     return res.send({ id: movie.id });
   } catch (error) {
     console.log("Something wennnt wrong!!!", error);
+    await transaction.rollback();
     return res.send({ message: "Error during updating" });
   }
 };
@@ -408,37 +417,43 @@ export const getPopularMovies = async (
 };
 
 export const dislikeMovie = async (req: Request<IMovieDelete>, res) => {
+ 
+  const transaction = await sequelize.transaction();
   try {
-    const movie = await MovieModel.findByPk(req.params.id);
+    const movie = await MovieModel.findByPk(req.params.id,{transaction});
 
     if (!movie) {
       console.log("Error movie not found in dislike movie");
       return res.status(404);
     }
-    const curUser = await UserModel.findByPk(req.body.userId);
+    const curUser = await UserModel.findByPk(req.body.userId,{transaction});
 
-    const likedUsers = await movie.getLikedByUsers();
-    const dislikedUsers = await movie.getDislikedByUsers();
+    const likedUsers = await movie.getLikedByUsers({transaction});
+    const dislikedUsers = await movie.getDislikedByUsers({transaction});
 
     let isLiked = likedUsers.some((user) => user.id === req.body.userId);
 
     if (isLiked) {
-      await movie.removeLikedByUser(curUser);
+      await movie.removeLikedByUser(curUser,{transaction});
     }
 
     isLiked = dislikedUsers.some((user) => user.id === req.body.userId);
 
     if (isLiked) {
-      await movie.removeDislikedByUser(curUser);
+      await movie.removeDislikedByUser(curUser,{transaction});
     } else {
-      await movie.addDislikedByUser(curUser);
+      await movie.addDislikedByUser(curUser,{transaction});
     }
     (await movie).update({
-      likesCount: await (await movie).countLikedByUsers(),
+      likesCount: await  movie.countLikedByUsers({transaction}),
     });
+
+    transaction.commit();
     return res.send({ message: "Success" });
   } catch (error) {
+    transaction.rollback();
     console.log("Ops something went wrong during dislikeMovie", error);
+    return res.send({ message: "Error" });
   }
 };
 
@@ -446,38 +461,45 @@ export const likeMovie = async (
   req: Request<IMovieDelete, {}, CombinedType<IAuthMe>>,
   res
 ) => {
+
+  const transaction = await sequelize.transaction();
+
   try {
-    const movie = await MovieModel.findByPk(req.params.id);
+    const movie = await MovieModel.findByPk(req.params.id,{transaction});
 
     if (!movie) {
       console.log("Error movie not found in like movie");
       return res.status(404);
     }
-    const curUser = await UserModel.findByPk(req.body.userId);
+    const curUser = await UserModel.findByPk(req.body.userId,{transaction});
 
-    const likedUsers = await movie.getLikedByUsers();
-    const dislikedUsers = await movie.getDislikedByUsers();
+    const likedUsers = await movie.getLikedByUsers({transaction});
+    const dislikedUsers = await movie.getDislikedByUsers({transaction});
 
     let isLiked = dislikedUsers.some((user) => user.id === req.body.userId);
 
     if (isLiked) {
-      await movie.removeDislikedByUser(curUser);
+      await movie.removeDislikedByUser(curUser,{transaction});
     }
 
     isLiked = likedUsers.some((user) => user.id === req.body.userId);
 
     if (isLiked) {
-      await movie.removeLikedByUser(curUser);
+      await movie.removeLikedByUser(curUser,{transaction});
     } else {
-      await movie.addLikedByUser(curUser);
+      await movie.addLikedByUser(curUser,{transaction});
     }
-    (await movie).update({
-      likesCount: await (await movie).countLikedByUsers(),
+    await movie.update({
+      likesCount: await  movie.countLikedByUsers({transaction}),
     });
+    transaction.commit();
     return res.send({ message: "Success" });
   } catch (error) {
+    transaction.rollback();
     console.log("Ops something went wrong during likeMovie", error);
+    return res.send({ message: "Error" });
   }
+  
 };
 
 export const getBestMovies = async (

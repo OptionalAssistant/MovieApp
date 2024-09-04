@@ -14,8 +14,8 @@ function MovieList(props: IMovieList) {
   return (
     <>
       <Row  xs={1} sm={2} md={3} xl={4} className="g-4 mb-3">
-          {props.movies.map((data, idx) => (
-            <Col key={idx} >
+          {props.movies.map((data) => (
+            <Col key={Number(data.id)} >
               <Movie movie={data} />
             </Col>
           ))}
