@@ -5,7 +5,7 @@ export interface IUser {
   email: string;
   passwordHash: string;
   isActivated: boolean;
-  roles: 'ADMIN' | 'USER';
+  roles: Role;
   avatar: string;
 }
 
@@ -29,3 +29,5 @@ export interface IMovieDelete{
 }
 
 export type CombinedType<T> = IAuthMe & T;
+
+export type Role = 'ADMIN' | 'USER'

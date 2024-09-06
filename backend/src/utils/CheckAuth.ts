@@ -5,10 +5,12 @@ import { Request } from "express";
 export default (req : Request<{},{},IAuthMe>,res,next)=>{
     
     const token = ( req.headers.authorization  || '').replace(/Bearer\s?/,'');
-    console.log("TOken",token);
+    console.log("Token checked",token);
+
     if(token){
             try{
-                const decoded = jwt.verify(token,process.env.SECRET_KEY);
+    
+                const decoded = jwt.verify(token,process.env.ACCESS_SECRET_KEY);
 
                 req.body.userId = decoded.id;
                 
@@ -18,9 +20,14 @@ export default (req : Request<{},{},IAuthMe>,res,next)=>{
             }
             catch(error)
             {
-                return res.status(401).json({
-                    message:"Вы не авторизованы!(Что то пошло не так)"
-                });
+                console.log(error);
+                if (error instanceof jwt.TokenExpiredError) {
+                return res.status(401).json({ message: 'Access token expired', code: 'AccessTokenExpired' })
+                } else if (error instanceof jwt.JsonWebTokenError) {
+                return res.status(401).json({ message: 'Access token invalid', code: 'AccessTokenInvalid' })
+                } else {
+                return res.status(500).json({ message: error.message })
+                }
             }
     }
     else{
@@ -30,3 +37,4 @@ export default (req : Request<{},{},IAuthMe>,res,next)=>{
     }
 
 }
+

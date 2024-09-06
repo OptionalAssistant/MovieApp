@@ -1,11 +1,12 @@
 import Person from "../models/Person";
+import { Role } from "./typesClient";
 
 
 export interface UserData {
   name: string;
   email: string;
   isActivated: boolean;
-  roles : 'ADMIN' | 'USER';
+  roles : Role;
   avatar: string;
 }
 export interface UserDataToken {

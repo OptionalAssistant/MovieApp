@@ -1,6 +1,6 @@
-import { StringLiteral } from "typescript";
 import { Category, IMovie, MovieComment, UserData } from "./typesRest";
 
+export type Role = 'ADMIN' | 'USER'
 
 export interface IUserState {
   loading: boolean;

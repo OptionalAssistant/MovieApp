@@ -1,29 +1,45 @@
 import jwt from "jsonwebtoken";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
 import UserModel from "../models/User.js";
-import MailService from '../services/mail-servive'
+import MailService from "../services/mail-servive";
 import userDto from "../dtos/user-dto.js";
-import { AuthMeResponce, ILoginForm, IRegisterForm, LoginResponce, UserData, UserDataToken} from '../types/typesRest.js'
+import {
+  AuthMeResponce,
+  ILoginForm,
+  IRegisterForm,
+  LoginResponce,
+  UserData,
+  UserDataToken,
+} from "../types/typesRest.js";
 
-import { Request,Response } from "express";
+import { Request, Response } from "express";
 import { ActivateParams, IAuthMe } from "../types/typesClient.js";
-import path from 'path';
-import fs from 'fs';
+import path from "path";
+import fs from "fs";
 
-export const register = async (req : Request<{},{},IRegisterForm>, res : Response<LoginResponce> ) => {
+export const register = async (
+  req: Request<{}, {}, IRegisterForm>,
+  res: Response<LoginResponce>
+) => {
   try {
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
+    const userCheck = await UserModel.findOne({
+      where: { email: req.body.email },
+    });
 
-    const userCheck = await UserModel.findOne({where : {email : req.body.email}});
-
-    if(userCheck){
-     return res.status(500).json({message: "Пользователь с таким email уже существует"})
+    if (userCheck) {
+      return res
+        .status(500)
+        .json({ message: "Пользователь с таким email уже существует" });
     }
-    const doc = await UserModel.create({name : req.body.name,email : req.body.email,passwordHash : hash,
+    const doc = await UserModel.create({
+      name: req.body.name,
+      email: req.body.email,
+      passwordHash: hash,
     });
 
     const user = await doc.save();
@@ -32,30 +48,35 @@ export const register = async (req : Request<{},{},IRegisterForm>, res : Respons
       {
         id: user.id,
       },
-      process.env.SECRET_KEY,
+      process.env.ACCESS_SECRET_KEY,
       {
-        expiresIn: "30d",
+        expiresIn: process.env.ACCESS_EXPIRE_DATE,
+        subject: "accessToken"
       }
     );
+    console.log("Token generated",token);
 
-    const userData = new userDto(user); 
+    const userData = new userDto(user);
 
-    const userDataToken : UserDataToken = {
-      data : userData,
-      token
+    const userDataToken: UserDataToken = {
+      data: userData,
+      token,
     };
 
-   return res.json(userDataToken);
+    return res.json(userDataToken);
   } catch (error) {
-   return  res.status(500).json({
+    return res.status(500).json({
       message: "Не удалось зарегистрироваться",
     });
   }
 };
-export const login = async (req: Request<{},{},ILoginForm> , res : Response<LoginResponce> ) => {
+export const login = async (
+  req: Request<{}, {}, ILoginForm>,
+  res: Response<LoginResponce>
+) => {
   try {
-    const user = await UserModel.findOne({where: { email: req.body.email }});
-    
+    const user = await UserModel.findOne({ where: { email: req.body.email } });
+
     if (!user) {
       return res.status(404).json({
         message: "Пользователь не найден",
@@ -77,29 +98,31 @@ export const login = async (req: Request<{},{},ILoginForm> , res : Response<Logi
       {
         id: user.id,
       },
-      process.env.SECRET_KEY,
+      process.env.ACCESS_SECRET_KEY,
       {
         expiresIn: "30d",
       }
     );
 
-    const userData = new userDto(user); 
+    const userData = new userDto(user);
 
-    const userDataToken : UserDataToken = {
-      data : userData,
-      token
+    const userDataToken: UserDataToken = {
+      data: userData,
+      token,
     };
 
     res.json(userDataToken);
   } catch (error) {
-
     res.status(500).json({
       message: "Не удалось авторизоваться",
     });
   }
 };
 
-export const  getMe = async (req: Request<{},{},IAuthMe>, res : Response<AuthMeResponce>) => {
+export const getMe = async (
+  req: Request<{}, {}, IAuthMe>,
+  res: Response<AuthMeResponce>
+) => {
   try {
     const user = await UserModel.findByPk(req.body.userId);
     console.log(req.body.userId);
@@ -108,31 +131,28 @@ export const  getMe = async (req: Request<{},{},IAuthMe>, res : Response<AuthMeR
         message: "Пользователь не найден",
       });
     }
-  
-    
-    
-    const userData = new userDto(user) as UserData; 
+
+    const userData = new userDto(user) as UserData;
 
     return res.json(userData);
   } catch (error) {
-
     return res.status(500).json({
       message: "Не удалось получить информацию о пользователе",
     });
   }
 };
 
-export const forgotPassword = async (req  , res) => {
+export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
-    const oldUser = await UserModel.findOne({where:{ email: email }});
+    const oldUser = await UserModel.findOne({ where: { email: email } });
 
     if (!oldUser) {
       return res.send("User not exists");
     }
 
-    const secret = process.env.SECRET_KEY + oldUser.passwordHash;
+    const secret = process.env.ACCESS_SECRET_KEY + oldUser.passwordHash;
 
     const token = jwt.sign({ email: email, id: oldUser.id }, secret, {
       expiresIn: "10m",
@@ -140,8 +160,10 @@ export const forgotPassword = async (req  , res) => {
 
     const link = `http://localhost:4444/reset-password/${oldUser.id}/${token}`;
 
-
-    MailService.sendMail(email,"Password recovery",`
+    MailService.sendMail(
+      email,
+      "Password recovery",
+      `
              <html>
                  <body>
                      <h1>Password Recovery</h1>
@@ -152,14 +174,16 @@ export const forgotPassword = async (req  , res) => {
                      <p>Thank you!</p>
                  </body>
             </html>
-         `);
+         `
+    );
 
     res.send("Success");
-  } catch (error) {console.log("error",error);}
+  } catch (error) {
+    console.log("error", error);
+  }
 };
 
-export const resetPassword = async (req : Request<ActivateParams>, res) => {
-
+export const resetPassword = async (req: Request<ActivateParams>, res) => {
   const { id, token } = req.params;
 
   const oldUser = await UserModel.findByPk(id);
@@ -168,7 +192,7 @@ export const resetPassword = async (req : Request<ActivateParams>, res) => {
     return res.send("User not exists");
   }
 
-  const secret = process.env.SECRET_KEY + oldUser.passwordHash;
+  const secret = process.env.ACCESS_SECRET_KEY + oldUser.passwordHash;
 
   try {
     const verify = jwt.verify(token, secret);
@@ -189,14 +213,14 @@ export const updatePassword = async (req, res) => {
   if (!User) {
     return res.send("User not exists");
   }
-  const secret = process.env.SECRET_KEY +  User.passwordHash;
+  const secret = process.env.ACCESS_SECRET_KEY + User.passwordHash;
 
   try {
     const verify = jwt.verify(token, secret);
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    User.update({passwordHash});
+    User.update({ passwordHash });
 
     return res.send("Password has changed!");
   } catch (error) {
@@ -204,29 +228,30 @@ export const updatePassword = async (req, res) => {
   }
 };
 
-export const activateAccount = async(req : Request<{},{},IAuthMe>, res) => {
+export const activateAccount = async (req: Request<{}, {}, IAuthMe>, res) => {
   const userId = req.body.userId;
-  
+
   const User = await UserModel.findByPk(userId);
 
-  if(!User){
+  if (!User) {
     return res.send("User does not exist");
   }
 
-  const secret = process.env.SECRET_KEY + User.isActivated;
+  const secret = process.env.ACCESS_SECRET_KEY + User.isActivated;
   let link;
-    try{
-      const token = jwt.sign({ email: User.email,id : User.id}, secret, {
-        expiresIn: "10m",
-      });
-       link = `http://localhost:4444/activate/${User.id}/${token}`;
-    }
-      catch(err){
-      return  res.send("link expired....!");
-      }
+  try {
+    const token = jwt.sign({ email: User.email, id: User.id }, secret, {
+      expiresIn: "10m",
+    });
+    link = `http://localhost:4444/activate/${User.id}/${token}`;
+  } catch (err) {
+    return res.send("link expired....!");
+  }
 
-
-  MailService.sendMail( User.email,"Email verification",`
+  MailService.sendMail(
+    User.email,
+    "Email verification",
+    `
     <html>
         <body>
             <h1>Email verification</h1>
@@ -236,39 +261,36 @@ export const activateAccount = async(req : Request<{},{},IAuthMe>, res) => {
             <p>Thank you!</p>
         </body>
    </html>
-`);
- return   res.send("That's okey");
-    
+`
+  );
+  return res.send("That's okey");
 };
 
+export const activateLink = async (req: Request<ActivateParams>, res) => {
+  const { id, token } = req.params;
 
-export const activateLink = async(req: Request<ActivateParams>,res)=>{
-      const {id,token}  = req.params;
+  const User = await UserModel.findByPk(id);
 
-      const User = await UserModel.findByPk(id);
+  if (!User) {
+    return res.send("User not found");
+  }
 
-      if(!User){
-        return res.send("User not found");
-      }
-
-      try{
-        const secret = process.env.SECRET_KEY + User.isActivated;
-    
-        jwt.verify(token,secret);
-        
-       await User.update({isActivated: true});
-    
-        return res.send("Email is verified");
-      }
-      catch(error){
-        console.log(error);
-        return res.send("Link is expired....\n");
-      }
-}
-
-export const deleteAvatar = async(req: Request<{},{},IAuthMe>,res)=>{
   try {
+    const secret = process.env.ACCESS_SECRET_KEY + User.isActivated;
 
+    jwt.verify(token, secret);
+
+    await User.update({ isActivated: true });
+
+    return res.send("Email is verified");
+  } catch (error) {
+    console.log(error);
+    return res.send("Link is expired....\n");
+  }
+};
+
+export const deleteAvatar = async (req: Request<{}, {}, IAuthMe>, res) => {
+  try {
     const user = await UserModel.findByPk(req.body.userId);
 
     if (!user) {
@@ -294,4 +316,4 @@ export const deleteAvatar = async(req: Request<{},{},IAuthMe>,res)=>{
     console.log("ooops smth went wrong during udationg avatar", error);
     return res.send({ message: "Error" });
   }
-}
+};

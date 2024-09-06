@@ -143,7 +143,7 @@ export const apiService = createApi({
       providesTags: ["Movies"],
     }),
     logout: builder.mutation<void, void>({
-      query: () => "", // This can be an empty string since no request is made
+      query: () => "", 
       invalidatesTags: ["User", "FullMovie"],
     }),
     dislikeMovie: builder.mutation<void, number>({
@@ -151,7 +151,7 @@ export const apiService = createApi({
       invalidatesTags: ["FullMovie", "BestMovies", "Disliked","Favourites"],
     }),
     likeMovie: builder.mutation<void, number>({
-      query: (num) => ({ url: `/like-movie/${num}`, method: "POST" }), // This can be an empty string since no request is made
+      query: (num) => ({ url: `/like-movie/${num}`, method: "POST" }),
       invalidatesTags: ["FullMovie", "BestMovies", "Favourites","Disliked"],
     }),
     fetchFullMovie: builder.query<IFullMovie, number>({

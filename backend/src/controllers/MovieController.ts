@@ -81,7 +81,7 @@ export const getFullMovie = async (
 
     if (token) {
       try {
-        const decoded = jwt.verify(token, process.env.SECRET_KEY);
+        const decoded = jwt.verify(token, process.env.ACCESS_SECRET_KEY);
 
         const user = await UserModel.findByPk(decoded.id);
 
@@ -153,8 +153,6 @@ export const SearchMovie = async (
         },
         
       },
-      // offset: index, // Pagination offset
-      // limit: movieCount,  // Number of records per page
     });
 
     const count = movies.length;
@@ -448,10 +446,10 @@ export const dislikeMovie = async (req: Request<IMovieDelete>, res) => {
       likesCount: await  movie.countLikedByUsers({transaction}),
     });
 
-    transaction.commit();
+    await transaction.commit();
     return res.send({ message: "Success" });
   } catch (error) {
-    transaction.rollback();
+    await transaction.rollback();
     console.log("Ops something went wrong during dislikeMovie", error);
     return res.send({ message: "Error" });
   }
@@ -492,14 +490,14 @@ export const likeMovie = async (
     await movie.update({
       likesCount: await  movie.countLikedByUsers({transaction}),
     });
-    transaction.commit();
+    await transaction.commit();
     return res.send({ message: "Success" });
   } catch (error) {
-    transaction.rollback();
+    await transaction.rollback();
     console.log("Ops something went wrong during likeMovie", error);
     return res.send({ message: "Error" });
   }
-  
+
 };
 
 export const getBestMovies = async (
@@ -583,7 +581,7 @@ export const updateAvatar = async (
 ) => {
   try {
     const token = (req.headers.authorization || "").replace(/Bearer\s?/, "");
-    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    const decoded = jwt.verify(token, process.env.ACCESS_SECRET_KEY);
 
     const id = decoded.id;
     console.log("User id", id);

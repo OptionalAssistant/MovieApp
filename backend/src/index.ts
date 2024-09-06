@@ -7,7 +7,6 @@ import { body } from "express-validator";
 import path from "path";
 import { CommentController, MovieController, PersonController, UserController } from "./controllers";
 import sequelize from "./models/db";
-import CheckAdminAuth from "./utils/CheckAdminAuth";
 import CheckAuth from "./utils/CheckAuth";
 import handleValidationErrors from "./utils/handleValidationErrors";
 import { conditionalImageUpload } from "./utils/MulterMiddleware";
@@ -23,6 +22,7 @@ import MovieDislikes from './models/MovieDislikes';
 import Person from './models/Person';
 import DirectorMovie from './models/DirectorMovie';
 import ActorMovie from './models/ActorMovie';
+import authorize from "./utils/Authorize";
 
 dotenv.config();
 
@@ -88,7 +88,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
 app.get("/", function (request, response) {
-  // отправляем ответ
   response.send("<h1>Home</h1>");
 });
 
@@ -121,7 +120,7 @@ app.post(
   handleValidationErrors,
   UserController.updatePassword
 );
-  app.post("/movie/create", CheckAdminAuth,conditionalImageUpload,MovieController.create);
+  app.post("/movie/create", CheckAuth,authorize(['ADMIN']),conditionalImageUpload,MovieController.create);
 app.post("/dislike-movie/:id",CheckAuth,MovieController.dislikeMovie);
 app.post("/like-movie/:id",CheckAuth,MovieController.likeMovie);
 
@@ -130,23 +129,23 @@ app.get("/search/actor", PersonController.Search);
 
 app.get("/categories/:idCategory/page/:id", MovieController.getCategory);
 app.get("/categories/all", MovieController.getAllCategories);
-app.post("/add-category", CheckAdminAuth, MovieController.addCategory);
+app.post("/add-category", CheckAuth,authorize(['ADMIN']), MovieController.addCategory);
 app.post("/add-comment/:id", CheckAuth, CommentController.addComment);
 app.get('/get-comments/:id',CommentController.getComments);
-app.delete("/remove-category", CheckAdminAuth, MovieController.removeCategory);
-app.delete("/movies/delete/:id", CheckAdminAuth, MovieController.deleteMovie);
-app.delete("/persons/delete/:id",CheckAdminAuth,PersonController.deletePerson);
+app.delete("/remove-category", CheckAuth,authorize(['ADMIN']), MovieController.removeCategory);
+app.delete("/movies/delete/:id", CheckAuth,authorize(['ADMIN']), MovieController.deleteMovie);
+app.delete("/persons/delete/:id",CheckAuth,authorize(['ADMIN']),PersonController.deletePerson);
 app.delete('/delete-avatar',CheckAuth,UserController.deleteAvatar)
 
-app.put("/movies/edit/:id", CheckAdminAuth,conditionalImageUpload, MovieController.editMovie);
+app.put("/movies/edit/:id", CheckAuth,authorize(['ADMIN']),conditionalImageUpload, MovieController.editMovie);
 app.get("/movies-new/:id",MovieController.getNewMovies);
 app.get("/movies-best/:id",MovieController.getBestMovies);
 app.get("/favourites/:id",CheckAuth,MovieController.getFavourites);
 app.put("/update-avatar",CheckAuth,conditionalImageUpload,MovieController.updateAvatar);
 app.get("/unliked/:id",CheckAuth,MovieController.getDisliked);
 app.get("/persons/:id",PersonController.getPersons);
-app.put("/add/person",CheckAdminAuth,conditionalImageUpload,PersonController.addPerson);
+app.put("/add/person",CheckAuth,authorize(['ADMIN']),conditionalImageUpload,PersonController.addPerson);
 app.get(`/person/:id`,PersonController.getPerson);
 app.get(`/persons/full/:id`,PersonController.getFullPerson);
-app.put("/persons/edit/:id",CheckAdminAuth,conditionalImageUpload,PersonController.editPerson);
+app.put("/persons/edit/:id",CheckAuth,authorize(['ADMIN']),conditionalImageUpload,PersonController.editPerson);
 app.listen(process.env.PORT);

@@ -1,10 +1,10 @@
-import { IUser } from "../types/typesClient";
+import { IUser, Role } from "../types/typesClient";
 
 export default class userDto{
     name: string;
     email : string;
     isActivated: boolean;
-    roles : 'ADMIN' | 'USER';
+    roles : Role;
     avatar: string;
 
     public constructor(model : IUser){
