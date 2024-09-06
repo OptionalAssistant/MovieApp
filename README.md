@@ -10,7 +10,7 @@ A simple movie streaming application.
 - React Bootstrap
 
 **Backend:**
-- Node.js
+- Node.js(Express)
 - Sequelize
 - PostgreSQL
 
